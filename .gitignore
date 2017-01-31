@@ -25,3 +25,4 @@
 .libs
 coverage.info
 depcomp
+libhydrogen.a

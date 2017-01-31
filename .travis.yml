@@ -1,0 +1,15 @@
+sudo: false
+
+language: c
+
+os:
+ - linux
+ - osx
+
+compiler:
+ - clang
+ - gcc
+
+script:
+ - $CC -Wall -Wextra -Wmissing-prototypes -Wdiv-by-zero -Wbad-function-cast -Wcast-align -Wcast-qual -Wfloat-equal -Wmissing-declarations -Wnested-externs -Wno-unknown-pragmas -Wpointer-arith -Wredundant-decls -Wstrict-prototypes -Wswitch-enum -Wno-type-limits -c *.c
+ - make clean
