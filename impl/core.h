@@ -113,6 +113,10 @@ _Bool hydro_equal(const void *b1_, const void *b2_, size_t len)
     const volatile uint8_t *volatile b2 = (const volatile uint8_t *volatile)b2_;
     size_t  i;
     uint8_t d = (uint8_t)0U;
+
+    if (b1 == b2) {
+        d = ~d;
+    }
     for (i = 0U; i < len; i++) {
         d |= b1[i] ^ b2[i];
     }
