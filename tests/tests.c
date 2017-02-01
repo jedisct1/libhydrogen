@@ -118,6 +118,33 @@ static void test_core(void)
     assert(hydro_equal(x, y, sizeof x));
 }
 
+static void test_secretbox(void)
+{
+    uint8_t key[hydro_secretbox_KEYBYTES];
+    uint8_t m[25];
+    uint8_t m2[25];
+    uint8_t c[hydro_secretbox_HEADERBYTES + 25];
+    uint8_t dk[randombytes_buf_deterministic_KEYBYTES];
+
+    memset(dk, 0, sizeof dk);
+    randombytes_buf_deterministic(m, sizeof m, dk);
+    hydro_increment(dk, sizeof dk);
+    randombytes_buf_deterministic(key, sizeof key, dk);
+    hydro_increment(dk, sizeof dk);
+    hydro_secretbox_encrypt(c, m, sizeof m, key);
+    assert(hydro_secretbox_decrypt(m2, c, 0, key) == -1);
+    assert(hydro_secretbox_decrypt(m2, c, 1, key) == -1);
+    assert(
+        hydro_secretbox_decrypt(m2, c, hydro_secretbox_HEADERBYTES, key) == -1);
+    assert(hydro_secretbox_decrypt(m2, c, sizeof c, key) == 0);
+    assert(hydro_equal(m, m2, sizeof m));
+    key[0]++;
+    assert(hydro_secretbox_decrypt(m2, c, sizeof c, key) == -1);
+    key[0]--;
+    c[randombytes_uniform(sizeof c)]++;
+    assert(hydro_secretbox_decrypt(m2, c, sizeof c, key) == -1);
+}
+
 int main(void)
 {
     int ret;
@@ -128,6 +155,7 @@ int main(void)
     test_core();
     test_hash128();
     test_randombytes();
+    test_secretbox();
 
     return 0;
 }
