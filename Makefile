@@ -28,3 +28,4 @@ libhydrogen.a: $(OBJ)
 
 clean:
 	rm -f libhydrogen.a $(OBJ)
+	rm -f tests/tests
