@@ -44,23 +44,22 @@ void randombytes_buf_deterministic(void *const buf, const size_t len,
 #define hydro_hash_SALTBYTES 8
 
 typedef struct hydro_hash_state {
+    uint8_t  digest_length;
+    uint8_t  key_length;
+    uint8_t  fanout;
+    uint8_t  depth;
+    uint8_t  leaf_length[4];
+    uint8_t  node_offset[4];
+    uint8_t  xof_length[2];
+    uint8_t  node_depth;
+    uint8_t  inner_length;
+    uint8_t  salt[hydro_hash_SALTBYTES];
+    uint8_t  personal[hydro_hash_PERSONALBYTES];
     uint32_t h[8];
     uint32_t t[2];
-    uint32_t f[2];
+    uint32_t f[1];
     uint8_t  buf[64];
-    size_t   buf_len;
-
-    uint8_t digest_length;
-    uint8_t key_length;
-    uint8_t fanout;
-    uint8_t depth;
-    uint8_t leaf_length[4];
-    uint8_t node_offset[4];
-    uint8_t xof_length[2];
-    uint8_t node_depth;
-    uint8_t inner_length;
-    uint8_t salt[hydro_hash_SALTBYTES];
-    uint8_t personal[hydro_hash_PERSONALBYTES];
+    uint8_t  buf_len;
 } hydro_hash_state;
 
 void hydro_hash_keygen(uint8_t *key, size_t key_len);

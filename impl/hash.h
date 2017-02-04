@@ -75,7 +75,7 @@ static void hydro_hash_hashblock(
     v[12] = state->t[0] ^ hydro_hash_IV[4];
     v[13] = state->t[1] ^ hydro_hash_IV[5];
     v[14] = state->f[0] ^ hydro_hash_IV[6];
-    v[15] = state->f[1] ^ hydro_hash_IV[7];
+    v[15] = hydro_hash_IV[7];
     for (i = 0; i < 10; i++) {
         hydro_hash_ROUND(i);
     }
