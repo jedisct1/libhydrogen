@@ -34,6 +34,50 @@ void randombytes_buf_deterministic(void *const buf, const size_t len,
 
 /* ---------------- */
 
+#define hydro_hash_BYTES_MIN 16
+#define hydro_hash_BYTES_MAX 0xffff
+#define hydro_hash_BYTES 32
+#define hydro_hash_KEYBYTES_MIN 16
+#define hydro_hash_KEYBYTES_MAX 32
+#define hydro_hash_KEYBYTES 32
+#define hydro_hash_PERSONALBYTES 8
+#define hydro_hash_SALTBYTES 8
+
+typedef struct hydro_hash_state {
+    uint32_t h[8];
+    uint32_t t[2];
+    uint32_t f[2];
+    uint8_t  buf[64];
+    size_t   buf_len;
+
+    uint8_t  digest_length;
+    uint8_t  key_length;
+    uint8_t  fanout;
+    uint8_t  depth;
+    uint32_t leaf_length;
+    uint32_t node_offset;
+    uint16_t xof_length;
+    uint8_t  node_depth;
+    uint8_t  inner_length;
+    uint8_t  salt[hydro_hash_SALTBYTES];
+    uint8_t  personal[hydro_hash_PERSONALBYTES];
+} hydro_hash_state;
+
+void hydro_hash_keygen(uint8_t *key, size_t key_len);
+
+int hydro_hash_init(
+    hydro_hash_state *state, const uint8_t *key, size_t key_len);
+
+int hydro_hash_update(
+    hydro_hash_state *state, const uint8_t *in, size_t in_len);
+
+int hydro_hash_final(hydro_hash_state *state, uint8_t *out, size_t out_len);
+
+int hydro_hash_hash(uint8_t *out, size_t out_len, const uint8_t *in,
+    size_t in_len, const uint8_t *key, size_t key_len);
+
+/* ---------------- */
+
 #define hydro_hash128_BYTES 16
 #define hydro_hash128_KEYBYTES 16
 
@@ -47,13 +91,13 @@ typedef struct hydro_hash128_state {
 void hydro_hash128_keygen(uint8_t key[hydro_hash128_KEYBYTES]);
 
 int hydro_hash128_hash(uint8_t out[hydro_hash128_BYTES], const uint8_t *in,
-    size_t inlen, const uint8_t key[hydro_hash128_KEYBYTES]);
+    size_t in_len, const uint8_t key[hydro_hash128_KEYBYTES]);
 
 int hydro_hash128_init(
     hydro_hash128_state *state, const uint8_t key[hydro_hash128_KEYBYTES]);
 
 int hydro_hash128_update(
-    hydro_hash128_state *state, const uint8_t *in, size_t inlen);
+    hydro_hash128_state *state, const uint8_t *in, size_t in_len);
 
 int hydro_hash128_final(
     hydro_hash128_state *state, uint8_t out[hydro_hash128_BYTES]);

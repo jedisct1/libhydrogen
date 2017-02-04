@@ -5,8 +5,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "../hydrogen.h"
+
 #if !defined(__unix__) && (defined(__APPLE__) || defined(__linux__))
 #define __unix__ 1
+#endif
+#ifndef __GNUC__
+#define __restrict__
 #endif
 
 #ifndef NATIVE_LITTLE_ENDIAN
@@ -17,6 +22,8 @@
 
 #define ROTL32(x, b) (uint32_t)(((x) << (b)) | ((x) >> (32 - (b))))
 #define ROTL64(x, b) (uint64_t)(((x) << (b)) | ((x) >> (64 - (b))))
+#define ROTR32(x, b) (uint32_t)(((x) >> (b)) | ((x) << (32 - (b))))
+#define ROTR64(x, b) (uint64_t)(((x) >> (b)) | ((x) << (64 - (b))))
 
 #define LOAD64_LE(SRC) load64_le(SRC)
 static inline uint64_t load64_le(const uint8_t src[8])
@@ -170,6 +177,28 @@ static inline void store32_be(uint8_t dst[4], uint32_t w)
     w >>= 8;
     dst[0] = (uint8_t)w;
 #endif
+}
+
+static inline void mem_cpy(
+    void *__restrict__ dst_, const void *__restrict__ src_, size_t n)
+{
+    unsigned char *      dst = (unsigned char *)dst_;
+    const unsigned char *src = (const unsigned char *)src_;
+    size_t               i;
+
+    for (i = 0; i < n; i++) {
+        dst[i] = src[i];
+    }
+}
+
+static inline void mem_zero(void *dst_, size_t n)
+{
+    unsigned char *dst = (unsigned char *)dst_;
+    size_t         i;
+
+    for (i = 0; i < n; i++) {
+        dst[i] = 0;
+    }
 }
 
 static const uint8_t zero[64] = { 0 };

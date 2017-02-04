@@ -47,16 +47,16 @@ static void hydro_hash128_hashblock(
 }
 
 int hydro_hash128_update(
-    hydro_hash128_state *state, const uint8_t *in, size_t inlen)
+    hydro_hash128_state *state, const uint8_t *in, size_t in_len)
 {
     size_t left;
     size_t ps;
     size_t i;
 
-    state->b += (uint8_t)inlen;
-    while (inlen > 0) {
+    state->b += (uint8_t)in_len;
+    while (in_len > 0) {
         left = 8 - state->off;
-        if ((ps = inlen) > left) {
+        if ((ps = in_len) > left) {
             ps = left;
         }
         for (i = 0; i < ps; i++) {
@@ -68,7 +68,7 @@ int hydro_hash128_update(
             state->off = 0;
         }
         in += ps;
-        inlen -= ps;
+        in_len -= ps;
     }
     return 0;
 }
@@ -99,12 +99,12 @@ int hydro_hash128_final(
 }
 
 int hydro_hash128_hash(uint8_t out[hydro_hash128_BYTES], const uint8_t *in,
-    size_t inlen, const uint8_t key[hydro_hash128_KEYBYTES])
+    size_t in_len, const uint8_t key[hydro_hash128_KEYBYTES])
 {
     hydro_hash128_state st;
 
     hydro_hash128_init(&st, key);
-    hydro_hash128_update(&st, in, inlen);
+    hydro_hash128_update(&st, in, in_len);
 
     return hydro_hash128_final(&st, out);
 }
