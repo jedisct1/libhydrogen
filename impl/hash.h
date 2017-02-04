@@ -90,11 +90,11 @@ static void hydro_hash_init_params(hydro_hash_state *state)
 
     for (i = 0; i < 8; i++) {
         state->h[i] =
-            hydro_hash_IV[i] ^ LOAD32_LE(&state->digest_length + i * 4);
+            hydro_hash_IV[i] ^ LOAD32_LE(&state->digest_len + i * 4);
     }
     memset(state->t, 0, sizeof state->t);
     memset(state->f, 0, sizeof state->f);
-    state->buf_len = 0;
+    state->buf_off = 0;
 }
 
 static int hydro_hash_blake2s_final(
@@ -108,9 +108,9 @@ static int hydro_hash_blake2s_final(
         return -1;
     }
     state->f[0] = (uint32_t)-1;
-    hydro_hash_increment_counter(state, state->buf_len);
+    hydro_hash_increment_counter(state, state->buf_off);
     mem_zero(
-        state->buf + state->buf_len, hydro_hash_BLOCKBYTES - state->buf_len);
+        state->buf + state->buf_off, hydro_hash_BLOCKBYTES - state->buf_off);
     hydro_hash_hashblock(state, state->buf);
     for (i = 0; i < 8; i++) {
         STORE32_LE(buffer + sizeof(state->h[i]) * i, state->h[i]);
@@ -132,14 +132,14 @@ int hydro_hash_init(
         return -1;
     }
     memset(state, 0, sizeof *state);
-    state->key_length = key_len;
+    state->key_len = key_len;
     if (out_len > hydro_hash_BLAKE2S_BYTES) {
         state->fanout        = 1;
         state->depth         = 1;
-        state->digest_length = hydro_hash_BLAKE2S_BYTES;
-        STORE16_LE(state->xof_length, out_len);
+        state->digest_len = hydro_hash_BLAKE2S_BYTES;
+        STORE16_LE(state->xof_len, out_len);
     } else {
-        state->digest_length = (uint8_t)out_len;
+        state->digest_len = (uint8_t)out_len;
     }
     hydro_hash_init_params(state);
     if (key != NULL) {
@@ -160,10 +160,10 @@ int hydro_hash_update(hydro_hash_state *state, const uint8_t *in, size_t in_len)
     if (in_len <= 0) {
         return 0;
     }
-    left = state->buf_len;
+    left = state->buf_off;
     fill = hydro_hash_BLOCKBYTES - left;
     if (in_len > fill) {
-        state->buf_len = 0;
+        state->buf_off = 0;
         mem_cpy(state->buf + left, in, fill);
         hydro_hash_increment_counter(state, hydro_hash_BLOCKBYTES);
         hydro_hash_hashblock(state, state->buf);
@@ -176,8 +176,8 @@ int hydro_hash_update(hydro_hash_state *state, const uint8_t *in, size_t in_len)
             in_len -= hydro_hash_BLOCKBYTES;
         }
     }
-    mem_cpy(state->buf + state->buf_len, in, in_len);
-    state->buf_len += in_len;
+    mem_cpy(state->buf + state->buf_off, in, in_len);
+    state->buf_off += in_len;
 
     return 0;
 }
@@ -186,33 +186,33 @@ int hydro_hash_final(hydro_hash_state *state, uint8_t *out, size_t out_len)
 {
     uint8_t  root[hydro_hash_BLOCKBYTES];
     uint32_t i;
-    uint16_t xof_length;
+    uint16_t xof_len;
 
     if (out_len < hydro_hash_BYTES_MIN || out_len > hydro_hash_BYTES_MAX) {
         return -1;
     }
-    xof_length = LOAD16_LE(state->xof_length);
-    if (xof_length == 0) {
-        if (state->digest_length != out_len) {
+    xof_len = LOAD16_LE(state->xof_len);
+    if (xof_len == 0) {
+        if (state->digest_len != out_len) {
             return -1;
         }
         return hydro_hash_blake2s_final(state, out, out_len);
-    } else if (xof_length != out_len) {
+    } else if (xof_len != out_len) {
         return -1;
     }
     if (hydro_hash_blake2s_final(state, root, hydro_hash_BLAKE2S_BYTES) != 0) {
         return -1;
     }
-    state->key_length = 0;
+    state->key_len = 0;
     state->fanout     = 0;
     state->depth      = 0;
-    STORE32_LE(state->leaf_length, hydro_hash_BLAKE2S_BYTES);
-    state->inner_length = hydro_hash_BLAKE2S_BYTES;
+    STORE32_LE(state->leaf_len, hydro_hash_BLAKE2S_BYTES);
+    state->inner_len = hydro_hash_BLAKE2S_BYTES;
     for (i = 0; out_len > 0; i++) {
         const size_t block_size = (out_len < hydro_hash_BLAKE2S_BYTES)
                                       ? out_len
                                       : hydro_hash_BLAKE2S_BYTES;
-        state->digest_length = block_size;
+        state->digest_len = block_size;
         STORE32_LE(state->node_offset, i);
         hydro_hash_init_params(state);
         hydro_hash_update(state, root, hydro_hash_BLAKE2S_BYTES);

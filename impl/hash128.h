@@ -24,12 +24,12 @@ int hydro_hash128_init(
     const uint64_t k0 = LOAD64_LE(key);
     const uint64_t k1 = LOAD64_LE(key + 8);
 
-    state->v0  = 0x736f6d6570736575ULL ^ k0;
-    state->v1  = 0x646f72616e646f83ULL ^ k1;
-    state->v2  = 0x6c7967656e657261ULL ^ k0;
-    state->v3  = 0x7465646279746573ULL ^ k1;
-    state->off = 0;
-    state->b   = 0;
+    state->v0      = 0x736f6d6570736575ULL ^ k0;
+    state->v1      = 0x646f72616e646f83ULL ^ k1;
+    state->v2      = 0x6c7967656e657261ULL ^ k0;
+    state->v3      = 0x7465646279746573ULL ^ k1;
+    state->buf_off = 0;
+    state->b       = 0;
 
     return 0;
 }
@@ -55,17 +55,17 @@ int hydro_hash128_update(
 
     state->b += (uint8_t)in_len;
     while (in_len > 0) {
-        left = 8 - state->off;
+        left = 8 - state->buf_off;
         if ((ps = in_len) > left) {
             ps = left;
         }
         for (i = 0; i < ps; i++) {
-            state->mb[state->off + i] = in[i];
+            state->buf[state->buf_off + i] = in[i];
         }
-        state->off += ps;
-        if (state->off == 8) {
-            hydro_hash128_hashblock(state, LOAD64_LE(state->mb));
-            state->off = 0;
+        state->buf_off += ps;
+        if (state->buf_off == 8) {
+            hydro_hash128_hashblock(state, LOAD64_LE(state->buf));
+            state->buf_off = 0;
         }
         in += ps;
         in_len -= ps;
@@ -79,7 +79,7 @@ int hydro_hash128_final(
     uint64_t mb;
     int      i;
 
-    mb = (LOAD64_LE(state->mb) & ~(~0ULL << (state->off * 8))) |
+    mb = (LOAD64_LE(state->buf) & ~(~0ULL << (state->buf_off * 8))) |
          ((uint64_t)state->b << 56);
     hydro_hash128_hashblock(state, mb);
     state->v2 ^= 0xee;
