@@ -4,13 +4,14 @@ void hydro_secretbox_keygen(uint8_t key[hydro_secretbox_KEYBYTES])
     randombytes_buf(key, hydro_secretbox_KEYBYTES);
 }
 
-int hydro_secretbox_encrypt(uint8_t *c, const uint8_t *m, size_t mlen,
+int hydro_secretbox_encrypt(uint8_t *c, const void *m_, size_t mlen,
     const uint8_t key[hydro_secretbox_KEYBYTES])
 {
     hydro_hash128_state st;
     uint8_t             t0[hydro_stream_chacha20_block_BYTES];
     uint8_t             k0[hydro_stream_hchacha20_KEYBYTES];
     uint8_t             nonce[hydro_stream_hchacha20_BYTES];
+    const uint8_t *     m  = (const uint8_t *)m_;
     const uint8_t *mac_key = &t0[0], *nonce_key = &t0[16], *ct_key = &t0[32];
 
     COMPILER_ASSERT(hydro_stream_chacha20_block_BYTES ==
@@ -36,13 +37,14 @@ int hydro_secretbox_encrypt(uint8_t *c, const uint8_t *m, size_t mlen,
     return 0;
 }
 
-int hydro_secretbox_decrypt(uint8_t *m, const uint8_t *c, size_t clen,
+int hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen,
     const uint8_t key[hydro_secretbox_KEYBYTES])
 {
     hydro_hash128_state st;
     uint8_t             t0[hydro_stream_chacha20_block_BYTES];
     uint8_t             nonce[hydro_stream_hchacha20_BYTES];
     uint8_t             mac[hydro_secretbox_MACBYTES];
+    uint8_t *           m       = (uint8_t *)m_;
     const uint8_t *     mac_key = &t0[0], *ct_key = &t0[32];
     size_t              mlen;
 

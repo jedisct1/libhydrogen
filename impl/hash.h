@@ -151,11 +151,12 @@ int hydro_hash_init(
     return 0;
 }
 
-int hydro_hash_update(hydro_hash_state *state, const uint8_t *in, size_t in_len)
+int hydro_hash_update(hydro_hash_state *state, const void *in_, size_t in_len)
 {
-    size_t left;
-    size_t ps;
-    size_t i;
+    const uint8_t *in = (const uint8_t *)in_;
+    size_t         left;
+    size_t         ps;
+    size_t         i;
 
     while (in_len > 0) {
         left = hydro_hash_BLOCKBYTES - state->buf_off;
@@ -220,10 +221,11 @@ int hydro_hash_final(hydro_hash_state *state, uint8_t *out, size_t out_len)
     return 0;
 }
 
-int hydro_hash_hash(uint8_t *out, size_t out_len, const uint8_t *in,
+int hydro_hash_hash(uint8_t *out, size_t out_len, const void *in_,
     size_t in_len, const uint8_t *key, size_t key_len)
 {
     hydro_hash_state st;
+    const uint8_t *  in = (const uint8_t *)in_;
 
     if (hydro_hash_init(&st, key, key_len, out_len) != 0 ||
         hydro_hash_update(&st, in, in_len) != 0 ||
