@@ -21,8 +21,7 @@ static const uint8_t hydro_hash_SIGMA[10][8] = {
     { 197, 31, 237, 74, 7, 99, 146, 139 },
     { 219, 126, 193, 57, 80, 244, 134, 42 },
     { 111, 233, 179, 8, 194, 215, 20, 165 },
-    { 162, 132, 118, 21, 251, 158, 60, 208 }
-};
+    { 162, 132, 118, 21, 251, 158, 60, 208 } };
 
 static void hydro_hash_increment_counter(
     hydro_hash_state *state, const uint32_t inc)
