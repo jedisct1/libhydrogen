@@ -17,6 +17,9 @@ extern "C" {
 #define HYDRO_HWTYPE HYDRO_HWTYPE_ATMEGA328
 #endif
 
+#define HYDRO_VERSION_MAJOR 0
+#define HYDRO_VERSION_MINOR 1
+
 int hydro_init(void);
 
 /* ---------------- */
