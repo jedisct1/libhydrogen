@@ -213,9 +213,8 @@ void randombytes_buf(void *const buf, const size_t len)
 }
 
 void randombytes_buf_deterministic(void *const buf, const size_t len,
-    const uint8_t key[randombytes_buf_deterministic_KEYBYTES])
+    const uint8_t seed[randombytes_SEEDBYTES])
 {
-    COMPILER_ASSERT(randombytes_buf_deterministic_KEYBYTES ==
-                    hydro_stream_chacha20_KEYBYTES);
-    hydro_stream_chacha20(buf, len, zero, key);
+    COMPILER_ASSERT(randombytes_SEEDBYTES == hydro_stream_chacha20_KEYBYTES);
+    hydro_stream_chacha20(buf, len, zero, seed);
 }

@@ -24,7 +24,7 @@ int hydro_init(void);
 
 /* ---------------- */
 
-#define randombytes_buf_deterministic_KEYBYTES 32
+#define randombytes_SEEDBYTES 32
 
 uint32_t randombytes_random(void);
 
@@ -33,7 +33,7 @@ uint32_t randombytes_uniform(const uint32_t upper_bound);
 void randombytes_buf(void *const buf, const size_t size);
 
 void randombytes_buf_deterministic(void *const buf, const size_t len,
-    const uint8_t key[randombytes_buf_deterministic_KEYBYTES]);
+    const uint8_t seed[randombytes_SEEDBYTES]);
 
 /* ---------------- */
 
@@ -137,6 +137,49 @@ void hydro_kdf_keygen(uint8_t key[hydro_kdf_KEYBYTES]);
 int hydro_kdf_derive_from_key(uint8_t *subkey, size_t subkey_len,
     const uint8_t ctx[hydro_kdf_CONTEXTBYTES], uint64_t subkey_id,
     const uint8_t key[hydro_kdf_KEYBYTES]);
+
+/* ---------------- */
+
+#define hydro_sign_CONTEXTBYTES 8
+#define hydro_sign_PUBLICKEYBYTES 32
+#define hydro_sign_SECRETKEYBYTES 32
+#define hydro_sign_SEEDBYTES 32
+#define hydro_sign_BYTES 64
+
+typedef struct hydro_sign_state {
+    hydro_hash_state hash_st;
+} hydro_sign_state;
+
+typedef struct hydro_sign_keypair {
+    uint8_t pk[hydro_sign_PUBLICKEYBYTES];
+    uint8_t sk[hydro_sign_SECRETKEYBYTES];
+} hydro_sign_keypair;
+
+void hydro_sign_keygen(hydro_sign_keypair *kp);
+
+void hydro_sign_keygen_deterministic(
+    hydro_sign_keypair *kp, const uint8_t seed[hydro_sign_SEEDBYTES]);
+
+int hydro_sign_init(
+    hydro_sign_state *state, const uint8_t ctx[hydro_sign_CONTEXTBYTES]);
+
+int hydro_sign_update(hydro_sign_state *state, const void *m_, size_t mlen);
+
+int hydro_sign_final_create(hydro_sign_state *state,
+    uint8_t                                   csig[hydro_sign_BYTES],
+    const uint8_t                             sk[hydro_sign_SECRETKEYBYTES]);
+
+int hydro_sign_final_verify(hydro_sign_state *state,
+    const uint8_t                             csig[hydro_sign_BYTES],
+    const uint8_t                             pk[hydro_sign_PUBLICKEYBYTES]);
+
+int hydro_sign_create(uint8_t csig[hydro_sign_BYTES], const void *m_,
+    size_t mlen, const uint8_t ctx[hydro_sign_CONTEXTBYTES],
+    const uint8_t sk[hydro_sign_SECRETKEYBYTES]);
+
+int hydro_sign_verify(const uint8_t csig[hydro_sign_BYTES], const void *m_,
+    size_t mlen, const uint8_t ctx[hydro_sign_CONTEXTBYTES],
+    const uint8_t pk[hydro_sign_PUBLICKEYBYTES]);
 
 /* ---------------- */
 
