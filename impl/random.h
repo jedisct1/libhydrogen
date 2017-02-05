@@ -7,8 +7,8 @@ static uint8_t hydro_random_initialized;
 
 static _Bool hydro_random_rbit(unsigned int x)
 {
-    int   i;
-    _Bool res = 0;
+    size_t i;
+    _Bool  res = 0;
 
     for (i = 0; i < sizeof x; i++) {
         res ^= ((x >> i) & 1);
