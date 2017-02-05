@@ -11,8 +11,8 @@ static const uint32_t hydro_hash_IV[8] = { 0x6A09E667UL, 0xBB67AE85UL,
     0x3C6EF372UL, 0xA54FF53AUL, 0x510E527FUL, 0x9B05688CUL, 0x1F83D9ABUL,
     0x5BE0CD19UL };
 
-static const uint8_t hydro_hash_SIGMA[10][8] = { { 1, 35, 69, 103, 137, 171,
-                                                     205, 239 },
+static const uint8_t hydro_hash_SIGMA[10][8] = {
+    { 1, 35, 69, 103, 137, 171, 205, 239 },
     { 234, 72, 159, 214, 28, 2, 183, 83 },
     { 184, 192, 82, 253, 174, 54, 113, 148 },
     { 121, 49, 220, 190, 38, 90, 64, 248 },
