@@ -1,12 +1,10 @@
-TARGET_DEVICE = atmega328p
-HWTYPE = HYDRO_TARGET_DEVICE_ATMEGA328
-AR = avr-ar
-CC = avr-gcc
-RANLIB = avr-ranlib
-WFLAGS = -Wall -Wextra -Wmissing-prototypes -Wdiv-by-zero -Wbad-function-cast -Wcast-align -Wcast-qual -Wfloat-equal -Wmissing-declarations -Wnested-externs -Wno-unknown-pragmas -Wpointer-arith -Wredundant-decls -Wstrict-prototypes -Wswitch-enum -Wno-type-limits
-CFLAGS = -I. -mmcu=$(TARGET_DEVICE) -DHYDRO_HWTYPE=$(HYDRO_HWTYPE) -Os -mcall-prologues $(WFLAGS)
+WFLAGS ?= -Wall -Wextra -Wmissing-prototypes -Wdiv-by-zero -Wbad-function-cast -Wcast-align -Wcast-qual -Wfloat-equal -Wmissing-declarations -Wnested-externs -Wno-unknown-pragmas -Wpointer-arith -Wredundant-decls -Wstrict-prototypes -Wswitch-enum -Wno-type-limits
+CFLAGS ?= -Os -fno-exceptions -ffunction-sections -fdata-sections -flto $(WFLAGS)
+CFLAGS += -I.
 OBJ = hydrogen.o
-ARDUINO_PACKAGE = hydrogen-crypto.zip
+AR ?= ar
+RANLIB ?= ranlib
+
 SRC = \
 	hydrogen.c \
 	hydrogen.h \
@@ -19,20 +17,14 @@ SRC = \
 	impl/secretbox.h \
 	impl/stream.h
 
-all: package
-	7z a -tzip -mx=9 -r ${1}.zip $1
-
-package: $(ARDUINO_PACKAGE)
-
-$(ARDUINO_PACKAGE):
-	7z a -tzip -mx=9 -r $(ARDUINO_PACKAGE) $(SRC)
+all: lib
 
 lib: libhydrogen.a
 
 $(OBJ): $(SRC)
 
 libhydrogen.a: $(OBJ)
-	$(AR) -ar cr $@ $^
+	$(AR) -r $@ $^
 	$(RANLIB) $@
 
 .PHONY: clean
