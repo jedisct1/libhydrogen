@@ -4,9 +4,13 @@
 #include "impl/hydrogen_p.h"
 
 #include "impl/core.h"
+#include "impl/random.h"
+#include "impl/stream.h"
+
 #include "impl/hash.h"
 #include "impl/hash128.h"
 #include "impl/kdf.h"
-#include "impl/random.h"
 #include "impl/secretbox.h"
-#include "impl/stream.h"
+
+#include "impl/x25519.h"
+#include "impl/sign.h"

@@ -16,7 +16,9 @@ SRC = \
 	impl/kdf.h \
 	impl/random.h \
 	impl/secretbox.h \
-	impl/stream.h
+	impl/sign.h \
+	impl/stream.h \
+	impl/x25519.h
 
 all: lib
 
