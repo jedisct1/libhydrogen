@@ -13,6 +13,7 @@ SRC = \
 	impl/hash.h \
 	impl/hash128.h \
 	impl/hydrogen_p.h \
+	impl/kdf.h \
 	impl/random.h \
 	impl/secretbox.h \
 	impl/stream.h
