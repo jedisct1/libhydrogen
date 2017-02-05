@@ -11,8 +11,8 @@ static const uint32_t hydro_hash_IV[8] = { 0x6A09E667UL, 0xBB67AE85UL,
     0x3C6EF372UL, 0xA54FF53AUL, 0x510E527FUL, 0x9B05688CUL, 0x1F83D9ABUL,
     0x5BE0CD19UL };
 
-static const uint8_t hydro_hash_SIGMA[10][8] = {
-    { 1, 35, 69, 103, 137, 171, 205, 239 },
+static const uint8_t hydro_hash_SIGMA[10][8] = { { 1, 35, 69, 103, 137, 171,
+                                                     205, 239 },
     { 234, 72, 159, 214, 28, 2, 183, 83 },
     { 184, 192, 82, 253, 174, 54, 113, 148 },
     { 121, 49, 220, 190, 38, 90, 64, 248 },
@@ -119,9 +119,9 @@ static int hydro_hash_blake2s_final(
     return 0;
 }
 
-int hydro_hash_init(hydro_hash_state *state,
-    const uint8_t ctx[hydro_hash_CONTEXTBYTES], const uint8_t *key,
-    size_t key_len, size_t out_len)
+static int hydro_hash_init_with_tweak(hydro_hash_state *state,
+    const uint8_t ctx[hydro_hash_CONTEXTBYTES], const uint64_t tweak,
+    const uint8_t *key, size_t key_len, size_t out_len)
 {
     if ((key != NULL && (key_len < hydro_hash_KEYBYTES_MIN ||
                             key_len > hydro_hash_KEYBYTES_MAX)) ||
@@ -133,6 +133,7 @@ int hydro_hash_init(hydro_hash_state *state,
     }
     memset(state, 0, sizeof *state);
     memcpy(state->ctx, ctx, sizeof state->ctx);
+    STORE64_LE(state->tweak, tweak);
     state->key_len = key_len;
     state->fanout  = 1;
     state->depth   = 1;
@@ -151,6 +152,13 @@ int hydro_hash_init(hydro_hash_state *state,
         hydro_memzero(block, sizeof block);
     }
     return 0;
+}
+
+int hydro_hash_init(hydro_hash_state *state,
+    const uint8_t ctx[hydro_hash_CONTEXTBYTES], const uint8_t *key,
+    size_t key_len, size_t out_len)
+{
+    return hydro_hash_init_with_tweak(state, ctx, 0, key, key_len, out_len);
 }
 
 int hydro_hash_update(hydro_hash_state *state, const void *in_, size_t in_len)
@@ -230,7 +238,7 @@ int hydro_hash_hash(uint8_t *out, size_t out_len, const void *in_,
     hydro_hash_state st;
     const uint8_t *  in = (const uint8_t *)in_;
 
-    if (hydro_hash_init(&st, ctx, key, key_len, out_len) != 0 ||
+    if (hydro_hash_init_with_tweak(&st, ctx, 0, key, key_len, out_len) != 0 ||
         hydro_hash_update(&st, in, in_len) != 0 ||
         hydro_hash_final(&st, out, out_len) != 0) {
         return -1;
