@@ -61,13 +61,13 @@ static void test_randombytes(void)
 
 static void test_hash(void)
 {
-    hydro_hash_state    st;
-    uint8_t             dk[randombytes_buf_deterministic_KEYBYTES];
-    uint8_t             h[100];
-    uint8_t             key[hydro_hash_KEYBYTES_MAX];
-    uint8_t             msg[1000];
-    char                hex[100 * 2 + 1];
-    size_t              i;
+    hydro_hash_state st;
+    uint8_t          dk[randombytes_buf_deterministic_KEYBYTES];
+    uint8_t          h[100];
+    uint8_t          key[hydro_hash_KEYBYTES_MAX];
+    uint8_t          msg[1000];
+    char             hex[100 * 2 + 1];
+    size_t           i;
 
     memset(dk, 0, sizeof dk);
     randombytes_buf_deterministic(key, sizeof key, dk);
@@ -80,13 +80,23 @@ static void test_hash(void)
     }
     hydro_hash_final(&st, h, sizeof h);
     hydro_bin2hex(hex, sizeof hex, h, sizeof h);
-    assert(hydro_equal("7137d87ad55fdf061789e1e8bebf7572525d4d08f7f4371a960b02c6242724a71cd2a88d50c32bc9e118044a2d539c01b5cccc3b52e67fc5eae283de5dcbd501a933c4b9c5aaddbaf81693ec485811459e6edb5257a7573a573525d9f1874e71556d9ad3", hex, sizeof hex));
+    assert(hydro_equal("7137d87ad55fdf061789e1e8bebf7572525d4d08f7f4371a960b02c"
+                       "6242724a71cd2a88d50c32bc9e118044a2d539c01b5cccc3b52e67f"
+                       "c5eae283de5dcbd501a933c4b9c5aaddbaf81693ec485811459e6ed"
+                       "b5257a7573a573525d9f1874e71556d9ad3",
+        hex, sizeof hex));
     hydro_hash_hash(h, sizeof h, msg, sizeof msg, ctx, key, sizeof key);
     hydro_bin2hex(hex, sizeof hex, h, sizeof h);
-    assert(hydro_equal("b453c8627089d4b38ac87a5a89503c5a5740eb4206be37d4c5c50e956b3d56f0bc96b14a87061cce9bb69b89f57a0d13dab0ad7b4985139492d8cd8eaea4e1c59f971a8cc817e62485c2a0c19faa7b32967009a16a405a679970637f8f11536db65c416f", hex, sizeof hex));
+    assert(hydro_equal("b453c8627089d4b38ac87a5a89503c5a5740eb4206be37d4c5c50e9"
+                       "56b3d56f0bc96b14a87061cce9bb69b89f57a0d13dab0ad7b498513"
+                       "9492d8cd8eaea4e1c59f971a8cc817e62485c2a0c19faa7b3296700"
+                       "9a16a405a679970637f8f11536db65c416f",
+        hex, sizeof hex));
     hydro_hash_hash(h, hydro_hash_BYTES, msg, sizeof msg, ctx, key, sizeof key);
     hydro_bin2hex(hex, sizeof hex, h, hydro_hash_BYTES);
-    assert(hydro_equal("f13a6f6e56c7799bdf6cb2f7787419a703cd617110b67d951ed04b3ddde7fde8", hex, strlen(hex) + 1));
+    assert(hydro_equal(
+        "f13a6f6e56c7799bdf6cb2f7787419a703cd617110b67d951ed04b3ddde7fde8", hex,
+        strlen(hex) + 1));
 }
 
 static void test_hash128(void)
@@ -166,8 +176,8 @@ static void test_secretbox(void)
     hydro_secretbox_encrypt(c, m, sizeof m, ctx, key);
     assert(hydro_secretbox_decrypt(m2, c, 0, ctx, key) == -1);
     assert(hydro_secretbox_decrypt(m2, c, 1, ctx, key) == -1);
-    assert(
-        hydro_secretbox_decrypt(m2, c, hydro_secretbox_HEADERBYTES, ctx, key) == -1);
+    assert(hydro_secretbox_decrypt(
+               m2, c, hydro_secretbox_HEADERBYTES, ctx, key) == -1);
     assert(hydro_secretbox_decrypt(m2, c, sizeof c, ctx, key) == 0);
     assert(hydro_equal(m, m2, sizeof m));
     key[0]++;
@@ -175,6 +185,41 @@ static void test_secretbox(void)
     key[0]--;
     c[randombytes_uniform(sizeof c)]++;
     assert(hydro_secretbox_decrypt(m2, c, sizeof c, ctx, key) == -1);
+}
+
+static void test_kdf(void)
+{
+    uint8_t key[hydro_kdf_KEYBYTES];
+    uint8_t dk[randombytes_buf_deterministic_KEYBYTES];
+    uint8_t subkey1[16];
+    uint8_t subkey2[16];
+    uint8_t subkey3[32];
+    uint8_t subkey4[50];
+    char    subkey1_hex[16 * 2 + 1];
+    char    subkey2_hex[16 * 2 + 1];
+    char    subkey3_hex[32 * 2 + 1];
+    char    subkey4_hex[50 * 2 + 1];
+
+    memset(dk, 0, sizeof dk);
+    randombytes_buf_deterministic(key, sizeof key, dk);
+    hydro_kdf_derive_from_key(subkey1, sizeof subkey1, ctx, 1, key);
+    hydro_kdf_derive_from_key(subkey2, sizeof subkey2, ctx, 2, key);
+    hydro_kdf_derive_from_key(subkey3, sizeof subkey3, ctx, 0, key);
+    hydro_kdf_derive_from_key(subkey4, sizeof subkey4, ctx, 0, key);
+    hydro_bin2hex(subkey1_hex, sizeof subkey1_hex, subkey1, sizeof subkey1);
+    hydro_bin2hex(subkey2_hex, sizeof subkey2_hex, subkey2, sizeof subkey2);
+    hydro_bin2hex(subkey3_hex, sizeof subkey3_hex, subkey3, sizeof subkey3);
+    hydro_bin2hex(subkey4_hex, sizeof subkey4_hex, subkey4, sizeof subkey4);
+    assert(hydro_equal(
+        "b6dadc6c3594b305fac7160e89fb628e", subkey1_hex, sizeof subkey1_hex));
+    assert(hydro_equal(
+        "baf03b412086d54067cac64f583bcd16", subkey2_hex, sizeof subkey2_hex));
+    assert(hydro_equal(
+        "d583dc8833f19dbd544f057d0cebaed5507306a134361119d4e4eb172d903be3",
+        subkey3_hex, sizeof subkey3_hex));
+    assert(hydro_equal("ef289ae126182038ae57ab4c07f0eab94676f85f5462cffd2586fa6"
+                       "ae881c2eacd863c8f3335abb70ced9d5360462d693ec1",
+        subkey4_hex, sizeof subkey4_hex));
 }
 
 int main(void)
@@ -187,6 +232,7 @@ int main(void)
     test_core();
     test_hash();
     test_hash128();
+    test_kdf();
     test_randombytes();
     test_secretbox();
 

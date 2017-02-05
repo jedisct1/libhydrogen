@@ -120,7 +120,7 @@ static int hydro_hash_blake2s_final(
 }
 
 static int hydro_hash_init_with_tweak(hydro_hash_state *state,
-    const uint8_t ctx[hydro_hash_CONTEXTBYTES], const uint64_t tweak,
+    const uint8_t ctx[hydro_hash_CONTEXTBYTES], uint64_t tweak,
     const uint8_t *key, size_t key_len, size_t out_len)
 {
     if ((key != NULL && (key_len < hydro_hash_KEYBYTES_MIN ||

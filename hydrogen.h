@@ -38,7 +38,7 @@ void randombytes_buf_deterministic(void *const buf, const size_t len,
 /* ---------------- */
 
 #define hydro_hash_BYTES 32
-#define hydro_hash_BYTES_MAX 0xffff
+#define hydro_hash_BYTES_MAX 65535
 #define hydro_hash_BYTES_MIN 16
 #define hydro_hash_CONTEXTBYTES 8
 #define hydro_hash_KEYBYTES 32
@@ -124,6 +124,17 @@ int hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen,
     const uint8_t ctx[hydro_secretbox_CONTEXTBYTES],
     const uint8_t key[hydro_secretbox_KEYBYTES])
     __attribute__((warn_unused_result));
+
+/* ---------------- */
+
+#define hydro_kdf_CONTEXTBYTES 8
+#define hydro_kdf_KEYBYTES 32
+#define hydro_kdf_SUBKEYBYTES_MAX 65535
+#define hydro_kdf_SUBKEYBYTES_MIN 16
+
+int hydro_kdf_derive_from_key(uint8_t *subkey, size_t subkey_len,
+    const uint8_t ctx[hydro_kdf_CONTEXTBYTES], uint64_t subkey_id,
+    const uint8_t key[hydro_kdf_KEYBYTES]);
 
 /* ---------------- */
 
