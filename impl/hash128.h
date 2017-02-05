@@ -18,8 +18,21 @@
         state->v2 = ROTL64(state->v2, 32);                                     \
     } while (0)
 
-int hydro_hash128_init(
-    hydro_hash128_state *state, const uint8_t key[hydro_hash128_KEYBYTES])
+static void hydro_hash128_hashblock(
+    hydro_hash128_state *state, const uint64_t mb)
+{
+    int i;
+
+    state->v3 ^= mb;
+    for (i = 0; i < HYDRO_HASH_SIP_CROUNDS; i++) {
+        HYDRO_HASH_SIPROUND;
+    }
+    state->v0 ^= mb;
+}
+
+int hydro_hash128_init(hydro_hash128_state *state,
+    const uint8_t                           ctx[hydro_hash128_CONTEXTBYTES],
+    const uint8_t                           key[hydro_hash128_KEYBYTES])
 {
     const uint64_t k0 = LOAD64_LE(key);
     const uint64_t k1 = LOAD64_LE(key + 8);
@@ -31,19 +44,10 @@ int hydro_hash128_init(
     state->buf_off = 0;
     state->b       = 0;
 
+    COMPILER_ASSERT(hydro_hash128_CONTEXTBYTES == 8);
+    hydro_hash128_hashblock(state, LOAD64_LE(ctx));
+
     return 0;
-}
-
-static void hydro_hash128_hashblock(
-    hydro_hash128_state *state, const uint64_t mb)
-{
-    int i;
-
-    state->v3 ^= mb;
-    for (i = 0; i < HYDRO_HASH_SIP_CROUNDS; i++) {
-        HYDRO_HASH_SIPROUND;
-    }
-    state->v0 ^= mb;
 }
 
 int hydro_hash128_update(
@@ -100,11 +104,12 @@ int hydro_hash128_final(
 }
 
 int hydro_hash128_hash(uint8_t out[hydro_hash128_BYTES], const void *in_,
-    size_t in_len, const uint8_t key[hydro_hash128_KEYBYTES])
+    size_t in_len, const uint8_t ctx[hydro_hash128_CONTEXTBYTES],
+    const uint8_t key[hydro_hash128_KEYBYTES])
 {
     hydro_hash128_state st;
 
-    hydro_hash128_init(&st, key);
+    hydro_hash128_init(&st, ctx, key);
     hydro_hash128_update(&st, in_, in_len);
 
     return hydro_hash128_final(&st, out);

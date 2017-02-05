@@ -119,8 +119,9 @@ static int hydro_hash_blake2s_final(
     return 0;
 }
 
-int hydro_hash_init(
-    hydro_hash_state *state, const uint8_t *key, size_t key_len, size_t out_len)
+int hydro_hash_init(hydro_hash_state *state,
+    const uint8_t ctx[hydro_hash_CONTEXTBYTES], const uint8_t *key,
+    size_t key_len, size_t out_len)
 {
     if ((key != NULL && (key_len < hydro_hash_KEYBYTES_MIN ||
                             key_len > hydro_hash_KEYBYTES_MAX)) ||
@@ -131,10 +132,11 @@ int hydro_hash_init(
         return -1;
     }
     memset(state, 0, sizeof *state);
+    memcpy(state->ctx, ctx, sizeof state->ctx);
     state->key_len = key_len;
+    state->fanout  = 1;
+    state->depth   = 1;
     if (out_len > hydro_hash_BLAKE2S_BYTES) {
-        state->fanout     = 1;
-        state->depth      = 1;
         state->digest_len = hydro_hash_BLAKE2S_BYTES;
         STORE16_LE(state->xof_len, out_len);
     } else {
@@ -222,12 +224,13 @@ int hydro_hash_final(hydro_hash_state *state, uint8_t *out, size_t out_len)
 }
 
 int hydro_hash_hash(uint8_t *out, size_t out_len, const void *in_,
-    size_t in_len, const uint8_t *key, size_t key_len)
+    size_t in_len, const uint8_t ctx[hydro_hash_CONTEXTBYTES],
+    const uint8_t *key, size_t key_len)
 {
     hydro_hash_state st;
     const uint8_t *  in = (const uint8_t *)in_;
 
-    if (hydro_hash_init(&st, key, key_len, out_len) != 0 ||
+    if (hydro_hash_init(&st, ctx, key, key_len, out_len) != 0 ||
         hydro_hash_update(&st, in, in_len) != 0 ||
         hydro_hash_final(&st, out, out_len) != 0) {
         return -1;

@@ -25,7 +25,7 @@ test: tests/tests
 	rm -f tests/tests.done
 	tests/tests && touch tests/tests.done
 
-tests/tests: $(SRC)
+tests/tests: $(SRC) tests/tests.c
 	$(CC) $(CFLAGS) -O3 -o tests/tests hydrogen.c tests/tests.c
 
 $(OBJ): $(SRC)

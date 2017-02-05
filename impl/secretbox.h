@@ -5,6 +5,7 @@ void hydro_secretbox_keygen(uint8_t key[hydro_secretbox_KEYBYTES])
 }
 
 int hydro_secretbox_encrypt(uint8_t *c, const void *m_, size_t mlen,
+    const uint8_t ctx[hydro_secretbox_CONTEXTBYTES],
     const uint8_t key[hydro_secretbox_KEYBYTES])
 {
     hydro_hash128_state st;
@@ -19,7 +20,7 @@ int hydro_secretbox_encrypt(uint8_t *c, const void *m_, size_t mlen,
     COMPILER_ASSERT(
         hydro_secretbox_KEYBYTES == hydro_stream_chacha20_block_KEYBYTES);
     hydro_stream_chacha20_block(t0, zero, key);
-    hydro_hash128_hash(k0, m, mlen, nonce_key);
+    hydro_hash128_hash(k0, m, mlen, ctx, nonce_key);
     randombytes_buf(&k0[hydro_hash128_BYTES], sizeof k0 - hydro_hash128_BYTES);
     hydro_stream_hchacha20(nonce, zero, k0);
     memset(nonce + hydro_secretbox_NONCEBYTES, 0,
@@ -28,7 +29,7 @@ int hydro_secretbox_encrypt(uint8_t *c, const void *m_, size_t mlen,
         c + hydro_secretbox_HEADERBYTES, m, mlen, nonce, ct_key);
     COMPILER_ASSERT(hydro_secretbox_NONCEBYTES + hydro_secretbox_MACBYTES ==
                     hydro_secretbox_HEADERBYTES);
-    hydro_hash128_init(&st, mac_key);
+    hydro_hash128_init(&st, ctx, mac_key);
     hydro_hash128_update(&st, nonce, hydro_secretbox_NONCEBYTES);
     hydro_hash128_update(&st, c + hydro_secretbox_HEADERBYTES, mlen);
     hydro_hash128_final(&st, c + hydro_secretbox_NONCEBYTES);
@@ -38,6 +39,7 @@ int hydro_secretbox_encrypt(uint8_t *c, const void *m_, size_t mlen,
 }
 
 int hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen,
+    const uint8_t ctx[hydro_secretbox_CONTEXTBYTES],
     const uint8_t key[hydro_secretbox_KEYBYTES])
 {
     hydro_hash128_state st;
@@ -57,7 +59,7 @@ int hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen,
     memcpy(nonce, c, hydro_secretbox_NONCEBYTES);
     memset(nonce + hydro_secretbox_NONCEBYTES, 0,
         hydro_stream_xchacha20_NONCEBYTES - hydro_secretbox_NONCEBYTES);
-    hydro_hash128_init(&st, mac_key);
+    hydro_hash128_init(&st, ctx, mac_key);
     hydro_hash128_update(&st, nonce, hydro_secretbox_NONCEBYTES);
     hydro_hash128_update(&st, c + hydro_secretbox_HEADERBYTES, mlen);
     hydro_hash128_final(&st, mac);
