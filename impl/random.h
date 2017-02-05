@@ -31,7 +31,8 @@ static int hydro_random_init(void)
     WDTCSR = _BV(WDIE);
     sei();
 
-    hydro_hash128_init(&st, hydrokey);
+    COMPILER_ASSERT(hydro_hash128_KEYBYTES >= hydro_hash128_CONTEXTBYTES);
+    hydro_hash128_init(&st, hydrokey, hydrokey);
 
     while (ebits < 256) {
         delay(1);
