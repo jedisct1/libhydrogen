@@ -31,12 +31,12 @@ static int hydro_stream_xchacha20_xor(uint8_t *c, const uint8_t *m, size_t len,
     const uint8_t nonce[hydro_stream_xchacha20_NONCEBYTES],
     const uint8_t key[hydro_stream_xchacha20_KEYBYTES]);
 
-static int hydro_stream_chacha20_block(
+static void hydro_stream_chacha20_block(
     uint8_t       block[hydro_stream_chacha20_block_BYTES],
     const uint8_t nonce[hydro_stream_chacha20_block_NONCEBYTES],
     const uint8_t key[hydro_stream_chacha20_block_KEYBYTES]);
 
-static int hydro_stream_hchacha20(uint8_t subkey[hydro_stream_hchacha20_BYTES],
+static void hydro_stream_hchacha20(uint8_t subkey[hydro_stream_hchacha20_BYTES],
     const uint8_t nonce[hydro_stream_hchacha20_NONCEBYTES],
     const uint8_t key[hydro_stream_hchacha20_KEYBYTES]);
 

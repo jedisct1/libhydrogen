@@ -105,7 +105,7 @@ static int hydro_stream_chacha20(uint8_t *c, size_t len,
     return hydro_stream_chacha20_xor(c, c, len, nonce, key);
 }
 
-static int hydro_stream_chacha20_block(
+static void hydro_stream_chacha20_block(
     uint8_t       block[hydro_stream_chacha20_block_BYTES],
     const uint8_t nonce[hydro_stream_chacha20_block_NONCEBYTES],
     const uint8_t key[hydro_stream_chacha20_block_KEYBYTES])
@@ -120,10 +120,9 @@ static int hydro_stream_chacha20_block(
     for (i = 0; i < 16; i++) {
         STORE32_LE(block + 4 * i, ks[i]);
     }
-    return 0;
 }
 
-static int hydro_stream_hchacha20(uint8_t subkey[hydro_stream_hchacha20_BYTES],
+static void hydro_stream_hchacha20(uint8_t subkey[hydro_stream_hchacha20_BYTES],
     const uint8_t nonce[hydro_stream_hchacha20_NONCEBYTES],
     const uint8_t key[hydro_stream_hchacha20_KEYBYTES])
 {
@@ -139,7 +138,6 @@ static int hydro_stream_hchacha20(uint8_t subkey[hydro_stream_hchacha20_BYTES],
     for (; i < 8; i++) {
         STORE32_LE(subkey + 4 * i, st[i + 12 - 4]);
     }
-    return 0;
 }
 
 static int hydro_stream_xchacha20_xor(uint8_t *c, const uint8_t *m, size_t len,
