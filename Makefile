@@ -21,6 +21,13 @@ all: lib
 
 lib: libhydrogen.a
 
+test: tests/tests
+	rm -f tests/tests.done
+	tests/tests && touch tests/tests.done
+
+tests/tests: $(SRC)
+	$(CC) $(CFLAGS) -O3 -o tests/tests hydrogen.c tests/tests.c
+
 $(OBJ): $(SRC)
 
 libhydrogen.a: $(OBJ)
@@ -31,5 +38,5 @@ libhydrogen.a: $(OBJ)
 
 clean:
 	rm -f libhydrogen.a $(OBJ)
-	rm -f tests/tests
+	rm -f tests/tests tests/*.done
 	rm -f $(ARDUINO_PACKAGE)
