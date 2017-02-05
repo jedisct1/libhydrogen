@@ -8,7 +8,7 @@ static uint8_t ctx[8] = { 'l', 'i', 'b', 't', 'e', 's', 't', 's' };
 
 static void test_randombytes(void)
 {
-    uint8_t       key[randombytes_buf_deterministic_KEYBYTES];
+    uint8_t       dk[randombytes_SEEDBYTES];
     uint8_t       tmp[10000];
     unsigned long b = 0U;
     unsigned long bp;
@@ -32,9 +32,9 @@ static void test_randombytes(void)
     }
     assert(b > 4500 && b < 5500);
 
-    memcpy(key, tmp, sizeof key);
+    memcpy(dk, tmp, sizeof dk);
     b = 0;
-    randombytes_buf_deterministic(tmp, 10000, key);
+    randombytes_buf_deterministic(tmp, 10000, dk);
     for (i = 0; i < 10000; i++) {
         for (j = 0; j < sizeof tmp[0]; j++) {
             b += (tmp[i] >> j) & 1;
@@ -43,7 +43,7 @@ static void test_randombytes(void)
     assert(b > 4500 && b < 5500);
     bp = b;
     b  = 0;
-    randombytes_buf_deterministic(tmp, 10000, key);
+    randombytes_buf_deterministic(tmp, 10000, dk);
     for (i = 0; i < 10000; i++) {
         for (j = 0; j < sizeof tmp[0]; j++) {
             b += (tmp[i] >> j) & 1;
@@ -62,7 +62,7 @@ static void test_randombytes(void)
 static void test_hash(void)
 {
     hydro_hash_state st;
-    uint8_t          dk[randombytes_buf_deterministic_KEYBYTES];
+    uint8_t          dk[randombytes_SEEDBYTES];
     uint8_t          h[100];
     uint8_t          key[hydro_hash_KEYBYTES_MAX];
     uint8_t          msg[1000];
@@ -102,7 +102,7 @@ static void test_hash(void)
 static void test_hash128(void)
 {
     hydro_hash128_state st;
-    uint8_t             dk[randombytes_buf_deterministic_KEYBYTES];
+    uint8_t             dk[randombytes_SEEDBYTES];
     uint8_t             h[hydro_hash128_BYTES];
     uint8_t             key[hydro_hash128_KEYBYTES];
     uint8_t             msg[1000];
@@ -166,7 +166,7 @@ static void test_secretbox(void)
     uint8_t m[25];
     uint8_t m2[25];
     uint8_t c[hydro_secretbox_HEADERBYTES + 25];
-    uint8_t dk[randombytes_buf_deterministic_KEYBYTES];
+    uint8_t dk[randombytes_SEEDBYTES];
 
     memset(dk, 0, sizeof dk);
     randombytes_buf_deterministic(m, sizeof m, dk);
@@ -190,7 +190,7 @@ static void test_secretbox(void)
 static void test_kdf(void)
 {
     uint8_t key[hydro_kdf_KEYBYTES];
-    uint8_t dk[randombytes_buf_deterministic_KEYBYTES];
+    uint8_t dk[randombytes_SEEDBYTES];
     uint8_t subkey1[16];
     uint8_t subkey2[16];
     uint8_t subkey3[32];
