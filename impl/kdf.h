@@ -11,3 +11,8 @@ int hydro_kdf_derive_from_key(uint8_t *subkey, size_t subkey_len,
     }
     return hydro_hash_final(&st, subkey, subkey_len);
 }
+
+void hydro_kdf_keygen(uint8_t key[hydro_kdf_KEYBYTES])
+{
+    randombytes_buf(key, hydro_kdf_KEYBYTES);
+}

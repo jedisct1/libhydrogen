@@ -132,6 +132,8 @@ int hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen,
 #define hydro_kdf_SUBKEYBYTES_MAX 65535
 #define hydro_kdf_SUBKEYBYTES_MIN 16
 
+void hydro_kdf_keygen(uint8_t key[hydro_kdf_KEYBYTES]);
+
 int hydro_kdf_derive_from_key(uint8_t *subkey, size_t subkey_len,
     const uint8_t ctx[hydro_kdf_CONTEXTBYTES], uint64_t subkey_id,
     const uint8_t key[hydro_kdf_KEYBYTES]);
