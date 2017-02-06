@@ -222,6 +222,53 @@ static void test_kdf(void)
         subkey4_hex, sizeof subkey4_hex));
 }
 
+static void test_sign(void)
+{
+    uint8_t            msg[500];
+    uint8_t            sig[hydro_sign_BYTES];
+    hydro_sign_state   st;
+    hydro_sign_keypair kp;
+
+    randombytes_buf(msg, sizeof msg);
+    hydro_sign_keygen(&kp);
+    hydro_sign_create(sig, msg, sizeof msg, ctx, kp.sk);
+    assert(hydro_sign_verify(sig, msg, sizeof msg, ctx, kp.pk) == 0);
+    sig[0]++;
+    assert(hydro_sign_verify(sig, msg, sizeof msg, ctx, kp.pk) == -1);
+    sig[0]--;
+    sig[hydro_sign_BYTES - 1]++;
+    assert(hydro_sign_verify(sig, msg, sizeof msg, ctx, kp.pk) == -1);
+    sig[hydro_sign_BYTES - 1]--;
+    msg[0]++;
+    assert(hydro_sign_verify(sig, msg, sizeof msg, ctx, kp.pk) == -1);
+    msg[0]++;
+    hydro_sign_create(sig, msg, sizeof msg, ctx, kp.sk);
+
+    hydro_sign_init(&st, ctx);
+    hydro_sign_update(&st, msg, (sizeof msg) / 3);
+    hydro_sign_update(
+        &st, msg + (sizeof msg) / 3, (sizeof msg) - (sizeof msg) / 3);
+    assert(hydro_sign_final_verify(&st, sig, kp.pk) == 0);
+
+    hydro_sign_init(&st, ctx);
+    hydro_sign_update(&st, msg, (sizeof msg) / 3);
+    hydro_sign_update(
+        &st, msg + (sizeof msg) / 3, (sizeof msg) - (sizeof msg) / 3);
+    hydro_sign_final_create(&st, sig, kp.sk);
+
+    hydro_sign_init(&st, ctx);
+    hydro_sign_update(&st, msg, (sizeof msg) / 3);
+    hydro_sign_update(
+        &st, msg + (sizeof msg) / 3, (sizeof msg) - (sizeof msg) / 3);
+    assert(hydro_sign_final_verify(&st, sig, kp.pk) == 0);
+    sig[0]++;
+    assert(hydro_sign_final_verify(&st, sig, kp.pk) == -1);
+
+    hydro_sign_create(sig, msg, 0, ctx, kp.sk);
+    assert(hydro_sign_verify(sig, msg, sizeof msg, ctx, kp.pk) == -1);
+    assert(hydro_sign_verify(sig, msg, 0, ctx, kp.pk) == 0);
+}
+
 int main(void)
 {
     int ret;
@@ -235,6 +282,7 @@ int main(void)
     test_kdf();
     test_randombytes();
     test_secretbox();
+    test_sign();
 
     return 0;
 }
