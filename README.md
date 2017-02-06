@@ -20,6 +20,9 @@ Non-goals:
 - Networking (but a simple API to complete a NOISE-inspired key exchange may be added).
 - Replacing libsodium. Libhydrogen focuses on being small and is for environments where libsodium cannot be used.
 
-Warning
--------
+# [Libhydrogen documentation](https://github.com/jedisct1/libhydrogen/wiki)
+
+The documentation is maintained in the [libhydrogen wiki](https://github.com/jedisct1/libhydrogen/wiki).
+
+# Warning
 This is a work in progress -- Do not use yet.

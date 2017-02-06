@@ -39,6 +39,7 @@ void randombytes_buf_deterministic(
 #define hydro_hash_KEYBYTES 32
 #define hydro_hash_KEYBYTES_MAX 32
 #define hydro_hash_KEYBYTES_MIN 16
+
 #define hydro_hash_TWEAKBYTES 8
 
 typedef struct hydro_hash_state {
