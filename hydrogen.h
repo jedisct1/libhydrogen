@@ -25,10 +25,10 @@ uint32_t randombytes_random(void);
 
 uint32_t randombytes_uniform(const uint32_t upper_bound);
 
-void randombytes_buf(void *const buf, const size_t size);
+void randombytes_buf(void *buf, size_t len);
 
-void randombytes_buf_deterministic(void *const buf, const size_t len,
-    const uint8_t seed[randombytes_SEEDBYTES]);
+void randombytes_buf_deterministic(
+    void *buf, size_t len, const uint8_t seed[randombytes_SEEDBYTES]);
 
 /* ---------------- */
 
@@ -178,7 +178,7 @@ int hydro_sign_verify(const uint8_t csig[hydro_sign_BYTES], const void *m_,
 
 /* ---------------- */
 
-void hydro_memzero(void *const pnt, size_t len);
+void hydro_memzero(void *pnt, size_t len);
 
 void hydro_increment(uint8_t *n, size_t len);
 

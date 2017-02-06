@@ -20,7 +20,7 @@
 #endif
 
 #ifndef SIZE_MAX
-#define SIZE_MAX ((size_t) -1)
+#define SIZE_MAX ((size_t)-1)
 #endif
 
 #define COMPILER_ASSERT(X) (void)sizeof(char[(X) ? 1 : -1])

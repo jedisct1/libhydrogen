@@ -6,7 +6,7 @@ int hydro_init(void)
     return 0;
 }
 
-void hydro_memzero(void *const pnt, size_t len)
+void hydro_memzero(void *pnt, size_t len)
 {
     volatile unsigned char *volatile pnt_ =
         (volatile unsigned char *volatile)pnt;

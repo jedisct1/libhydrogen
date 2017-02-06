@@ -218,7 +218,7 @@ uint32_t randombytes_uniform(const uint32_t upper_bound)
     return r % upper_bound;
 }
 
-void randombytes_buf(void *const buf, const size_t len)
+void randombytes_buf(void *buf, size_t len)
 {
     uint8_t *p = (uint8_t *)buf;
     size_t   i;
@@ -233,8 +233,8 @@ void randombytes_buf(void *const buf, const size_t len)
     }
 }
 
-void randombytes_buf_deterministic(void *const buf, const size_t len,
-    const uint8_t seed[randombytes_SEEDBYTES])
+void randombytes_buf_deterministic(
+    void *buf, size_t len, const uint8_t seed[randombytes_SEEDBYTES])
 {
     COMPILER_ASSERT(randombytes_SEEDBYTES == hydro_stream_chacha20_KEYBYTES);
     hydro_stream_chacha20((uint8_t *)buf, len, zero, seed);
