@@ -17,7 +17,7 @@ Features:
 Non-goals:
 - Having multiple primitives serving the same purpose, even to provide compatibility with other libraries.
 - Networking (but a simple API to complete a NOISE-inspired key exchange may be added).
-- Replacing libsodium. Libhydrogen focuses on being small.
+- Replacing libsodium. Libhydrogen focuses on being small and is for environments where libsodium cannot be used.
 
 Warning
 -------
