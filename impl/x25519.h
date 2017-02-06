@@ -249,7 +249,7 @@ static void hydro_x25519_ladder_part2(
 }
 
 static void hydro_x25519_core(hydro_x25519_fe xs[5],
-    const uint8_t scalar[hydro_x25519_BYTES], const uint8_t *x1, _Bool clamp)
+    const uint8_t scalar[hydro_x25519_BYTES], const uint8_t *x1, bool clamp)
 {
     hydro_x25519_limb_t  swap;
     hydro_x25519_limb_t *x2 = xs[0], *x3 = xs[2], *z3 = xs[3];
@@ -287,7 +287,7 @@ static void hydro_x25519_core(hydro_x25519_fe xs[5],
 
 static int hydro_x25519_scalarmult(uint8_t out[hydro_x25519_BYTES],
     const uint8_t                          scalar[hydro_x25519_BYTES],
-    const uint8_t x1[hydro_x25519_BYTES], _Bool clamp)
+    const uint8_t x1[hydro_x25519_BYTES], bool clamp)
 {
     hydro_x25519_fe      xs[5];
     hydro_x25519_limb_t *x2, *z2, *z3;

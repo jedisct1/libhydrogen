@@ -107,7 +107,7 @@ int hydro_hex2bin(uint8_t *bin, size_t bin_maxlen, const char *hex,
     return ret;
 }
 
-_Bool hydro_equal(const void *b1_, const void *b2_, size_t len)
+bool hydro_equal(const void *b1_, const void *b2_, size_t len)
 {
     const volatile uint8_t *volatile b1 = (const volatile uint8_t *volatile)b1_;
     const volatile uint8_t *volatile b2 = (const volatile uint8_t *volatile)b2_;
@@ -120,7 +120,7 @@ _Bool hydro_equal(const void *b1_, const void *b2_, size_t len)
     for (i = 0U; i < len; i++) {
         d |= b1[i] ^ b2[i];
     }
-    return (_Bool)(1 & ((d - 1) >> 8));
+    return (bool)(1 & ((d - 1) >> 8));
 }
 
 int hydro_compare(const uint8_t *b1_, const uint8_t *b2_, size_t len)

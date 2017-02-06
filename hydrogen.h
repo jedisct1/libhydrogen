@@ -1,6 +1,7 @@
 #ifndef hydrogen_H
 #define hydrogen_H
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -187,7 +188,7 @@ void hydro_memzero(void *const pnt, size_t len);
 
 void hydro_increment(uint8_t *n, size_t len);
 
-_Bool hydro_equal(const void *b1_, const void *b2_, size_t len);
+bool hydro_equal(const void *b1_, const void *b2_, size_t len);
 
 int hydro_compare(const uint8_t *b1_, const uint8_t *b2_, size_t len);
 

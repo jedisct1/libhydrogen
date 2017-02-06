@@ -5,10 +5,10 @@ static uint8_t hydro_random_initialized;
 #if defined(AVR) && !defined(__unix__)
 #include <Arduino.h>
 
-static _Bool hydro_random_rbit(unsigned int x)
+static bool hydro_random_rbit(unsigned int x)
 {
     size_t i;
-    _Bool  res = 0;
+    bool   res = 0;
 
     for (i = 0; i < sizeof x; i++) {
         res ^= ((x >> i) & 1);
@@ -23,7 +23,7 @@ static int hydro_random_init(void)
     hydro_hash128_state st;
     uint16_t            ebits = 0;
     uint16_t            tc;
-    _Bool               a, b;
+    bool                a, b;
 
     cli();
     MCUSR = 0;
@@ -32,7 +32,7 @@ static int hydro_random_init(void)
     sei();
 
     COMPILER_ASSERT(hydro_hash128_KEYBYTES >= hydro_hash128_CONTEXTBYTES);
-    hydro_hash128_init(&st, hydrokey, hydrokey);
+    hydro_hash128_init(&st, (const char *) hydrokey, hydrokey);
 
     while (ebits < 256) {
         delay(1);
@@ -216,5 +216,5 @@ void randombytes_buf_deterministic(void *const buf, const size_t len,
     const uint8_t seed[randombytes_SEEDBYTES])
 {
     COMPILER_ASSERT(randombytes_SEEDBYTES == hydro_stream_chacha20_KEYBYTES);
-    hydro_stream_chacha20(buf, len, zero, seed);
+    hydro_stream_chacha20((uint8_t *)buf, len, zero, seed);
 }
