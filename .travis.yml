@@ -10,7 +10,13 @@ compiler:
  - clang
  - gcc
 
+addons:
+  apt:
+    packages:
+      - p7zip-full
+
 script:
  - make
  - make test
  - make clean
+ - make -f Makefile.arduino package
