@@ -4,7 +4,7 @@
 
 #include "../hydrogen.h"
 
-static const char ctx[8] = "libtests";
+static const char *ctx = "libtests";
 
 static void test_randombytes(void)
 {
