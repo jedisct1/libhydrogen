@@ -32,7 +32,7 @@ static int hydro_random_init(void)
     sei();
 
     COMPILER_ASSERT(hydro_hash128_KEYBYTES >= hydro_hash128_CONTEXTBYTES);
-    hydro_hash128_init(&st, (const char *) hydrokey, hydrokey);
+    hydro_hash128_init(&st, (const char *)hydrokey, hydrokey);
 
     while (ebits < 256) {
         delay(1);
@@ -67,6 +67,27 @@ static int hydro_random_init(void)
 
 ISR(WDT_vect)
 {
+}
+
+#elif defined(_WIN32)
+
+#include <windows.h>
+#define RtlGenRandom SystemFunction036
+#if defined(__cplusplus)
+extern "C"
+#endif
+    BOOLEAN NTAPI
+    RtlGenRandom(PVOID RandomBuffer, ULONG RandomBufferLength);
+#pragma comment(lib, "advapi32.lib")
+
+static int hydro_random_init(void)
+{
+    if (!RtlGenRandom(
+            (PVOID)hydro_random_key, (ULONG)sizeof hydro_random_key)) {
+        return -1;
+    }
+    hydro_random_initialized = 1;
+    return 0;
 }
 
 #elif defined(__unix__)
