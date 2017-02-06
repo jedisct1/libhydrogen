@@ -12,12 +12,6 @@
 extern "C" {
 #endif
 
-#define HYDRO_HWTYPE_ATMEGA328 1
-
-#ifndef HYDRO_HWTYPE
-#define HYDRO_HWTYPE HYDRO_HWTYPE_ATMEGA328
-#endif
-
 #define HYDRO_VERSION_MAJOR 0
 #define HYDRO_VERSION_MINOR 1
 
@@ -197,6 +191,18 @@ char *hydro_bin2hex(
 
 int hydro_hex2bin(uint8_t *bin, size_t bin_maxlen, const char *hex,
     size_t hex_len, const char *ignore, size_t *bin_len, const char **hex_end);
+
+/* ---------------- */
+
+#define HYDRO_HWTYPE_ATMEGA328 1
+
+#ifndef HYDRO_HWTYPE
+# ifdef __AVR__
+#  define HYDRO_HWTYPE HYDRO_HWTYPE_ATMEGA328
+# else
+#  error Please define HYDRO_HWTYPE
+# endif
+#endif
 
 #ifdef __cplusplus
 }
