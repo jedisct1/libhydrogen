@@ -21,17 +21,20 @@ static int hydro_sign_challenge(uint8_t csig[hydro_sign_BYTES],
     const uint8_t                       challenge[hydro_sign_CHALLENGEBYTES],
     const uint8_t                       sk[hydro_sign_SECRETKEYBYTES])
 {
-    uint8_t *nonce  = &csig[0];
-    uint8_t *sig    = &csig[hydro_sign_NONCEBYTES];
-    uint8_t *eph_sk = sig;
+    hydro_hash_state st;
+    uint8_t *        nonce  = &csig[0];
+    uint8_t *        sig    = &csig[hydro_sign_NONCEBYTES];
+    uint8_t *        eph_sk = sig;
 
+    randombytes_buf(nonce, hydro_sign_NONCEBYTES);
+    hydro_hash_init(
+        &st, zero, sk, hydro_sign_SECRETKEYBYTES, hydro_sign_NONCEBYTES);
+    hydro_hash_update(&st, nonce, hydro_sign_NONCEBYTES);
+    hydro_hash_update(&st, challenge, hydro_sign_CHALLENGEBYTES);
+    hydro_hash_final(&st, nonce, hydro_sign_NONCEBYTES);
     COMPILER_ASSERT(
         hydro_sign_BYTES == hydro_sign_NONCEBYTES + hydro_x25519_BYTES);
     COMPILER_ASSERT(hydro_sign_SECRETKEYBYTES <= hydro_sign_CHALLENGEBYTES);
-    COMPILER_ASSERT(
-        hydro_sign_SECRETKEYBYTES >= hydro_stream_chacha20_KEYBYTES);
-    hydro_stream_chacha20_xor(
-        eph_sk, challenge, hydro_sign_SECRETKEYBYTES, zero, sk);
     hydro_x25519_scalarmult_base_uniform(nonce, eph_sk);
     hydro_sign_p2(sig, challenge, eph_sk, sk);
 
