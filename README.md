@@ -13,6 +13,7 @@ Features:
 - Zero dynamic memory allocations and low stack requirements. This makes it usable in constrained environments such as microcontrollers.
 - Portable: written in standard C99. Supports Linux, *BSD, MacOS, Windows, and the Arduino IDE out of the box.
 - Can generate cryptographically-secure random numbers, even on Arduino boards.
+- Attempts to mitigate the implications of accidental misuse.
 
 Non-goals:
 - Having multiple primitives serving the same purpose, even to provide compatibility with other libraries.
