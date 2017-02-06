@@ -112,11 +112,11 @@ int hydro_hash128_final(
 void hydro_secretbox_keygen(uint8_t key[hydro_secretbox_KEYBYTES]);
 
 int hydro_secretbox_encrypt(uint8_t *c, const void *m_, size_t mlen,
-    const char    ctx[hydro_secretbox_CONTEXTBYTES],
+    uint64_t msg_id, const char ctx[hydro_secretbox_CONTEXTBYTES],
     const uint8_t key[hydro_secretbox_KEYBYTES]);
 
 int hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen,
-    const char    ctx[hydro_secretbox_CONTEXTBYTES],
+    uint64_t msg_id, const char ctx[hydro_secretbox_CONTEXTBYTES],
     const uint8_t key[hydro_secretbox_KEYBYTES])
     __attribute__((warn_unused_result));
 
@@ -197,11 +197,9 @@ int hydro_hex2bin(uint8_t *bin, size_t bin_maxlen, const char *hex,
 #define HYDRO_HWTYPE_ATMEGA328 1
 
 #ifndef HYDRO_HWTYPE
-# ifdef __AVR__
-#  define HYDRO_HWTYPE HYDRO_HWTYPE_ATMEGA328
-# else
-#  error Please define HYDRO_HWTYPE
-# endif
+#ifdef __AVR__
+#define HYDRO_HWTYPE HYDRO_HWTYPE_ATMEGA328
+#endif
 #endif
 
 #ifdef __cplusplus

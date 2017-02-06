@@ -173,18 +173,19 @@ static void test_secretbox(void)
     hydro_increment(dk, sizeof dk);
     randombytes_buf_deterministic(key, sizeof key, dk);
     hydro_increment(dk, sizeof dk);
-    hydro_secretbox_encrypt(c, m, sizeof m, ctx, key);
-    assert(hydro_secretbox_decrypt(m2, c, 0, ctx, key) == -1);
-    assert(hydro_secretbox_decrypt(m2, c, 1, ctx, key) == -1);
+    hydro_secretbox_encrypt(c, m, sizeof m, 0, ctx, key);
+    assert(hydro_secretbox_decrypt(m2, c, 0, 0, ctx, key) == -1);
+    assert(hydro_secretbox_decrypt(m2, c, 1, 0, ctx, key) == -1);
     assert(hydro_secretbox_decrypt(
-               m2, c, hydro_secretbox_HEADERBYTES, ctx, key) == -1);
-    assert(hydro_secretbox_decrypt(m2, c, sizeof c, ctx, key) == 0);
+               m2, c, hydro_secretbox_HEADERBYTES, 0, ctx, key) == -1);
+    assert(hydro_secretbox_decrypt(m2, c, sizeof c, 0, ctx, key) == 0);
+    assert(hydro_secretbox_decrypt(m2, c, sizeof c, 1, ctx, key) == -1);
     assert(hydro_equal(m, m2, sizeof m));
     key[0]++;
-    assert(hydro_secretbox_decrypt(m2, c, sizeof c, ctx, key) == -1);
+    assert(hydro_secretbox_decrypt(m2, c, sizeof c, 0, ctx, key) == -1);
     key[0]--;
     c[randombytes_uniform(sizeof c)]++;
-    assert(hydro_secretbox_decrypt(m2, c, sizeof c, ctx, key) == -1);
+    assert(hydro_secretbox_decrypt(m2, c, sizeof c, 0, ctx, key) == -1);
 }
 
 static void test_kdf(void)
