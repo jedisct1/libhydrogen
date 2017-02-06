@@ -34,13 +34,18 @@ int hydro_hash128_init(hydro_hash128_state *state,
     const char                              ctx[hydro_hash128_CONTEXTBYTES],
     const uint8_t                           key[hydro_hash128_KEYBYTES])
 {
-    const uint64_t k0 = LOAD64_LE(key);
-    const uint64_t k1 = LOAD64_LE(key + 8);
-
-    state->v0      = 0x736f6d6570736575ULL ^ k0;
-    state->v1      = 0x646f72616e646f83ULL ^ k1;
-    state->v2      = 0x6c7967656e657261ULL ^ k0;
-    state->v3      = 0x7465646279746573ULL ^ k1;
+    state->v0 = 0x736f6d6570736575ULL;
+    state->v1 = 0x646f72616e646f83ULL;
+    state->v2 = 0x6c7967656e657261ULL;
+    state->v3 = 0x7465646279746573ULL;
+    if (key != NULL) {
+        const uint64_t k0 = LOAD64_LE(key);
+        const uint64_t k1 = LOAD64_LE(key + 8);
+        state->v0 ^= k0;
+        state->v1 ^= k1;
+        state->v2 ^= k0;
+        state->v3 ^= k1;
+    }
     state->buf_off = 0;
     state->b       = 0;
 
