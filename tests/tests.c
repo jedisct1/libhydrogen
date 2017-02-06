@@ -4,7 +4,7 @@
 
 #include "../hydrogen.h"
 
-static uint8_t ctx[8] = { 'l', 'i', 'b', 't', 'e', 's', 't', 's' };
+static const char ctx[8] = "libtests";
 
 static void test_randombytes(void)
 {

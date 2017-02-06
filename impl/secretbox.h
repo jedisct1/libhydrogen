@@ -5,7 +5,7 @@ void hydro_secretbox_keygen(uint8_t key[hydro_secretbox_KEYBYTES])
 }
 
 int hydro_secretbox_encrypt(uint8_t *c, const void *m_, size_t mlen,
-    const uint8_t ctx[hydro_secretbox_CONTEXTBYTES],
+    const char    ctx[hydro_secretbox_CONTEXTBYTES],
     const uint8_t key[hydro_secretbox_KEYBYTES])
 {
     hydro_hash128_state st;
@@ -39,7 +39,7 @@ int hydro_secretbox_encrypt(uint8_t *c, const void *m_, size_t mlen,
 }
 
 int hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen,
-    const uint8_t ctx[hydro_secretbox_CONTEXTBYTES],
+    const char    ctx[hydro_secretbox_CONTEXTBYTES],
     const uint8_t key[hydro_secretbox_KEYBYTES])
 {
     hydro_hash128_state st;

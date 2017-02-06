@@ -31,7 +31,7 @@ static void hydro_hash128_hashblock(
 }
 
 int hydro_hash128_init(hydro_hash128_state *state,
-    const uint8_t                           ctx[hydro_hash128_CONTEXTBYTES],
+    const char                              ctx[hydro_hash128_CONTEXTBYTES],
     const uint8_t                           key[hydro_hash128_KEYBYTES])
 {
     const uint64_t k0 = LOAD64_LE(key);
@@ -45,7 +45,7 @@ int hydro_hash128_init(hydro_hash128_state *state,
     state->b       = 0;
 
     COMPILER_ASSERT(hydro_hash128_CONTEXTBYTES == 8);
-    hydro_hash128_hashblock(state, LOAD64_LE(ctx));
+    hydro_hash128_hashblock(state, LOAD64_LE((const uint8_t *)ctx));
 
     return 0;
 }
@@ -104,7 +104,7 @@ int hydro_hash128_final(
 }
 
 int hydro_hash128_hash(uint8_t out[hydro_hash128_BYTES], const void *in_,
-    size_t in_len, const uint8_t ctx[hydro_hash128_CONTEXTBYTES],
+    size_t in_len, const char ctx[hydro_hash128_CONTEXTBYTES],
     const uint8_t key[hydro_hash128_KEYBYTES])
 {
     hydro_hash128_state st;

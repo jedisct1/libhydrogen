@@ -120,8 +120,8 @@ static int hydro_hash_blake2s_final(
 }
 
 static int hydro_hash_init_with_tweak(hydro_hash_state *state,
-    const uint8_t ctx[hydro_hash_CONTEXTBYTES], uint64_t tweak,
-    const uint8_t *key, size_t key_len, size_t out_len)
+    const char ctx[hydro_hash_CONTEXTBYTES], uint64_t tweak, const uint8_t *key,
+    size_t key_len, size_t out_len)
 {
     if ((key != NULL && (key_len < hydro_hash_KEYBYTES_MIN ||
                             key_len > hydro_hash_KEYBYTES_MAX)) ||
@@ -155,8 +155,8 @@ static int hydro_hash_init_with_tweak(hydro_hash_state *state,
 }
 
 int hydro_hash_init(hydro_hash_state *state,
-    const uint8_t ctx[hydro_hash_CONTEXTBYTES], const uint8_t *key,
-    size_t key_len, size_t out_len)
+    const char ctx[hydro_hash_CONTEXTBYTES], const uint8_t *key, size_t key_len,
+    size_t out_len)
 {
     return hydro_hash_init_with_tweak(state, ctx, 0, key, key_len, out_len);
 }
@@ -232,8 +232,8 @@ int hydro_hash_final(hydro_hash_state *state, uint8_t *out, size_t out_len)
 }
 
 int hydro_hash_hash(uint8_t *out, size_t out_len, const void *in_,
-    size_t in_len, const uint8_t ctx[hydro_hash_CONTEXTBYTES],
-    const uint8_t *key, size_t key_len)
+    size_t in_len, const char ctx[hydro_hash_CONTEXTBYTES], const uint8_t *key,
+    size_t key_len)
 {
     hydro_hash_state st;
     const uint8_t *  in = (const uint8_t *)in_;
