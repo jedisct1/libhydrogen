@@ -203,10 +203,10 @@ static void test_kdf(void)
 
     memset(dk, 0, sizeof dk);
     randombytes_buf_deterministic(key, sizeof key, dk);
-    hydro_kdf_derive_from_key(subkey1, sizeof subkey1, ctx, 1, key);
-    hydro_kdf_derive_from_key(subkey2, sizeof subkey2, ctx, 2, key);
-    hydro_kdf_derive_from_key(subkey3, sizeof subkey3, ctx, 0, key);
-    hydro_kdf_derive_from_key(subkey4, sizeof subkey4, ctx, 0, key);
+    hydro_kdf_derive_from_key(subkey1, sizeof subkey1, 1, ctx, key);
+    hydro_kdf_derive_from_key(subkey2, sizeof subkey2, 2, ctx, key);
+    hydro_kdf_derive_from_key(subkey3, sizeof subkey3, 0, ctx, key);
+    hydro_kdf_derive_from_key(subkey4, sizeof subkey4, 0, ctx, key);
     hydro_bin2hex(subkey1_hex, sizeof subkey1_hex, subkey1, sizeof subkey1);
     hydro_bin2hex(subkey2_hex, sizeof subkey2_hex, subkey2, sizeof subkey2);
     hydro_bin2hex(subkey3_hex, sizeof subkey3_hex, subkey3, sizeof subkey3);

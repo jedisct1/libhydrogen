@@ -131,7 +131,7 @@ int hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen,
 void hydro_kdf_keygen(uint8_t key[hydro_kdf_KEYBYTES]);
 
 int hydro_kdf_derive_from_key(uint8_t *subkey, size_t subkey_len,
-    const char ctx[hydro_kdf_CONTEXTBYTES], uint64_t subkey_id,
+    uint64_t subkey_id, const char ctx[hydro_kdf_CONTEXTBYTES],
     const uint8_t key[hydro_kdf_KEYBYTES]);
 
 /* ---------------- */
