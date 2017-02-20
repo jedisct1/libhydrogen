@@ -134,12 +134,12 @@ static int hydro_hash_init_with_tweak(hydro_hash_state *state,
     memset(state, 0, sizeof *state);
     memcpy(state->ctx, ctx, sizeof state->ctx);
     STORE64_LE(state->tweak, tweak);
-    state->key_len = key_len;
+    state->key_len = (uint8_t) key_len;
     state->fanout  = 1;
     state->depth   = 1;
     if (out_len > hydro_hash_BLAKE2S_BYTES) {
         state->digest_len = hydro_hash_BLAKE2S_BYTES;
-        STORE16_LE(state->xof_len, out_len);
+        STORE16_LE(state->xof_len, (uint16_t) out_len);
     } else {
         state->digest_len = (uint8_t)out_len;
     }
@@ -176,7 +176,7 @@ int hydro_hash_update(hydro_hash_state *state, const void *in_, size_t in_len)
         for (i = 0; i < ps; i++) {
             state->buf[state->buf_off + i] = in[i];
         }
-        state->buf_off += ps;
+        state->buf_off += (uint8_t) ps;
         if (state->buf_off == hydro_hash_BLOCKBYTES) {
             hydro_hash_increment_counter(state, hydro_hash_BLOCKBYTES);
             hydro_hash_hashblock(state, state->buf);
@@ -218,7 +218,7 @@ int hydro_hash_final(hydro_hash_state *state, uint8_t *out, size_t out_len)
         const size_t block_size = (out_len < hydro_hash_BLAKE2S_BYTES)
                                       ? out_len
                                       : hydro_hash_BLAKE2S_BYTES;
-        state->digest_len = block_size;
+        state->digest_len = (uint8_t) block_size;
         STORE32_LE(state->node_offset, i);
         hydro_hash_init_params(state);
         hydro_hash_update(state, root, hydro_hash_BLAKE2S_BYTES);
