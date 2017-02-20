@@ -276,7 +276,7 @@ static void hydro_x25519_core(hydro_x25519_fe xs[5],
                 bytei |= 0x40;
             }
         }
-        doswap = -(hydro_x25519_limb_t)((bytei >> (i % 8)) & 1);
+        doswap = 1U + ~(hydro_x25519_limb_t)((bytei >> (i % 8)) & 1);
         hydro_x25519_condswap(x2, x3, swap ^ doswap);
         swap = doswap;
         hydro_x25519_ladder_part1(xs);
