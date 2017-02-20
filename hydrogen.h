@@ -12,6 +12,13 @@
 extern "C" {
 #endif
 
+#ifndef __GNUC__
+# ifdef __attribute__
+#  undef __attribute__
+# endif
+# define __attribute__(a)
+#endif
+
 #define HYDRO_VERSION_MAJOR 0
 #define HYDRO_VERSION_MINOR 1
 
