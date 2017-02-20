@@ -87,7 +87,7 @@ static int hydro_stream_chacha20_xor(uint8_t *c, const uint8_t *m, size_t len,
             tmp[i] = m[i];
         }
         for (i = 0; i < 16; i++) {
-            x = ks[i] ^ LOAD32_LE(m + 4 * i);
+            x = ks[i] ^ LOAD32_LE(tmp + 4 * i);
             STORE32_LE(tmp + 4 * i, x);
         }
         for (i = 0; i < (int)len; i++) {
