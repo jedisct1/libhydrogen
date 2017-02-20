@@ -53,7 +53,7 @@ static void test_randombytes(void)
 
     for (i = 0; i < 1000; i++) {
         for (j = 1; j < 100; j++) {
-            x = randombytes_uniform(j);
+            x = randombytes_uniform((uint32_t) j);
             assert(x < j);
         }
     }
