@@ -72,7 +72,7 @@ int hydro_hash128_update(
         for (i = 0; i < ps; i++) {
             state->buf[state->buf_off + i] = in[i];
         }
-        state->buf_off += (uint8_t) ps;
+        state->buf_off += (uint8_t)ps;
         if (state->buf_off == 8) {
             hydro_hash128_hashblock(state, LOAD64_LE(state->buf));
             state->buf_off = 0;
