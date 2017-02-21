@@ -214,7 +214,7 @@ typedef struct hydro_kx_state {
     uint8_t          k[32];
 } hydro_kx_state;
 
-void hydro_kx_keygen(hydro_kx_keypair *kp);
+void hydro_kx_keygen(hydro_kx_keypair *static_kp);
 
 int hydro_kx_xx_1(hydro_kx_state *state,
     uint8_t                       response1[hydro_kx_RESPONSE1BYTES],

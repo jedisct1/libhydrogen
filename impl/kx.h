@@ -6,10 +6,10 @@
 #define hydro_kx_CONTEXT "hydro_kx"
 #define hydro_kx_CONTEXT_CK_K "kdf_ck_k"
 
-void hydro_kx_keygen(hydro_kx_keypair *kp)
+void hydro_kx_keygen(hydro_kx_keypair *static_kp)
 {
-    randombytes_buf(kp->sk, hydro_kx_SECRETKEYBYTES);
-    if (hydro_x25519_scalarmult_base(kp->pk, kp->sk) != 0) {
+    randombytes_buf(static_kp->sk, hydro_kx_SECRETKEYBYTES);
+    if (hydro_x25519_scalarmult_base(static_kp->pk, static_kp->sk) != 0) {
         abort();
     }
 }
