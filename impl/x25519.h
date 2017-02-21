@@ -4,10 +4,6 @@
  * MIT License (MIT)
  */
 
-#define hydro_x25519_BYTES 32
-#define hydro_x25519_PUBLICKEYBYTES 32
-#define hydro_x25519_SECRETKEYBYTES 32
-
 #if defined(__GNUC__) && defined(__SIZEOF_INT128__)
 #define hydro_x25519_WBITS 64
 #else
@@ -325,11 +321,18 @@ static int hydro_x25519_scalarmult(uint8_t out[hydro_x25519_BYTES],
     return ret;
 }
 
-static int hydro_x25519_scalarmult_base_uniform(
+static inline int hydro_x25519_scalarmult_base(
     uint8_t       pk[hydro_x25519_PUBLICKEYBYTES],
     const uint8_t sk[hydro_x25519_SECRETKEYBYTES])
 {
-    return hydro_x25519_scalarmult(pk, sk, hydro_x25519_BASE_POINT, 0);
+    return hydro_x25519_scalarmult(pk, sk, hydro_x25519_BASE_POINT, 1);
+}
+
+static inline void hydro_x25519_scalarmult_base_uniform(
+    uint8_t       pk[hydro_x25519_PUBLICKEYBYTES],
+    const uint8_t sk[hydro_x25519_SECRETKEYBYTES])
+{
+    (void)hydro_x25519_scalarmult(pk, sk, hydro_x25519_BASE_POINT, 0);
 }
 
 static void hydro_x25519_sc_montmul(hydro_x25519_scalar_t out,

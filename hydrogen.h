@@ -13,10 +13,10 @@ extern "C" {
 #endif
 
 #ifndef __GNUC__
-# ifdef __attribute__
-#  undef __attribute__
-# endif
-# define __attribute__(a)
+#ifdef __attribute__
+#undef __attribute__
+#endif
+#define __attribute__(a)
 #endif
 
 #define HYDRO_VERSION_MAJOR 0
@@ -174,7 +174,8 @@ int hydro_sign_final_create(hydro_sign_state *state,
 
 int hydro_sign_final_verify(hydro_sign_state *state,
     const uint8_t                             csig[hydro_sign_BYTES],
-    const uint8_t                             pk[hydro_sign_PUBLICKEYBYTES]);
+    const uint8_t                             pk[hydro_sign_PUBLICKEYBYTES])
+    __attribute__((warn_unused_result));
 
 int hydro_sign_create(uint8_t csig[hydro_sign_BYTES], const void *m_,
     size_t mlen, const char ctx[hydro_sign_CONTEXTBYTES],
@@ -182,7 +183,8 @@ int hydro_sign_create(uint8_t csig[hydro_sign_BYTES], const void *m_,
 
 int hydro_sign_verify(const uint8_t csig[hydro_sign_BYTES], const void *m_,
     size_t mlen, const char ctx[hydro_sign_CONTEXTBYTES],
-    const uint8_t pk[hydro_sign_PUBLICKEYBYTES]);
+    const uint8_t pk[hydro_sign_PUBLICKEYBYTES])
+    __attribute__((warn_unused_result));
 
 /* ---------------- */
 
