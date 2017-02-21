@@ -188,6 +188,56 @@ int hydro_sign_verify(const uint8_t csig[hydro_sign_BYTES], const void *m_,
 
 /* ---------------- */
 
+#define hydro_dh_SESSIONKEYBYTES 32
+#define hydro_dh_PUBLICKEYBYTES 32
+#define hydro_dh_SECRETKEYBYTES 32
+#define hydro_dh_PSKBYTES 32
+
+#define hydro_dh_RESPONSE1BYTES 32
+#define hydro_dh_RESPONSE2BYTES 80
+#define hydro_dh_RESPONSE3BYTES 48
+
+typedef struct hydro_dh_keypair {
+    uint8_t pk[hydro_dh_PUBLICKEYBYTES];
+    uint8_t sk[hydro_dh_SECRETKEYBYTES];
+} hydro_dh_keypair;
+
+typedef struct hydro_dh_session_keypair {
+    uint8_t rx[hydro_dh_SESSIONKEYBYTES];
+    uint8_t tx[hydro_dh_SESSIONKEYBYTES];
+} hydro_dh_session_keypair;
+
+typedef struct hydro_dh_state {
+    hydro_dh_keypair eph_kp;
+    uint8_t          h[32];
+    uint8_t          ck[32];
+    uint8_t          k[32];
+} hydro_dh_state;
+
+void hydro_dh_keygen(hydro_dh_keypair *kp);
+
+int hydro_dh_xx_1(hydro_dh_state *state,
+    uint8_t                       response1[hydro_dh_RESPONSE1BYTES],
+    const uint8_t                 psk[hydro_dh_PSKBYTES]);
+
+int hydro_dh_xx_2(hydro_dh_state *state,
+    uint8_t                       response2[hydro_dh_RESPONSE2BYTES],
+    const uint8_t                 response1[hydro_dh_PUBLICKEYBYTES],
+    const uint8_t psk[hydro_dh_PSKBYTES], const hydro_dh_keypair *static_kp);
+
+int hydro_dh_xx_3(hydro_dh_state *state, hydro_dh_session_keypair *kp,
+    uint8_t       response3[hydro_dh_RESPONSE3BYTES],
+    uint8_t       peer_static_pk[hydro_dh_PUBLICKEYBYTES],
+    const uint8_t response2[hydro_dh_RESPONSE2BYTES],
+    const uint8_t psk[hydro_dh_PSKBYTES], const hydro_dh_keypair *static_kp);
+
+int hydro_dh_xx_4(hydro_dh_state *state, hydro_dh_session_keypair *kp,
+    uint8_t       peer_static_pk[hydro_dh_PUBLICKEYBYTES],
+    const uint8_t response3[hydro_dh_RESPONSE3BYTES],
+    const uint8_t psk[hydro_dh_PSKBYTES]);
+
+/* ---------------- */
+
 void hydro_memzero(void *pnt, size_t len);
 
 void hydro_increment(uint8_t *n, size_t len);

@@ -14,4 +14,5 @@
 
 #include "impl/x25519.h"
 
+#include "impl/kx.h"
 #include "impl/sign.h"

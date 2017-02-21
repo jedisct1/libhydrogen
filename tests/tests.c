@@ -53,7 +53,7 @@ static void test_randombytes(void)
 
     for (i = 0; i < 1000; i++) {
         for (j = 1; j < 100; j++) {
-            x = randombytes_uniform((uint32_t) j);
+            x = randombytes_uniform((uint32_t)j);
             assert(x < j);
         }
     }
@@ -270,6 +270,48 @@ static void test_sign(void)
     assert(hydro_sign_verify(sig, msg, 0, ctx, kp.pk) == 0);
 }
 
+static void test_kx(void)
+{
+    hydro_dh_state           st_client;
+    hydro_dh_state           st_server;
+    hydro_dh_keypair         client_static_kp;
+    hydro_dh_keypair         server_static_kp;
+    uint8_t                  psk[hydro_dh_PSKBYTES];
+    uint8_t                  client_peer_pk[hydro_dh_PUBLICKEYBYTES];
+    uint8_t                  server_peer_pk[hydro_dh_PUBLICKEYBYTES];
+    uint8_t                  response1[hydro_dh_RESPONSE1BYTES];
+    uint8_t                  response2[hydro_dh_RESPONSE2BYTES];
+    uint8_t                  response3[hydro_dh_RESPONSE3BYTES];
+    hydro_dh_session_keypair kp_client;
+    hydro_dh_session_keypair kp_server;
+
+    hydro_dh_keygen(&client_static_kp);
+    hydro_dh_keygen(&server_static_kp);
+
+    hydro_dh_xx_1(&st_client, response1, NULL);
+    hydro_dh_xx_2(&st_server, response2, response1, NULL, &server_static_kp);
+    hydro_dh_xx_3(&st_client, &kp_client, response3, NULL, response2, NULL,
+        &client_static_kp);
+    hydro_dh_xx_4(&st_server, &kp_server, NULL, response3, NULL);
+
+    assert(hydro_equal(kp_client.tx, kp_server.rx, hydro_dh_SESSIONKEYBYTES));
+    assert(hydro_equal(kp_client.rx, kp_server.tx, hydro_dh_SESSIONKEYBYTES));
+
+    randombytes_buf(psk, sizeof psk);
+    hydro_dh_xx_1(&st_client, response1, psk);
+    hydro_dh_xx_2(&st_server, response2, response1, psk, &server_static_kp);
+    hydro_dh_xx_3(&st_client, &kp_client, response3, client_peer_pk, response2,
+        psk, &client_static_kp);
+    hydro_dh_xx_4(&st_server, &kp_server, server_peer_pk, response3, psk);
+
+    assert(hydro_equal(kp_client.tx, kp_server.rx, hydro_dh_SESSIONKEYBYTES));
+    assert(hydro_equal(kp_client.rx, kp_server.tx, hydro_dh_SESSIONKEYBYTES));
+    assert(hydro_equal(
+        client_peer_pk, server_static_kp.pk, hydro_dh_PUBLICKEYBYTES));
+    assert(hydro_equal(
+        server_peer_pk, client_static_kp.pk, hydro_dh_PUBLICKEYBYTES));
+}
+
 int main(void)
 {
     int ret;
@@ -284,6 +326,7 @@ int main(void)
     test_randombytes();
     test_secretbox();
     test_sign();
+    test_kx();
 
     return 0;
 }
