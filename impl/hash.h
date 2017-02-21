@@ -104,7 +104,7 @@ static int hydro_hash_blake2s_final(
 
     memset(buffer, 0, sizeof buffer);
     if (state->f[0] != 0) {
-        return -1;
+        abort();
     }
     state->f[0] = (uint32_t)-1;
     hydro_hash_increment_counter(state, state->buf_off);

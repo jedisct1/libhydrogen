@@ -262,6 +262,11 @@ static void test_sign(void)
     hydro_sign_update(
         &st, msg + (sizeof msg) / 3, (sizeof msg) - (sizeof msg) / 3);
     assert(hydro_sign_final_verify(&st, sig, kp.pk) == 0);
+
+    hydro_sign_init(&st, ctx);
+    hydro_sign_update(&st, msg, (sizeof msg) / 3);
+    hydro_sign_update(
+        &st, msg + (sizeof msg) / 3, (sizeof msg) - (sizeof msg) / 3);
     sig[0]++;
     assert(hydro_sign_final_verify(&st, sig, kp.pk) == -1);
 
