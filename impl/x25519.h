@@ -332,7 +332,7 @@ static inline void hydro_x25519_scalarmult_base_uniform(
     uint8_t       pk[hydro_x25519_PUBLICKEYBYTES],
     const uint8_t sk[hydro_x25519_SECRETKEYBYTES])
 {
-    (void)hydro_x25519_scalarmult(pk, sk, hydro_x25519_BASE_POINT, 0);
+    if (hydro_x25519_scalarmult(pk, sk, hydro_x25519_BASE_POINT, 0)) { }
 }
 
 static void hydro_x25519_sc_montmul(hydro_x25519_scalar_t out,
