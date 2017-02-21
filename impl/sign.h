@@ -32,8 +32,8 @@ static int hydro_sign_challenge(uint8_t csig[hydro_sign_BYTES],
     hydro_hash_update(&st, eph_sk, hydro_x25519_SECRETKEYBYTES);
     hydro_hash_update(&st, challenge, hydro_sign_CHALLENGEBYTES);
     hydro_hash_final(&st, eph_sk, hydro_x25519_SECRETKEYBYTES);
-    COMPILER_ASSERT(
-        hydro_sign_BYTES == hydro_sign_NONCEBYTES + hydro_x25519_SECRETKEYBYTES);
+    COMPILER_ASSERT(hydro_sign_BYTES ==
+                    hydro_sign_NONCEBYTES + hydro_x25519_SECRETKEYBYTES);
     COMPILER_ASSERT(hydro_sign_SECRETKEYBYTES <= hydro_sign_CHALLENGEBYTES);
     hydro_x25519_scalarmult_base_uniform(nonce, eph_sk);
     hydro_sign_p2(sig, challenge, eph_sk, sk);
