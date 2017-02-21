@@ -330,6 +330,7 @@ int main(void)
     test_kdf();
     test_randombytes();
     test_secretbox();
+    test_sign();
     test_kx();
 
     return 0;
