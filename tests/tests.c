@@ -272,44 +272,44 @@ static void test_sign(void)
 
 static void test_kx(void)
 {
-    hydro_dh_state           st_client;
-    hydro_dh_state           st_server;
-    hydro_dh_keypair         client_static_kp;
-    hydro_dh_keypair         server_static_kp;
-    uint8_t                  psk[hydro_dh_PSKBYTES];
-    uint8_t                  client_peer_pk[hydro_dh_PUBLICKEYBYTES];
-    uint8_t                  server_peer_pk[hydro_dh_PUBLICKEYBYTES];
-    uint8_t                  response1[hydro_dh_RESPONSE1BYTES];
-    uint8_t                  response2[hydro_dh_RESPONSE2BYTES];
-    uint8_t                  response3[hydro_dh_RESPONSE3BYTES];
-    hydro_dh_session_keypair kp_client;
-    hydro_dh_session_keypair kp_server;
+    hydro_kx_state           st_client;
+    hydro_kx_state           st_server;
+    hydro_kx_keypair         client_static_kp;
+    hydro_kx_keypair         server_static_kp;
+    uint8_t                  psk[hydro_kx_PSKBYTES];
+    uint8_t                  client_peer_pk[hydro_kx_PUBLICKEYBYTES];
+    uint8_t                  server_peer_pk[hydro_kx_PUBLICKEYBYTES];
+    uint8_t                  response1[hydro_kx_RESPONSE1BYTES];
+    uint8_t                  response2[hydro_kx_RESPONSE2BYTES];
+    uint8_t                  response3[hydro_kx_RESPONSE3BYTES];
+    hydro_kx_session_keypair kp_client;
+    hydro_kx_session_keypair kp_server;
 
-    hydro_dh_keygen(&client_static_kp);
-    hydro_dh_keygen(&server_static_kp);
+    hydro_kx_keygen(&client_static_kp);
+    hydro_kx_keygen(&server_static_kp);
 
-    hydro_dh_xx_1(&st_client, response1, NULL);
-    hydro_dh_xx_2(&st_server, response2, response1, NULL, &server_static_kp);
-    hydro_dh_xx_3(&st_client, &kp_client, response3, NULL, response2, NULL,
+    hydro_kx_xx_1(&st_client, response1, NULL);
+    hydro_kx_xx_2(&st_server, response2, response1, NULL, &server_static_kp);
+    hydro_kx_xx_3(&st_client, &kp_client, response3, NULL, response2, NULL,
         &client_static_kp);
-    hydro_dh_xx_4(&st_server, &kp_server, NULL, response3, NULL);
+    hydro_kx_xx_4(&st_server, &kp_server, NULL, response3, NULL);
 
-    assert(hydro_equal(kp_client.tx, kp_server.rx, hydro_dh_SESSIONKEYBYTES));
-    assert(hydro_equal(kp_client.rx, kp_server.tx, hydro_dh_SESSIONKEYBYTES));
+    assert(hydro_equal(kp_client.tx, kp_server.rx, hydro_kx_SESSIONKEYBYTES));
+    assert(hydro_equal(kp_client.rx, kp_server.tx, hydro_kx_SESSIONKEYBYTES));
 
     randombytes_buf(psk, sizeof psk);
-    hydro_dh_xx_1(&st_client, response1, psk);
-    hydro_dh_xx_2(&st_server, response2, response1, psk, &server_static_kp);
-    hydro_dh_xx_3(&st_client, &kp_client, response3, client_peer_pk, response2,
+    hydro_kx_xx_1(&st_client, response1, psk);
+    hydro_kx_xx_2(&st_server, response2, response1, psk, &server_static_kp);
+    hydro_kx_xx_3(&st_client, &kp_client, response3, client_peer_pk, response2,
         psk, &client_static_kp);
-    hydro_dh_xx_4(&st_server, &kp_server, server_peer_pk, response3, psk);
+    hydro_kx_xx_4(&st_server, &kp_server, server_peer_pk, response3, psk);
 
-    assert(hydro_equal(kp_client.tx, kp_server.rx, hydro_dh_SESSIONKEYBYTES));
-    assert(hydro_equal(kp_client.rx, kp_server.tx, hydro_dh_SESSIONKEYBYTES));
+    assert(hydro_equal(kp_client.tx, kp_server.rx, hydro_kx_SESSIONKEYBYTES));
+    assert(hydro_equal(kp_client.rx, kp_server.tx, hydro_kx_SESSIONKEYBYTES));
     assert(hydro_equal(
-        client_peer_pk, server_static_kp.pk, hydro_dh_PUBLICKEYBYTES));
+        client_peer_pk, server_static_kp.pk, hydro_kx_PUBLICKEYBYTES));
     assert(hydro_equal(
-        server_peer_pk, client_static_kp.pk, hydro_dh_PUBLICKEYBYTES));
+        server_peer_pk, client_static_kp.pk, hydro_kx_PUBLICKEYBYTES));
 }
 
 int main(void)
