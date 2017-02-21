@@ -222,7 +222,7 @@ int hydro_kx_xx_1(hydro_kx_state *state,
 
 int hydro_kx_xx_2(hydro_kx_state *state,
     uint8_t                       response2[hydro_kx_RESPONSE2BYTES],
-    const uint8_t                 response1[hydro_kx_PUBLICKEYBYTES],
+    const uint8_t                 response1[hydro_kx_RESPONSE1BYTES],
     const uint8_t psk[hydro_kx_PSKBYTES], const hydro_kx_keypair *static_kp);
 
 int hydro_kx_xx_3(hydro_kx_state *state, hydro_kx_session_keypair *kp,
