@@ -34,8 +34,8 @@ uint32_t randombytes_uniform(const uint32_t upper_bound);
 
 void randombytes_buf(void *buf, size_t len);
 
-void randombytes_buf_deterministic(
-    void *buf, size_t len, const uint8_t seed[randombytes_SEEDBYTES]);
+void randombytes_buf_deterministic(void *buf, size_t len,
+                                   const uint8_t seed[randombytes_SEEDBYTES]);
 
 /* ---------------- */
 
@@ -71,16 +71,16 @@ typedef struct hydro_hash_state {
 void hydro_hash_keygen(uint8_t *key, size_t key_len);
 
 int hydro_hash_init(hydro_hash_state *state,
-    const char ctx[hydro_hash_CONTEXTBYTES], const uint8_t *key, size_t key_len,
-    size_t out_len);
+                    const char ctx[hydro_hash_CONTEXTBYTES], const uint8_t *key,
+                    size_t key_len, size_t out_len);
 
 int hydro_hash_update(hydro_hash_state *state, const void *in_, size_t in_len);
 
 int hydro_hash_final(hydro_hash_state *state, uint8_t *out, size_t out_len);
 
 int hydro_hash_hash(uint8_t *out, size_t out_len, const void *in_,
-    size_t in_len, const char ctx[hydro_hash_CONTEXTBYTES], const uint8_t *key,
-    size_t key_len);
+                    size_t in_len, const char ctx[hydro_hash_CONTEXTBYTES],
+                    const uint8_t *key, size_t key_len);
 
 /* ---------------- */
 
@@ -98,18 +98,19 @@ typedef struct hydro_hash128_state {
 void hydro_hash128_keygen(uint8_t key[hydro_hash128_KEYBYTES]);
 
 int hydro_hash128_hash(uint8_t out[hydro_hash128_BYTES], const void *in_,
-    size_t in_len, const char ctx[hydro_hash128_CONTEXTBYTES],
-    const uint8_t key[hydro_hash128_KEYBYTES]);
+                       size_t        in_len,
+                       const char    ctx[hydro_hash128_CONTEXTBYTES],
+                       const uint8_t key[hydro_hash128_KEYBYTES]);
 
 int hydro_hash128_init(hydro_hash128_state *state,
-    const char                              ctx[hydro_hash128_CONTEXTBYTES],
-    const uint8_t                           key[hydro_hash128_KEYBYTES]);
+                       const char           ctx[hydro_hash128_CONTEXTBYTES],
+                       const uint8_t        key[hydro_hash128_KEYBYTES]);
 
-int hydro_hash128_update(
-    hydro_hash128_state *state, const void *in_, size_t in_len);
+int hydro_hash128_update(hydro_hash128_state *state, const void *in_,
+                         size_t in_len);
 
-int hydro_hash128_final(
-    hydro_hash128_state *state, uint8_t out[hydro_hash128_BYTES]);
+int hydro_hash128_final(hydro_hash128_state *state,
+                        uint8_t              out[hydro_hash128_BYTES]);
 
 /* ---------------- */
 
@@ -120,12 +121,14 @@ int hydro_hash128_final(
 void hydro_secretbox_keygen(uint8_t key[hydro_secretbox_KEYBYTES]);
 
 int hydro_secretbox_encrypt(uint8_t *c, const void *m_, size_t mlen,
-    uint64_t msg_id, const char ctx[hydro_secretbox_CONTEXTBYTES],
-    const uint8_t key[hydro_secretbox_KEYBYTES]);
+                            uint64_t      msg_id,
+                            const char    ctx[hydro_secretbox_CONTEXTBYTES],
+                            const uint8_t key[hydro_secretbox_KEYBYTES]);
 
 int hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen,
-    uint64_t msg_id, const char ctx[hydro_secretbox_CONTEXTBYTES],
-    const uint8_t key[hydro_secretbox_KEYBYTES])
+                            uint64_t      msg_id,
+                            const char    ctx[hydro_secretbox_CONTEXTBYTES],
+                            const uint8_t key[hydro_secretbox_KEYBYTES])
     __attribute__((warn_unused_result));
 
 /* ---------------- */
@@ -138,8 +141,9 @@ int hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen,
 void hydro_kdf_keygen(uint8_t key[hydro_kdf_KEYBYTES]);
 
 int hydro_kdf_derive_from_key(uint8_t *subkey, size_t subkey_len,
-    uint64_t subkey_id, const char ctx[hydro_kdf_CONTEXTBYTES],
-    const uint8_t key[hydro_kdf_KEYBYTES]);
+                              uint64_t      subkey_id,
+                              const char    ctx[hydro_kdf_CONTEXTBYTES],
+                              const uint8_t key[hydro_kdf_KEYBYTES]);
 
 /* ---------------- */
 
@@ -160,30 +164,30 @@ typedef struct hydro_sign_keypair {
 
 void hydro_sign_keygen(hydro_sign_keypair *kp);
 
-void hydro_sign_keygen_deterministic(
-    hydro_sign_keypair *kp, const uint8_t seed[hydro_sign_SEEDBYTES]);
+void hydro_sign_keygen_deterministic(hydro_sign_keypair *kp,
+                                     const uint8_t seed[hydro_sign_SEEDBYTES]);
 
-int hydro_sign_init(
-    hydro_sign_state *state, const char ctx[hydro_sign_CONTEXTBYTES]);
+int hydro_sign_init(hydro_sign_state *state,
+                    const char        ctx[hydro_sign_CONTEXTBYTES]);
 
 int hydro_sign_update(hydro_sign_state *state, const void *m_, size_t mlen);
 
 int hydro_sign_final_create(hydro_sign_state *state,
-    uint8_t                                   csig[hydro_sign_BYTES],
-    const uint8_t                             sk[hydro_sign_SECRETKEYBYTES]);
+                            uint8_t           csig[hydro_sign_BYTES],
+                            const uint8_t     sk[hydro_sign_SECRETKEYBYTES]);
 
 int hydro_sign_final_verify(hydro_sign_state *state,
-    const uint8_t                             csig[hydro_sign_BYTES],
-    const uint8_t                             pk[hydro_sign_PUBLICKEYBYTES])
+                            const uint8_t     csig[hydro_sign_BYTES],
+                            const uint8_t     pk[hydro_sign_PUBLICKEYBYTES])
     __attribute__((warn_unused_result));
 
 int hydro_sign_create(uint8_t csig[hydro_sign_BYTES], const void *m_,
-    size_t mlen, const char ctx[hydro_sign_CONTEXTBYTES],
-    const uint8_t sk[hydro_sign_SECRETKEYBYTES]);
+                      size_t mlen, const char ctx[hydro_sign_CONTEXTBYTES],
+                      const uint8_t sk[hydro_sign_SECRETKEYBYTES]);
 
 int hydro_sign_verify(const uint8_t csig[hydro_sign_BYTES], const void *m_,
-    size_t mlen, const char ctx[hydro_sign_CONTEXTBYTES],
-    const uint8_t pk[hydro_sign_PUBLICKEYBYTES])
+                      size_t mlen, const char ctx[hydro_sign_CONTEXTBYTES],
+                      const uint8_t pk[hydro_sign_PUBLICKEYBYTES])
     __attribute__((warn_unused_result));
 
 /* ---------------- */
@@ -217,24 +221,26 @@ typedef struct hydro_kx_state {
 void hydro_kx_keygen(hydro_kx_keypair *static_kp);
 
 int hydro_kx_xx_1(hydro_kx_state *state,
-    uint8_t                       response1[hydro_kx_RESPONSE1BYTES],
-    const uint8_t                 psk[hydro_kx_PSKBYTES]);
+                  uint8_t         response1[hydro_kx_RESPONSE1BYTES],
+                  const uint8_t   psk[hydro_kx_PSKBYTES]);
 
-int hydro_kx_xx_2(hydro_kx_state *state,
-    uint8_t                       response2[hydro_kx_RESPONSE2BYTES],
-    const uint8_t                 response1[hydro_kx_RESPONSE1BYTES],
-    const uint8_t psk[hydro_kx_PSKBYTES], const hydro_kx_keypair *static_kp);
+int hydro_kx_xx_2(hydro_kx_state *        state,
+                  uint8_t                 response2[hydro_kx_RESPONSE2BYTES],
+                  const uint8_t           response1[hydro_kx_RESPONSE1BYTES],
+                  const uint8_t           psk[hydro_kx_PSKBYTES],
+                  const hydro_kx_keypair *static_kp);
 
 int hydro_kx_xx_3(hydro_kx_state *state, hydro_kx_session_keypair *kp,
-    uint8_t       response3[hydro_kx_RESPONSE3BYTES],
-    uint8_t       peer_static_pk[hydro_kx_PUBLICKEYBYTES],
-    const uint8_t response2[hydro_kx_RESPONSE2BYTES],
-    const uint8_t psk[hydro_kx_PSKBYTES], const hydro_kx_keypair *static_kp);
+                  uint8_t       response3[hydro_kx_RESPONSE3BYTES],
+                  uint8_t       peer_static_pk[hydro_kx_PUBLICKEYBYTES],
+                  const uint8_t response2[hydro_kx_RESPONSE2BYTES],
+                  const uint8_t psk[hydro_kx_PSKBYTES],
+                  const hydro_kx_keypair *static_kp);
 
 int hydro_kx_xx_4(hydro_kx_state *state, hydro_kx_session_keypair *kp,
-    uint8_t       peer_static_pk[hydro_kx_PUBLICKEYBYTES],
-    const uint8_t response3[hydro_kx_RESPONSE3BYTES],
-    const uint8_t psk[hydro_kx_PSKBYTES]);
+                  uint8_t       peer_static_pk[hydro_kx_PUBLICKEYBYTES],
+                  const uint8_t response3[hydro_kx_RESPONSE3BYTES],
+                  const uint8_t psk[hydro_kx_PSKBYTES]);
 
 /* ---------------- */
 
@@ -246,11 +252,12 @@ bool hydro_equal(const void *b1_, const void *b2_, size_t len);
 
 int hydro_compare(const uint8_t *b1_, const uint8_t *b2_, size_t len);
 
-char *hydro_bin2hex(
-    char *hex, size_t hex_maxlen, const uint8_t *bin, size_t bin_len);
+char *hydro_bin2hex(char *hex, size_t hex_maxlen, const uint8_t *bin,
+                    size_t bin_len);
 
 int hydro_hex2bin(uint8_t *bin, size_t bin_maxlen, const char *hex,
-    size_t hex_len, const char *ignore, size_t *bin_len, const char **hex_end);
+                  size_t hex_len, const char *ignore, size_t *bin_len,
+                  const char **hex_end);
 
 /* ---------------- */
 

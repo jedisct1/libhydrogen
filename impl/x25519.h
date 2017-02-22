@@ -14,13 +14,13 @@
 typedef uint64_t    hydro_x25519_limb_t;
 typedef __uint128_t hydro_x25519_dlimb_t;
 typedef __int128_t  hydro_x25519_sdlimb_t;
-#define hydro_x25519_eswap_limb(X) LOAD64_LE((const uint8_t *)&(X))
+#define hydro_x25519_eswap_limb(X) LOAD64_LE((const uint8_t *) &(X))
 #define hydro_x25519_LIMB(x) x##ull
 #elif hydro_x25519_WBITS == 32
 typedef uint32_t hydro_x25519_limb_t;
 typedef uint64_t hydro_x25519_dlimb_t;
 typedef int64_t  hydro_x25519_sdlimb_t;
-#define hydro_x25519_eswap_limb(X) LOAD32_LE((const uint8_t *)&(X))
+#define hydro_x25519_eswap_limb(X) LOAD32_LE((const uint8_t *) &(X))
 #define hydro_x25519_LIMB(x) (uint32_t)(x##ull), (uint32_t)((x##ull) >> 32)
 #else
 #error "Need to know hydro_x25519_WBITS"
@@ -32,7 +32,7 @@ typedef hydro_x25519_limb_t hydro_x25519_fe[hydro_x25519_NLIMBS];
 typedef hydro_x25519_limb_t hydro_x25519_scalar_t[hydro_x25519_NLIMBS];
 
 static const hydro_x25519_limb_t hydro_x25519_MONTGOMERY_FACTOR =
-    (hydro_x25519_limb_t)0xd2b51da312547e1bull;
+    (hydro_x25519_limb_t) 0xd2b51da312547e1bull;
 
 static const hydro_x25519_scalar_t hydro_x25519_sc_p = {
     hydro_x25519_LIMB(0x5812631a5cf5d3ed),
@@ -50,49 +50,54 @@ static const uint8_t hydro_x25519_BASE_POINT[hydro_x25519_BYTES] = { 9 };
 
 static const hydro_x25519_limb_t hydro_x25519_a24[1] = { 121665 };
 
-static inline hydro_x25519_limb_t hydro_x25519_umaal(hydro_x25519_limb_t *carry,
-    hydro_x25519_limb_t acc, hydro_x25519_limb_t mand, hydro_x25519_limb_t mier)
+static inline hydro_x25519_limb_t
+hydro_x25519_umaal(hydro_x25519_limb_t *carry, hydro_x25519_limb_t acc,
+                   hydro_x25519_limb_t mand, hydro_x25519_limb_t mier)
 {
-    hydro_x25519_dlimb_t tmp = (hydro_x25519_dlimb_t)mand * mier + acc + *carry;
+    hydro_x25519_dlimb_t tmp =
+        (hydro_x25519_dlimb_t) mand * mier + acc + *carry;
 
     *carry = tmp >> hydro_x25519_WBITS;
     return tmp;
 }
 
-static inline hydro_x25519_limb_t hydro_x25519_adc(hydro_x25519_limb_t *carry,
-    hydro_x25519_limb_t acc, hydro_x25519_limb_t mand)
+static inline hydro_x25519_limb_t
+hydro_x25519_adc(hydro_x25519_limb_t *carry, hydro_x25519_limb_t acc,
+                 hydro_x25519_limb_t mand)
 {
-    hydro_x25519_dlimb_t total = (hydro_x25519_dlimb_t)*carry + acc + mand;
+    hydro_x25519_dlimb_t total = (hydro_x25519_dlimb_t) *carry + acc + mand;
 
     *carry = total >> hydro_x25519_WBITS;
     return total;
 }
 
-static inline hydro_x25519_limb_t hydro_x25519_adc0(
-    hydro_x25519_limb_t *carry, hydro_x25519_limb_t acc)
+static inline hydro_x25519_limb_t
+hydro_x25519_adc0(hydro_x25519_limb_t *carry, hydro_x25519_limb_t acc)
 {
-    hydro_x25519_dlimb_t total = (hydro_x25519_dlimb_t)*carry + acc;
+    hydro_x25519_dlimb_t total = (hydro_x25519_dlimb_t) *carry + acc;
 
     *carry = total >> hydro_x25519_WBITS;
     return total;
 }
 
-static void hydro_x25519_propagate(hydro_x25519_fe x, hydro_x25519_limb_t over)
+static void
+hydro_x25519_propagate(hydro_x25519_fe x, hydro_x25519_limb_t over)
 {
     int                 i;
     hydro_x25519_limb_t carry;
 
     over = x[hydro_x25519_NLIMBS - 1] >> (hydro_x25519_WBITS - 1) | over << 1;
     x[hydro_x25519_NLIMBS - 1] &=
-        ~((hydro_x25519_limb_t)1 << (hydro_x25519_WBITS - 1));
+        ~((hydro_x25519_limb_t) 1 << (hydro_x25519_WBITS - 1));
     carry = over * 19;
     for (i = 0; i < hydro_x25519_NLIMBS; i++) {
         x[i] = hydro_x25519_adc0(&carry, x[i]);
     }
 }
 
-static void hydro_x25519_add(
-    hydro_x25519_fe out, const hydro_x25519_fe a, const hydro_x25519_fe b)
+static void
+hydro_x25519_add(hydro_x25519_fe out, const hydro_x25519_fe a,
+                 const hydro_x25519_fe b)
 {
     hydro_x25519_limb_t carry = 0;
     int                 i;
@@ -103,8 +108,9 @@ static void hydro_x25519_add(
     hydro_x25519_propagate(out, carry);
 }
 
-static void hydro_x25519_sub(
-    hydro_x25519_fe out, const hydro_x25519_fe a, const hydro_x25519_fe b)
+static void
+hydro_x25519_sub(hydro_x25519_fe out, const hydro_x25519_fe a,
+                 const hydro_x25519_fe b)
 {
     hydro_x25519_sdlimb_t carry = -38;
     int                   i;
@@ -116,7 +122,8 @@ static void hydro_x25519_sub(
     hydro_x25519_propagate(out, 1 + carry);
 }
 
-static void hydro_x25519_swapin(hydro_x25519_limb_t *x, const uint8_t *in)
+static void
+hydro_x25519_swapin(hydro_x25519_limb_t *x, const uint8_t *in)
 {
     int i;
 
@@ -126,7 +133,8 @@ static void hydro_x25519_swapin(hydro_x25519_limb_t *x, const uint8_t *in)
     }
 }
 
-static void hydro_x25519_swapout(uint8_t *out, hydro_x25519_limb_t *x)
+static void
+hydro_x25519_swapout(uint8_t *out, hydro_x25519_limb_t *x)
 {
     int i;
 
@@ -136,8 +144,9 @@ static void hydro_x25519_swapout(uint8_t *out, hydro_x25519_limb_t *x)
     memcpy(out, x, sizeof(hydro_x25519_fe));
 }
 
-static void hydro_x25519_mul(hydro_x25519_fe out, const hydro_x25519_fe a,
-    const hydro_x25519_fe b, int nb)
+static void
+hydro_x25519_mul(hydro_x25519_fe out, const hydro_x25519_fe a,
+                 const hydro_x25519_fe b, int nb)
 {
     hydro_x25519_limb_t accum[2 * hydro_x25519_NLIMBS] = { 0 };
     hydro_x25519_limb_t carry2;
@@ -156,30 +165,34 @@ static void hydro_x25519_mul(hydro_x25519_fe out, const hydro_x25519_fe a,
     for (j = 0; j < hydro_x25519_NLIMBS; j++) {
         const hydro_x25519_limb_t mand = 38;
 
-        out[j] = hydro_x25519_umaal(
-            &carry2, accum[j], mand, accum[j + hydro_x25519_NLIMBS]);
+        out[j] = hydro_x25519_umaal(&carry2, accum[j], mand,
+                                    accum[j + hydro_x25519_NLIMBS]);
     }
     hydro_x25519_propagate(out, carry2);
 }
 
-static void hydro_x25519_sqr(hydro_x25519_fe out, const hydro_x25519_fe a)
+static void
+hydro_x25519_sqr(hydro_x25519_fe out, const hydro_x25519_fe a)
 {
     hydro_x25519_mul(out, a, a, hydro_x25519_NLIMBS);
 }
 
-static void hydro_x25519_mul1(hydro_x25519_fe out, const hydro_x25519_fe a)
+static void
+hydro_x25519_mul1(hydro_x25519_fe out, const hydro_x25519_fe a)
 {
     hydro_x25519_mul(out, a, out, hydro_x25519_NLIMBS);
 }
 
-static void hydro_x25519_sqr1(hydro_x25519_fe a)
+static void
+hydro_x25519_sqr1(hydro_x25519_fe a)
 {
     hydro_x25519_mul1(a, a);
 }
 
-static void hydro_x25519_condswap(
-    hydro_x25519_limb_t a[2 * hydro_x25519_NLIMBS],
-    hydro_x25519_limb_t b[2 * hydro_x25519_NLIMBS], hydro_x25519_limb_t doswap)
+static void
+hydro_x25519_condswap(hydro_x25519_limb_t a[2 * hydro_x25519_NLIMBS],
+                      hydro_x25519_limb_t b[2 * hydro_x25519_NLIMBS],
+                      hydro_x25519_limb_t doswap)
 {
     int i;
 
@@ -190,7 +203,8 @@ static void hydro_x25519_condswap(
     }
 }
 
-static int hydro_x25519_canon(hydro_x25519_fe x)
+static int
+hydro_x25519_canon(hydro_x25519_fe x)
 {
     hydro_x25519_sdlimb_t carry;
     hydro_x25519_limb_t   carry0 = 19;
@@ -207,10 +221,11 @@ static int hydro_x25519_canon(hydro_x25519_fe x)
         res |= x[i] = carry += x[i];
         carry >>= hydro_x25519_WBITS;
     }
-    return ((hydro_x25519_dlimb_t)res - 1) >> hydro_x25519_WBITS;
+    return ((hydro_x25519_dlimb_t) res - 1) >> hydro_x25519_WBITS;
 }
 
-static void hydro_x25519_ladder_part1(hydro_x25519_fe xs[5])
+static void
+hydro_x25519_ladder_part1(hydro_x25519_fe xs[5])
 {
     hydro_x25519_limb_t *x2 = xs[0], *z2 = xs[1], *x3 = xs[2], *z3 = xs[3],
                         *t1 = xs[4];
@@ -219,34 +234,37 @@ static void hydro_x25519_ladder_part1(hydro_x25519_fe xs[5])
     hydro_x25519_sub(z2, x2, z2); // z2 = B
     hydro_x25519_add(x2, x3, z3); // x2 = C
     hydro_x25519_sub(z3, x3, z3); // z3 = D
-    hydro_x25519_mul1(z3, t1); // z3 = DA
-    hydro_x25519_mul1(x2, z2); // x3 = BC
+    hydro_x25519_mul1(z3, t1);    // z3 = DA
+    hydro_x25519_mul1(x2, z2);    // x3 = BC
     hydro_x25519_add(x3, z3, x2); // x3 = DA+CB
     hydro_x25519_sub(z3, z3, x2); // z3 = DA-CB
-    hydro_x25519_sqr1(t1); // t1 = AA
-    hydro_x25519_sqr1(z2); // z2 = BB
+    hydro_x25519_sqr1(t1);        // t1 = AA
+    hydro_x25519_sqr1(z2);        // z2 = BB
     hydro_x25519_sub(x2, t1, z2); // x2 = E = AA-BB
     hydro_x25519_mul(z2, x2, hydro_x25519_a24,
-        sizeof(hydro_x25519_a24) / sizeof(hydro_x25519_a24[0])); // z2 = E*a24
-    hydro_x25519_add(z2, z2, t1); // z2 = E*a24 + AA
+                     sizeof(hydro_x25519_a24) /
+                         sizeof(hydro_x25519_a24[0])); // z2 = E*a24
+    hydro_x25519_add(z2, z2, t1);                      // z2 = E*a24 + AA
 }
 
-static void hydro_x25519_ladder_part2(
-    hydro_x25519_fe xs[5], const hydro_x25519_fe x1)
+static void
+hydro_x25519_ladder_part2(hydro_x25519_fe xs[5], const hydro_x25519_fe x1)
 {
     hydro_x25519_limb_t *x2 = xs[0], *z2 = xs[1], *x3 = xs[2], *z3 = xs[3],
                         *t1 = xs[4];
 
-    hydro_x25519_sqr1(z3); // z3 = (DA-CB)^2
-    hydro_x25519_mul1(z3, x1); // z3 = x1 * (DA-CB)^2
-    hydro_x25519_sqr1(x3); // x3 = (DA+CB)^2
-    hydro_x25519_mul1(z2, x2); // z2 = AA*(E*a24+AA)
+    hydro_x25519_sqr1(z3);        // z3 = (DA-CB)^2
+    hydro_x25519_mul1(z3, x1);    // z3 = x1 * (DA-CB)^2
+    hydro_x25519_sqr1(x3);        // x3 = (DA+CB)^2
+    hydro_x25519_mul1(z2, x2);    // z2 = AA*(E*a24+AA)
     hydro_x25519_sub(x2, t1, x2); // x2 = BB again
-    hydro_x25519_mul1(x2, t1); // x2 = AA*BB
+    hydro_x25519_mul1(x2, t1);    // x2 = AA*BB
 }
 
-static void hydro_x25519_core(hydro_x25519_fe xs[5],
-    const uint8_t scalar[hydro_x25519_BYTES], const uint8_t *x1, bool clamp)
+static void
+hydro_x25519_core(hydro_x25519_fe xs[5],
+                  const uint8_t scalar[hydro_x25519_BYTES], const uint8_t *x1,
+                  bool clamp)
 {
     hydro_x25519_limb_t  swap;
     hydro_x25519_limb_t *x2 = xs[0], *x3 = xs[2], *z3 = xs[3];
@@ -254,7 +272,7 @@ static void hydro_x25519_core(hydro_x25519_fe xs[5],
     int                  i;
 
     hydro_x25519_swapin(x1i, x1);
-    x1   = (const uint8_t *)x1;
+    x1   = (const uint8_t *) x1;
     swap = 0;
     memset(xs, 0, 4 * sizeof(hydro_x25519_fe));
     x2[0] = z3[0] = 1;
@@ -282,9 +300,10 @@ static void hydro_x25519_core(hydro_x25519_fe xs[5],
     hydro_x25519_condswap(x2, x3, swap);
 }
 
-static int hydro_x25519_scalarmult(uint8_t out[hydro_x25519_BYTES],
-    const uint8_t                          scalar[hydro_x25519_BYTES],
-    const uint8_t x1[hydro_x25519_BYTES], bool clamp)
+static int
+hydro_x25519_scalarmult(uint8_t       out[hydro_x25519_BYTES],
+                        const uint8_t scalar[hydro_x25519_BYTES],
+                        const uint8_t x1[hydro_x25519_BYTES], bool clamp)
 {
     hydro_x25519_fe      xs[5];
     hydro_x25519_limb_t *x2, *z2, *z3;
@@ -321,14 +340,15 @@ static int hydro_x25519_scalarmult(uint8_t out[hydro_x25519_BYTES],
     return ret;
 }
 
-static inline int hydro_x25519_scalarmult_base(
-    uint8_t       pk[hydro_x25519_PUBLICKEYBYTES],
-    const uint8_t sk[hydro_x25519_SECRETKEYBYTES])
+static inline int
+hydro_x25519_scalarmult_base(uint8_t       pk[hydro_x25519_PUBLICKEYBYTES],
+                             const uint8_t sk[hydro_x25519_SECRETKEYBYTES])
 {
     return hydro_x25519_scalarmult(pk, sk, hydro_x25519_BASE_POINT, 1);
 }
 
-static inline void hydro_x25519_scalarmult_base_uniform(
+static inline void
+hydro_x25519_scalarmult_base_uniform(
     uint8_t       pk[hydro_x25519_PUBLICKEYBYTES],
     const uint8_t sk[hydro_x25519_SECRETKEYBYTES])
 {
@@ -336,8 +356,10 @@ static inline void hydro_x25519_scalarmult_base_uniform(
     }
 }
 
-static void hydro_x25519_sc_montmul(hydro_x25519_scalar_t out,
-    const hydro_x25519_scalar_t a, const hydro_x25519_scalar_t b)
+static void
+hydro_x25519_sc_montmul(hydro_x25519_scalar_t       out,
+                        const hydro_x25519_scalar_t a,
+                        const hydro_x25519_scalar_t b)
 {
     hydro_x25519_limb_t hic = 0;
     int                 i, j;
