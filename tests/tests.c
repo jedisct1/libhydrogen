@@ -6,7 +6,8 @@
 
 static const char *ctx = "libtests";
 
-static void test_randombytes(void)
+static void
+test_randombytes(void)
 {
     uint8_t       dk[randombytes_SEEDBYTES];
     uint8_t       tmp[10000];
@@ -53,13 +54,14 @@ static void test_randombytes(void)
 
     for (i = 0; i < 1000; i++) {
         for (j = 1; j < 100; j++) {
-            x = randombytes_uniform((uint32_t)j);
+            x = randombytes_uniform((uint32_t) j);
             assert(x < j);
         }
     }
 }
 
-static void test_hash(void)
+static void
+test_hash(void)
 {
     hydro_hash_state st;
     uint8_t          dk[randombytes_SEEDBYTES];
@@ -80,18 +82,20 @@ static void test_hash(void)
     }
     hydro_hash_final(&st, h, sizeof h);
     hydro_bin2hex(hex, sizeof hex, h, sizeof h);
-    assert(hydro_equal("7137d87ad55fdf061789e1e8bebf7572525d4d08f7f4371a960b02c"
-                       "6242724a71cd2a88d50c32bc9e118044a2d539c01b5cccc3b52e67f"
-                       "c5eae283de5dcbd501a933c4b9c5aaddbaf81693ec485811459e6ed"
-                       "b5257a7573a573525d9f1874e71556d9ad3",
-        hex, sizeof hex));
+    assert(
+        hydro_equal("7137d87ad55fdf061789e1e8bebf7572525d4d08f7f4371a960b02c"
+                    "6242724a71cd2a88d50c32bc9e118044a2d539c01b5cccc3b52e67f"
+                    "c5eae283de5dcbd501a933c4b9c5aaddbaf81693ec485811459e6ed"
+                    "b5257a7573a573525d9f1874e71556d9ad3",
+                    hex, sizeof hex));
     hydro_hash_hash(h, sizeof h, msg, sizeof msg, ctx, key, sizeof key);
     hydro_bin2hex(hex, sizeof hex, h, sizeof h);
-    assert(hydro_equal("b453c8627089d4b38ac87a5a89503c5a5740eb4206be37d4c5c50e9"
-                       "56b3d56f0bc96b14a87061cce9bb69b89f57a0d13dab0ad7b498513"
-                       "9492d8cd8eaea4e1c59f971a8cc817e62485c2a0c19faa7b3296700"
-                       "9a16a405a679970637f8f11536db65c416f",
-        hex, sizeof hex));
+    assert(
+        hydro_equal("b453c8627089d4b38ac87a5a89503c5a5740eb4206be37d4c5c50e9"
+                    "56b3d56f0bc96b14a87061cce9bb69b89f57a0d13dab0ad7b498513"
+                    "9492d8cd8eaea4e1c59f971a8cc817e62485c2a0c19faa7b3296700"
+                    "9a16a405a679970637f8f11536db65c416f",
+                    hex, sizeof hex));
     hydro_hash_hash(h, hydro_hash_BYTES, msg, sizeof msg, ctx, key, sizeof key);
     hydro_bin2hex(hex, sizeof hex, h, hydro_hash_BYTES);
     assert(hydro_equal(
@@ -99,7 +103,8 @@ static void test_hash(void)
         strlen(hex) + 1));
 }
 
-static void test_hash128(void)
+static void
+test_hash128(void)
 {
     hydro_hash128_state st;
     uint8_t             dk[randombytes_SEEDBYTES];
@@ -126,7 +131,8 @@ static void test_hash128(void)
     assert(hydro_equal("d4a32e2f38ab334dd4d4e252bb46d76b", hex, sizeof hex));
 }
 
-static void test_core(void)
+static void
+test_core(void)
 {
     uint8_t x[100];
     uint8_t y[100];
@@ -160,7 +166,8 @@ static void test_core(void)
     assert(hydro_equal(x, y, sizeof x));
 }
 
-static void test_secretbox(void)
+static void
+test_secretbox(void)
 {
     uint8_t key[hydro_secretbox_KEYBYTES];
     uint8_t m[25];
@@ -176,8 +183,8 @@ static void test_secretbox(void)
     hydro_secretbox_encrypt(c, m, sizeof m, 0, ctx, key);
     assert(hydro_secretbox_decrypt(m2, c, 0, 0, ctx, key) == -1);
     assert(hydro_secretbox_decrypt(m2, c, 1, 0, ctx, key) == -1);
-    assert(hydro_secretbox_decrypt(
-               m2, c, hydro_secretbox_HEADERBYTES, 0, ctx, key) == -1);
+    assert(hydro_secretbox_decrypt(m2, c, hydro_secretbox_HEADERBYTES, 0, ctx,
+                                   key) == -1);
     assert(hydro_secretbox_decrypt(m2, c, sizeof c, 0, ctx, key) == 0);
     assert(hydro_secretbox_decrypt(m2, c, sizeof c, 1, ctx, key) == -1);
     assert(hydro_equal(m, m2, sizeof m));
@@ -188,7 +195,8 @@ static void test_secretbox(void)
     assert(hydro_secretbox_decrypt(m2, c, sizeof c, 0, ctx, key) == -1);
 }
 
-static void test_kdf(void)
+static void
+test_kdf(void)
 {
     uint8_t key[hydro_kdf_KEYBYTES];
     uint8_t dk[randombytes_SEEDBYTES];
@@ -211,19 +219,21 @@ static void test_kdf(void)
     hydro_bin2hex(subkey2_hex, sizeof subkey2_hex, subkey2, sizeof subkey2);
     hydro_bin2hex(subkey3_hex, sizeof subkey3_hex, subkey3, sizeof subkey3);
     hydro_bin2hex(subkey4_hex, sizeof subkey4_hex, subkey4, sizeof subkey4);
-    assert(hydro_equal(
-        "b6dadc6c3594b305fac7160e89fb628e", subkey1_hex, sizeof subkey1_hex));
-    assert(hydro_equal(
-        "baf03b412086d54067cac64f583bcd16", subkey2_hex, sizeof subkey2_hex));
+    assert(hydro_equal("b6dadc6c3594b305fac7160e89fb628e", subkey1_hex,
+                       sizeof subkey1_hex));
+    assert(hydro_equal("baf03b412086d54067cac64f583bcd16", subkey2_hex,
+                       sizeof subkey2_hex));
     assert(hydro_equal(
         "d583dc8833f19dbd544f057d0cebaed5507306a134361119d4e4eb172d903be3",
         subkey3_hex, sizeof subkey3_hex));
-    assert(hydro_equal("ef289ae126182038ae57ab4c07f0eab94676f85f5462cffd2586fa6"
-                       "ae881c2eacd863c8f3335abb70ced9d5360462d693ec1",
-        subkey4_hex, sizeof subkey4_hex));
+    assert(
+        hydro_equal("ef289ae126182038ae57ab4c07f0eab94676f85f5462cffd2586fa6"
+                    "ae881c2eacd863c8f3335abb70ced9d5360462d693ec1",
+                    subkey4_hex, sizeof subkey4_hex));
 }
 
-static void test_sign(void)
+static void
+test_sign(void)
 {
     uint8_t            msg[500];
     uint8_t            sig[hydro_sign_BYTES];
@@ -247,26 +257,26 @@ static void test_sign(void)
 
     hydro_sign_init(&st, ctx);
     hydro_sign_update(&st, msg, (sizeof msg) / 3);
-    hydro_sign_update(
-        &st, msg + (sizeof msg) / 3, (sizeof msg) - (sizeof msg) / 3);
+    hydro_sign_update(&st, msg + (sizeof msg) / 3,
+                      (sizeof msg) - (sizeof msg) / 3);
     assert(hydro_sign_final_verify(&st, sig, kp.pk) == 0);
 
     hydro_sign_init(&st, ctx);
     hydro_sign_update(&st, msg, (sizeof msg) / 3);
-    hydro_sign_update(
-        &st, msg + (sizeof msg) / 3, (sizeof msg) - (sizeof msg) / 3);
+    hydro_sign_update(&st, msg + (sizeof msg) / 3,
+                      (sizeof msg) - (sizeof msg) / 3);
     hydro_sign_final_create(&st, sig, kp.sk);
 
     hydro_sign_init(&st, ctx);
     hydro_sign_update(&st, msg, (sizeof msg) / 3);
-    hydro_sign_update(
-        &st, msg + (sizeof msg) / 3, (sizeof msg) - (sizeof msg) / 3);
+    hydro_sign_update(&st, msg + (sizeof msg) / 3,
+                      (sizeof msg) - (sizeof msg) / 3);
     assert(hydro_sign_final_verify(&st, sig, kp.pk) == 0);
 
     hydro_sign_init(&st, ctx);
     hydro_sign_update(&st, msg, (sizeof msg) / 3);
-    hydro_sign_update(
-        &st, msg + (sizeof msg) / 3, (sizeof msg) - (sizeof msg) / 3);
+    hydro_sign_update(&st, msg + (sizeof msg) / 3,
+                      (sizeof msg) - (sizeof msg) / 3);
     sig[0]++;
     assert(hydro_sign_final_verify(&st, sig, kp.pk) == -1);
 
@@ -275,7 +285,8 @@ static void test_sign(void)
     assert(hydro_sign_verify(sig, msg, 0, ctx, kp.pk) == 0);
 }
 
-static void test_kx(void)
+static void
+test_kx(void)
 {
     hydro_kx_state           st_client;
     hydro_kx_state           st_server;
@@ -296,7 +307,7 @@ static void test_kx(void)
     hydro_kx_xx_1(&st_client, response1, NULL);
     hydro_kx_xx_2(&st_server, response2, response1, NULL, &server_static_kp);
     hydro_kx_xx_3(&st_client, &kp_client, response3, NULL, response2, NULL,
-        &client_static_kp);
+                  &client_static_kp);
     hydro_kx_xx_4(&st_server, &kp_server, NULL, response3, NULL);
 
     assert(hydro_equal(kp_client.tx, kp_server.rx, hydro_kx_SESSIONKEYBYTES));
@@ -306,18 +317,19 @@ static void test_kx(void)
     hydro_kx_xx_1(&st_client, response1, psk);
     hydro_kx_xx_2(&st_server, response2, response1, psk, &server_static_kp);
     hydro_kx_xx_3(&st_client, &kp_client, response3, client_peer_pk, response2,
-        psk, &client_static_kp);
+                  psk, &client_static_kp);
     hydro_kx_xx_4(&st_server, &kp_server, server_peer_pk, response3, psk);
 
     assert(hydro_equal(kp_client.tx, kp_server.rx, hydro_kx_SESSIONKEYBYTES));
     assert(hydro_equal(kp_client.rx, kp_server.tx, hydro_kx_SESSIONKEYBYTES));
-    assert(hydro_equal(
-        client_peer_pk, server_static_kp.pk, hydro_kx_PUBLICKEYBYTES));
-    assert(hydro_equal(
-        server_peer_pk, client_static_kp.pk, hydro_kx_PUBLICKEYBYTES));
+    assert(hydro_equal(client_peer_pk, server_static_kp.pk,
+                       hydro_kx_PUBLICKEYBYTES));
+    assert(hydro_equal(server_peer_pk, client_static_kp.pk,
+                       hydro_kx_PUBLICKEYBYTES));
 }
 
-int main(void)
+int
+main(void)
 {
     int ret;
 
