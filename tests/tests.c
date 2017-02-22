@@ -340,10 +340,10 @@ main(void)
     test_hash();
     test_hash128();
     test_kdf();
+    test_kx();
     test_randombytes();
     test_secretbox();
     test_sign();
-    test_kx();
 
     return 0;
 }
