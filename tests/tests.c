@@ -219,16 +219,16 @@ test_kdf(void)
     hydro_bin2hex(subkey2_hex, sizeof subkey2_hex, subkey2, sizeof subkey2);
     hydro_bin2hex(subkey3_hex, sizeof subkey3_hex, subkey3, sizeof subkey3);
     hydro_bin2hex(subkey4_hex, sizeof subkey4_hex, subkey4, sizeof subkey4);
-    assert(hydro_equal("b6dadc6c3594b305fac7160e89fb628e", subkey1_hex,
+    assert(hydro_equal("7582862d0957ade5425ba78ca3734ef4", subkey1_hex,
                        sizeof subkey1_hex));
-    assert(hydro_equal("baf03b412086d54067cac64f583bcd16", subkey2_hex,
+    assert(hydro_equal("f8916d1da4b23ab4c4e94733fbbbc1d7", subkey2_hex,
                        sizeof subkey2_hex));
     assert(hydro_equal(
-        "d583dc8833f19dbd544f057d0cebaed5507306a134361119d4e4eb172d903be3",
+        "9dd4a1d81f4899a44c642ff08976192863e74b92074b96201f5c063672805655",
         subkey3_hex, sizeof subkey3_hex));
     assert(
-        hydro_equal("ef289ae126182038ae57ab4c07f0eab94676f85f5462cffd2586fa6"
-                    "ae881c2eacd863c8f3335abb70ced9d5360462d693ec1",
+        hydro_equal("2992e8466ecff866c5001ca1a6b31862da8cffd7278184311b5e9e2"
+                    "f168dd77696ac121a3eda7c33d96965eb345a6333b692",
                     subkey4_hex, sizeof subkey4_hex));
 }
 
