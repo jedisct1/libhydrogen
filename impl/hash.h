@@ -177,12 +177,12 @@ hydro_hash_update(hydro_hash_state *state, const void *in_, size_t in_len)
     size_t         i;
 
     while (in_len > 0) {
-        if (state->buf_off == hydro_hash_BLOCKBYTES) {
+        if ((left = hydro_hash_BLOCKBYTES - state->buf_off) == 0) {
             hydro_hash_increment_counter(state, hydro_hash_BLOCKBYTES);
             hydro_hash_hashblock(state, state->buf);
             state->buf_off = 0;
+            left = hydro_hash_BLOCKBYTES;
         }
-        left = hydro_hash_BLOCKBYTES - state->buf_off;
         if ((ps = in_len) > left) {
             ps = left;
         }
