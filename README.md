@@ -25,4 +25,4 @@ Non-goals:
 The documentation is maintained in the [libhydrogen wiki](https://github.com/jedisct1/libhydrogen/wiki).
 
 # Warning
-This is a work in progress -- Do not use yet.
+This is a work in progress.
