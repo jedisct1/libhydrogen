@@ -32,9 +32,9 @@ uint32_t randombytes_random(void);
 
 uint32_t randombytes_uniform(const uint32_t upper_bound);
 
-void randombytes_buf(void *buf, size_t len);
+void randombytes_buf(void *out, size_t out_len);
 
-void randombytes_buf_deterministic(void *buf, size_t len,
+void randombytes_buf_deterministic(void *out, size_t out_len,
                                    const uint8_t seed[randombytes_SEEDBYTES]);
 
 /* ---------------- */

@@ -230,25 +230,25 @@ randombytes_uniform(const uint32_t upper_bound)
 }
 
 void
-randombytes_buf(void *buf, size_t len)
+randombytes_buf(void *out, size_t out_len)
 {
-    uint8_t *p = (uint8_t *) buf;
+    uint8_t *p = (uint8_t *) out;
     size_t   i;
     uint32_t v;
 
-    for (i = (size_t) 0U; i < len; i += sizeof v) {
+    for (i = (size_t) 0U; i < out_len; i += sizeof v) {
         v = randombytes_random();
         memcpy(p + i, &v, sizeof v);
     }
-    for (; i < len; i++) {
+    for (; i < out_len; i++) {
         p[i] = (uint8_t) randombytes_random();
     }
 }
 
 void
-randombytes_buf_deterministic(void *buf, size_t len,
+randombytes_buf_deterministic(void *out, size_t out_len,
                               const uint8_t seed[randombytes_SEEDBYTES])
 {
     COMPILER_ASSERT(randombytes_SEEDBYTES == hydro_stream_chacha20_KEYBYTES);
-    hydro_stream_chacha20((uint8_t *) buf, len, zero, seed);
+    hydro_stream_chacha20((uint8_t *) out, out_len, zero, seed);
 }
