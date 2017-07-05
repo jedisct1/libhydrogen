@@ -9,18 +9,20 @@
 #include "../hydrogen.h"
 
 #if !defined(__unix__) && (defined(__APPLE__) || defined(__linux__))
-#define __unix__ 1
+# define __unix__ 1
 #endif
 #ifndef __GNUC__
-#define __restrict__
+# define __restrict__
 #endif
 
-#ifndef NATIVE_LITTLE_ENDIAN
-#define NATIVE_LITTLE_ENDIAN
+#ifndef NATIVE_BIG_ENDIAN
+# ifndef NATIVE_LITTLE_ENDIAN
+#  define NATIVE_LITTLE_ENDIAN
+# endif
 #endif
 
 #ifndef SIZE_MAX
-#define SIZE_MAX ((size_t) -1)
+# define SIZE_MAX ((size_t) -1)
 #endif
 
 #define COMPILER_ASSERT(X) (void) sizeof(char[(X) ? 1 : -1])
