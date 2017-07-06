@@ -7,7 +7,7 @@ The Hydrogen library is a small, easy-to-use, hard-to-misuse cryptographic libra
 
 Features:
 - Consistent high-level API, inspired by libsodium. Instead of low-level primitives, it exposes simple functions to solve common problems that cryptography can solve.
-- Under the hood, it uses modern cryptographic primitives (BLAKE2X, SipHash, XChaCha20, X25519) and follows the current best practices.
+- 100% built using just two cryptographic building blocks: the Curve25519 elliptic curve, and the Gimli permutation.
 - Small and easy to audit. Implemented as one tiny file for every set of operation, and adding a single `.c` file to your project is all it takes to use libhydrogen in your project.
 - The whole code is released under a single, very liberal license (ISC).
 - Zero dynamic memory allocations and low stack requirements. This makes it usable in constrained environments such as microcontrollers.
