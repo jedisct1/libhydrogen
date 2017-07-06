@@ -19,8 +19,8 @@ extern "C" {
 #define __attribute__(a)
 #endif
 
-#define HYDRO_VERSION_MAJOR 0
-#define HYDRO_VERSION_MINOR 1
+#define HYDRO_VERSION_MAJOR 1
+#define HYDRO_VERSION_MINOR 0
 
 int hydro_init(void);
 
