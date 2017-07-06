@@ -5,6 +5,36 @@
 #define hydro_kx_CONTEXT "hydro_kx"
 #define hydro_kx_CONTEXT_CK_K "kdf_ck_k"
 
+static inline void
+hydro_kx_mem_ct_zero_u32(uint32_t *dst_, size_t n)
+{
+    volatile uint32_t volatile * dst =
+        (volatile uint32_t volatile *) (void *) dst_;
+    size_t i;
+
+    for (i = 0; i < n; i++) {
+        dst[i] = 0;
+    }
+}
+
+static inline uint32_t
+hydro_kx_mem_ct_cmp_u32(const uint32_t *b1_, const uint32_t *b2, size_t n)
+__attribute__((warn_unused_result));
+
+static inline uint32_t
+hydro_kx_mem_ct_cmp_u32(const uint32_t *b1_, const uint32_t *b2, size_t n)
+{
+    const volatile uint32_t volatile * b1 =
+        (const volatile uint32_t volatile *) (const void *) b1_;
+    size_t   i;
+    uint32_t cv = 0;
+
+    for (i = 0; i < n; i++) {
+        cv |= b1[i] ^ b2[i];
+    }
+    return cv;
+}
+
 void
 hydro_kx_keygen(hydro_kx_keypair *static_kp)
 {
@@ -15,21 +45,93 @@ hydro_kx_keygen(hydro_kx_keypair *static_kp)
 }
 
 static void
-hydro_kx_encrypt(hydro_kx_state *state, uint8_t *c, const uint8_t *m,
+hydro_kx_aead_setup(uint8_t buf[gimli_BLOCKBYTES],
+                    const hydro_kx_state *state,
+                    const uint8_t psk[hydro_kx_PSKBYTES])
+{
+    static const uint8_t prefix[] = { 6, 'k', 'x', 'x', '2', '5', '6', 0 };
+
+    mem_zero(buf + sizeof prefix, gimli_BLOCKBYTES - sizeof prefix);
+    mem_cpy(buf, prefix, sizeof prefix);
+    gimli_core_u8(buf);
+
+    COMPILER_ASSERT(hydro_kx_AEAD_KEYBYTES == 2 * gimli_RATE);
+    mem_xor(buf, state->k, gimli_RATE);
+    gimli_core_u8(buf);
+    mem_xor(buf, state->k + gimli_RATE, gimli_RATE);
+    gimli_core_u8(buf);
+
+    COMPILER_ASSERT(sizeof state->h == 2 * gimli_RATE);
+    mem_xor(buf, state->h, gimli_RATE);
+    gimli_core_u8(buf);
+    mem_xor(buf, state->h + gimli_RATE, gimli_RATE);
+    gimli_core_u8(buf);
+
+    if (psk != NULL) {
+        COMPILER_ASSERT(hydro_kx_PSKBYTES == 2 * gimli_RATE);
+        mem_xor(buf, psk, gimli_RATE);
+        gimli_core_u8(buf);
+        mem_xor(buf, psk + gimli_RATE, gimli_RATE);
+        gimli_core_u8(buf);
+    }
+
+    buf[0] ^= 0x1f;
+    buf[gimli_RATE - 1] ^= 0x80;
+    gimli_core_u8(buf);
+}
+
+static void
+hydro_kx_aead_xor_enc(uint8_t buf[gimli_BLOCKBYTES],
+                      uint8_t *out, const uint8_t *in, size_t inlen)
+{
+    size_t i;
+    size_t leftover;
+
+    for (i = 0; i < inlen / gimli_RATE; i++) {
+        mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, gimli_RATE);
+        mem_xor(buf, &in[i * gimli_RATE], gimli_RATE);
+        gimli_core_u8(buf);
+    }
+    leftover = inlen % gimli_RATE;
+    if (leftover != 0) {
+        mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, leftover);
+        mem_xor(buf, &in[i * gimli_RATE], leftover);
+        gimli_core_u8(buf);
+    }
+}
+
+static void
+hydro_kx_aead_xor_dec(uint8_t buf[gimli_BLOCKBYTES],
+                      uint8_t *out, const uint8_t *in, size_t inlen)
+{
+    size_t i;
+    size_t leftover;
+
+    for (i = 0; i < inlen / gimli_RATE; i++) {
+        mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, gimli_RATE);
+        mem_xor(buf, &out[i * gimli_RATE], gimli_RATE);
+        gimli_core_u8(buf);
+    }
+    leftover = inlen % gimli_RATE;
+    if (leftover != 0) {
+        mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, leftover);
+        mem_xor(buf, &out[i * gimli_RATE], leftover);
+        gimli_core_u8(buf);
+    }
+}
+
+static void
+hydro_kx_encrypt(const hydro_kx_state *state, uint8_t *c, const uint8_t *m,
                  size_t mlen, const uint8_t psk[hydro_kx_PSKBYTES])
 {
-    uint8_t        keys[hydro_stream_chacha20_KEYBYTES + hydro_hash_KEYBYTES];
-    const uint8_t *ek = &keys[0];
-    const uint8_t *mk = &keys[hydro_stream_chacha20_KEYBYTES];
+    uint8_t  buf[gimli_BLOCKBYTES];
+    uint8_t *mac = &c[0];
+    uint8_t *ct = &c[hydro_kx_AEAD_MACBYTES];
 
-    hydro_hash_hash(keys, sizeof keys, state->h, sizeof state->h,
-                    hydro_kx_CONTEXT, state->k, sizeof state->k);
-    hydro_stream_chacha20_xor(c + hydro_kx_AEAD_HEADERBYTES, m, mlen, zero, ek);
-    hydro_hash_hash(c, hydro_kx_AEAD_MACBYTES, c + hydro_kx_AEAD_HEADERBYTES,
-                    mlen, hydro_kx_CONTEXT, mk, hydro_hash_KEYBYTES);
-
-    hydro_hash_hash(state->h, sizeof state->h, c, hydro_kx_AEAD_MACBYTES + mlen,
-                    hydro_kx_CONTEXT, psk, psk == NULL ? 0 : hydro_kx_PSKBYTES);
+    hydro_kx_aead_setup(buf, state, psk);
+    hydro_kx_aead_xor_enc(buf, ct, m, mlen);
+    COMPILER_ASSERT(hydro_kx_AEAD_MACBYTES <= gimli_RATE);
+    mem_cpy(mac, buf, hydro_kx_AEAD_MACBYTES);
 }
 
 static int hydro_kx_decrypt(hydro_kx_state *state, uint8_t *m, const uint8_t *c,
@@ -40,27 +142,28 @@ static int
 hydro_kx_decrypt(hydro_kx_state *state, uint8_t *m, const uint8_t *c,
                  size_t clen, const uint8_t psk[hydro_kx_PSKBYTES])
 {
-    uint8_t        keys[hydro_stream_chacha20_KEYBYTES + hydro_hash_KEYBYTES];
-    uint8_t        mac[hydro_kx_AEAD_MACBYTES];
-    const uint8_t *ek = &keys[0];
-    const uint8_t *mk = &keys[hydro_stream_chacha20_KEYBYTES];
+    uint32_t       pub_mac[hydro_kx_AEAD_MACBYTES / 4];
+    uint32_t       int_state[gimli_BLOCKBYTES / 4];
+    uint8_t       *buf = (uint8_t *) (void *) int_state;
+    const uint8_t *mac = &c[0];
+    const uint8_t *ct = &c[hydro_kx_AEAD_MACBYTES];
     size_t         mlen;
+    uint32_t       cv;
 
     if (clen < hydro_kx_AEAD_HEADERBYTES) {
         return -1;
     }
     mlen = clen - hydro_kx_AEAD_HEADERBYTES;
-    hydro_hash_hash(keys, sizeof keys, state->h, sizeof state->h,
-                    hydro_kx_CONTEXT, state->k, sizeof state->k);
-    hydro_hash_hash(mac, sizeof mac, c + hydro_kx_AEAD_HEADERBYTES, mlen,
-                    hydro_kx_CONTEXT, mk, hydro_hash_KEYBYTES);
-    if (!hydro_equal(mac, c, hydro_kx_AEAD_MACBYTES)) {
+    mem_cpy(pub_mac, mac, sizeof pub_mac);
+    hydro_kx_aead_setup(buf, state, psk);
+    hydro_kx_aead_xor_dec(buf, m, ct, mlen);
+    COMPILER_ASSERT(hydro_kx_AEAD_MACBYTES <= gimli_RATE);
+    cv = hydro_kx_mem_ct_cmp_u32(int_state, pub_mac, hydro_kx_AEAD_MACBYTES / 4);
+    hydro_kx_mem_ct_zero_u32(int_state, gimli_BLOCKBYTES / 4);
+    if (cv != 0) {
+        mem_zero(m, mlen);
         return -1;
     }
-    hydro_stream_chacha20_xor(m, c + hydro_kx_AEAD_HEADERBYTES, mlen, zero, ek);
-    hydro_hash_hash(state->h, sizeof state->h, c, clen, hydro_kx_CONTEXT, psk,
-                    psk == NULL ? 0 : hydro_kx_PSKBYTES);
-
     return 0;
 }
 
@@ -86,7 +189,7 @@ static void
 hydro_kx_final(hydro_kx_state *state, uint8_t rx[hydro_kx_SESSIONKEYBYTES],
                uint8_t tx[hydro_kx_SESSIONKEYBYTES])
 {
-    COMPILER_ASSERT(hydro_kx_SESSIONKEYBYTES == hydro_secretbox_KEYBYTES);
+    COMPILER_ASSERT(hydro_kx_SESSIONKEYBYTES == hydro_kx_AEAD_KEYBYTES);
     COMPILER_ASSERT(hydro_kx_PUBLICKEYBYTES == hydro_x25519_BYTES);
     COMPILER_ASSERT(hydro_kx_SECRETKEYBYTES == hydro_x25519_BYTES);
     COMPILER_ASSERT(hydro_kx_PSKBYTES == hydro_hash_KEYBYTES);

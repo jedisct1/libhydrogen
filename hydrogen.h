@@ -69,36 +69,6 @@ int hydro_hash_hash(uint8_t *out, size_t out_len, const void *in_,
 
 /* ---------------- */
 
-#define hydro_hash128_BYTES 16
-#define hydro_hash128_CONTEXTBYTES 8
-#define hydro_hash128_KEYBYTES 16
-
-typedef struct hydro_hash128_state {
-    uint64_t v0, v1, v2, v3;
-    uint8_t  buf[8];
-    uint8_t  buf_off;
-    uint8_t  b;
-} hydro_hash128_state;
-
-void hydro_hash128_keygen(uint8_t key[hydro_hash128_KEYBYTES]);
-
-int hydro_hash128_hash(uint8_t out[hydro_hash128_BYTES], const void *in_,
-                       size_t        in_len,
-                       const char    ctx[hydro_hash128_CONTEXTBYTES],
-                       const uint8_t key[hydro_hash128_KEYBYTES]);
-
-int hydro_hash128_init(hydro_hash128_state *state,
-                       const char           ctx[hydro_hash128_CONTEXTBYTES],
-                       const uint8_t        key[hydro_hash128_KEYBYTES]);
-
-int hydro_hash128_update(hydro_hash128_state *state, const void *in_,
-                         size_t in_len);
-
-int hydro_hash128_final(hydro_hash128_state *state,
-                        uint8_t              out[hydro_hash128_BYTES]);
-
-/* ---------------- */
-
 #define hydro_secretbox_CONTEXTBYTES 8
 #define hydro_secretbox_HEADERBYTES (20 + 16)
 #define hydro_secretbox_KEYBYTES 32

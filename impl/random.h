@@ -1,5 +1,5 @@
-static uint8_t hydro_random_key[hydro_stream_chacha20_KEYBYTES];
-static uint8_t hydro_random_nonce[hydro_stream_chacha20_NONCEBYTES];
+static uint8_t hydro_random_state[gimli_BLOCKBYTES];
+static uint8_t hydro_random_available;
 static uint8_t hydro_random_initialized;
 
 #if defined(AVR) && !defined(__unix__)
@@ -20,14 +20,12 @@ hydro_random_rbit(unsigned int x)
 static int
 hydro_random_init(void)
 {
-    const uint8_t hydrokey[hydro_hash128_KEYBYTES] = { 'h', 'y', 'd', 'r',
-                                                       'o', 'g', 'e', 'n',
-                                                       ' ', 'k', 'e', 'y',
-                                                       's', 'e', 'e', 'd' };
-    hydro_hash128_state st;
-    uint16_t            ebits = 0;
-    uint16_t            tc;
-    bool                a, b;
+    const uint8_t ctx[hydro_hash_CONTEXTBYTES] = {
+        'h', 'y', 'd', 'r', 'o', 'P', 'R', 'G' };
+    hydro_hash_state st;
+    uint16_t         ebits = 0;
+    uint16_t         tc;
+    bool             a, b;
 
     cli();
     MCUSR = 0;
@@ -35,22 +33,21 @@ hydro_random_init(void)
     WDTCSR = _BV(WDIE);
     sei();
 
-    COMPILER_ASSERT(hydro_hash128_KEYBYTES >= hydro_hash128_CONTEXTBYTES);
-    hydro_hash128_init(&st, (const char *) hydrokey, hydrokey);
+    hydro_hash_init(&st, ctx, NULL, 0);
 
     while (ebits < 256) {
         delay(1);
         tc = TCNT1;
-        hydro_hash128_update(&st, (const uint8_t *) &tc, sizeof tc);
+        hydro_hash_update(&st, (const uint8_t *) &tc, sizeof tc);
         a = hydro_random_rbit(tc);
         delay(1);
         tc = TCNT1;
         b  = hydro_random_rbit(tc);
-        hydro_hash128_update(&st, (const uint8_t *) &tc, sizeof tc);
+        hydro_hash_update(&st, (const uint8_t *) &tc, sizeof tc);
         if (a == b) {
             continue;
         }
-        hydro_hash128_update(&st, (const uint8_t *) &b, sizeof b);
+        hydro_hash_update(&st, (const uint8_t *) &b, sizeof b);
         ebits++;
     }
 
@@ -60,10 +57,7 @@ hydro_random_init(void)
     WDTCSR = 0;
     sei();
 
-    COMPILER_ASSERT(hydro_stream_chacha20_KEYBYTES == hydro_hash128_BYTES * 2);
-    hydro_hash128_final(&st, hydro_random_key);
-    memcpy(hydro_random_key + hydro_hash128_BYTES, hydro_random_key,
-           hydro_hash128_BYTES);
+    hydro_hash_final(&st, hydro_random_state, sizeof hydro_random_state);
     hydro_random_initialized = 1;
 
     return 0;
@@ -172,8 +166,8 @@ hydro_random_init(void)
             return -1;
         }
     } while (fd == -1);
-    if (hydro_random_safe_read(fd, hydro_random_key, sizeof hydro_random_key) ==
-        (ssize_t) sizeof hydro_random_key) {
+    if (hydro_random_safe_read(fd, hydro_random_state, sizeof hydro_random_state) ==
+        (ssize_t) sizeof hydro_random_state) {
         ret                      = 0;
         hydro_random_initialized = 1;
     }
@@ -200,14 +194,12 @@ randombytes_random(void)
     uint32_t v;
 
     hydro_random_check_initialized();
-    if (hydro_random_nonce[0] == 0x0) {
-        hydro_stream_chacha20_xor(hydro_random_key, hydro_random_key,
-                                  sizeof hydro_random_key, hydro_random_nonce,
-                                  hydro_random_key);
+    if (hydro_random_available < 4) {
+        gimli_core_u8(hydro_random_state);
+        hydro_random_available = gimli_RATE;
     }
-    hydro_stream_chacha20((uint8_t *) &v, sizeof v, hydro_random_nonce,
-                          hydro_random_key);
-    hydro_increment(hydro_random_nonce, sizeof hydro_random_nonce);
+    memcpy(&v, &hydro_random_state[gimli_RATE - hydro_random_available], 4);
+    hydro_random_available -= 4;
 
     return v;
 }
@@ -234,21 +226,46 @@ randombytes_buf(void *out, size_t out_len)
 {
     uint8_t *p = (uint8_t *) out;
     size_t   i;
-    uint32_t v;
+    size_t   leftover;
 
-    for (i = (size_t) 0U; i < out_len; i += sizeof v) {
-        v = randombytes_random();
-        memcpy(p + i, &v, sizeof v);
+    gimli_core_u8(hydro_random_state);
+    for (i = 0; i < out_len / gimli_RATE; i++) {
+        memcpy(p + i * gimli_RATE, hydro_random_state, gimli_RATE);
+        gimli_core_u8(hydro_random_state);
     }
-    for (; i < out_len; i++) {
-        p[i] = (uint8_t) randombytes_random();
+    leftover = out_len % gimli_RATE;
+    if (leftover != 0) {
+        memcpy(p + i * gimli_RATE, hydro_random_state, leftover);
     }
+    hydro_random_available = gimli_RATE - leftover;
 }
 
 void
 randombytes_buf_deterministic(void *out, size_t out_len,
                               const uint8_t seed[randombytes_SEEDBYTES])
 {
-    COMPILER_ASSERT(randombytes_SEEDBYTES == hydro_stream_chacha20_KEYBYTES);
-    hydro_stream_chacha20((uint8_t *) out, out_len, zero, seed);
+    static const uint8_t prefix[] = { 7, 'd', 'r', 'b', 'g', '2', '5', '6' };
+    uint32_t  state[gimli_BLOCKBYTES / 4];
+    uint8_t  *buf = (uint8_t *) (void *) state;
+    int       i;
+
+    COMPILER_ASSERT(sizeof prefix <= gimli_RATE);
+    mem_cpy(buf, prefix, sizeof prefix);
+    mem_zero(buf + sizeof prefix, gimli_BLOCKBYTES - sizeof prefix);
+    gimli_core_u8(buf);
+
+    COMPILER_ASSERT(randombytes_SEEDBYTES == 2 * gimli_RATE);
+    mem_xor(buf, seed, gimli_RATE);
+    gimli_core_u8(buf);
+    mem_xor(buf, seed + gimli_RATE, gimli_RATE);
+    gimli_core_u8(buf);
+
+    buf[0] ^= 0x1f;
+    buf[gimli_RATE - 1] ^= 0x80;
+    for (i = 0; out_len > 0; i++) {
+        const size_t block_size = (out_len < gimli_BLOCKBYTES) ? out_len : gimli_BLOCKBYTES;
+        gimli_core_u8(buf);
+        mem_cpy((uint8_t *) out + i * gimli_BLOCKBYTES, buf, block_size);
+        out_len -= block_size;
+    }
 }

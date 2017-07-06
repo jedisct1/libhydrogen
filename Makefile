@@ -1,4 +1,4 @@
-WFLAGS ?= -Wall -Wextra -Wmissing-prototypes -Wdiv-by-zero -Wbad-function-cast -Wcast-align -Wcast-qual -Wfloat-equal -Wmissing-declarations -Wnested-externs -Wno-unknown-pragmas -Wpointer-arith -Wredundant-decls -Wstrict-prototypes -Wswitch-enum -Wno-type-limits
+WFLAGS ?= -Wall -Wextra -Wmissing-prototypes -Wdiv-by-zero -Wbad-function-cast -Wcast-align -Wcast-qual -Wfloat-equal -Wmissing-declarations -Wnested-externs -Wno-unknown-pragmas -Wpointer-arith -Wredundant-decls -Wstrict-prototypes -Wswitch-enum -Wno-type-limits -Wno-duplicate-decl-specifier
 CFLAGS ?= -Os -fno-exceptions $(WFLAGS)
 CFLAGS += -I.
 OBJ = hydrogen.o
@@ -10,15 +10,14 @@ SRC = \
 	hydrogen.h \
 	impl/common.h \
 	impl/core.h \
+	impl/gimli-core.h \
 	impl/hash.h \
-	impl/hash128.h \
 	impl/hydrogen_p.h \
 	impl/kdf.h \
 	impl/kx.h \
 	impl/random.h \
 	impl/secretbox.h \
 	impl/sign.h \
-	impl/stream.h \
 	impl/x25519.h
 
 all: lib

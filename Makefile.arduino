@@ -16,15 +16,14 @@ SRC = \
 	hydrogen.h \
 	impl/common.h \
 	impl/core.h \
+	impl/gimli-core.h \
 	impl/hash.h \
-	impl/hash128.h \
 	impl/hydrogen_p.h \
 	impl/kdf.h \
 	impl/kx.h \
 	impl/random.h \
 	impl/secretbox.h \
 	impl/sign.h \
-	impl/stream.h \
 	impl/x25519.h
 
 all: lib package
