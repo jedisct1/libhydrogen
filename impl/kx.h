@@ -8,8 +8,8 @@
 static inline void
 hydro_kx_mem_ct_zero_u32(uint32_t *dst_, size_t n)
 {
-    volatile uint32_t volatile * dst =
-        (volatile uint32_t volatile *) (void *) dst_;
+    volatile uint32_t * volatile dst =
+        (volatile uint32_t * volatile) (void *) dst_;
     size_t i;
 
     for (i = 0; i < n; i++) {
@@ -24,8 +24,8 @@ __attribute__((warn_unused_result));
 static inline uint32_t
 hydro_kx_mem_ct_cmp_u32(const uint32_t *b1_, const uint32_t *b2, size_t n)
 {
-    const volatile uint32_t volatile * b1 =
-        (const volatile uint32_t volatile *) (const void *) b1_;
+    const volatile uint32_t * volatile b1 =
+        (const volatile uint32_t * volatile) (const void *) b1_;
     size_t   i;
     uint32_t cv = 0;
 
