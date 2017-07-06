@@ -74,7 +74,7 @@ test_hash(void)
     memset(dk, 0, sizeof dk);
     randombytes_buf_deterministic(key, sizeof key, dk);
     hydro_increment(dk, sizeof dk);
-    hydro_hash_init(&st, ctx, key, sizeof key, sizeof h);
+    hydro_hash_init(&st, ctx, key, sizeof key);
     for (i = 0; i <= sizeof msg; i++) {
         randombytes_buf_deterministic(msg, i, dk);
         hydro_increment(dk, sizeof dk);

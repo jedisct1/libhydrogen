@@ -1,7 +1,19 @@
-#ifndef hydrogen_p_H
-#define hydrogen_p_H
-
 static int hydro_random_init(void);
+
+/* ---------------- */
+
+#define gimli_BLOCKBYTES 48
+#define gimli_RATE 16
+
+static void
+gimli_core_u8(uint8_t state_u8[gimli_BLOCKBYTES]);
+
+/* ---------------- */
+
+static int hydro_hash_init_with_tweak(hydro_hash_state *state,
+                                      const char ctx[hydro_hash_CONTEXTBYTES],
+                                      uint64_t tweak, const uint8_t *key,
+                                      size_t key_len);
 
 /* ---------------- */
 
@@ -69,5 +81,3 @@ hydro_x25519_scalarmult_base(uint8_t       pk[hydro_x25519_PUBLICKEYBYTES],
 static inline void hydro_x25519_scalarmult_base_uniform(
     uint8_t       pk[hydro_x25519_PUBLICKEYBYTES],
     const uint8_t sk[hydro_x25519_SECRETKEYBYTES]);
-
-#endif

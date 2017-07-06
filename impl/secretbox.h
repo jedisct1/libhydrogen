@@ -1,4 +1,3 @@
-
 void
 hydro_secretbox_keygen(uint8_t key[hydro_secretbox_KEYBYTES])
 {

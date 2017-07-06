@@ -1,4 +1,3 @@
-
 #define hydro_kx_AEAD_KEYBYTES hydro_hash_KEYBYTES
 #define hydro_kx_AEAD_MACBYTES 16
 #define hydro_kx_AEAD_HEADERBYTES hydro_kx_AEAD_MACBYTES

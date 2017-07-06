@@ -47,32 +47,17 @@ void randombytes_buf_deterministic(void *out, size_t out_len,
 #define hydro_hash_KEYBYTES_MAX 32
 #define hydro_hash_KEYBYTES_MIN 16
 
-#define hydro_hash_TWEAKBYTES 8
-
 typedef struct hydro_hash_state {
-    uint8_t  digest_len;
-    uint8_t  key_len;
-    uint8_t  fanout;
-    uint8_t  depth;
-    uint8_t  leaf_len[4];
-    uint8_t  node_offset[4];
-    uint8_t  xof_len[2];
-    uint8_t  node_depth;
-    uint8_t  inner_len;
-    uint8_t  tweak[hydro_hash_TWEAKBYTES];
-    uint8_t  ctx[hydro_hash_CONTEXTBYTES];
-    uint32_t h[8];
-    uint32_t t[2];
-    uint32_t f[1];
-    uint8_t  buf[64];
+    uint32_t state[12];
     uint8_t  buf_off;
+    uint8_t  align[3];
 } hydro_hash_state;
 
 void hydro_hash_keygen(uint8_t *key, size_t key_len);
 
 int hydro_hash_init(hydro_hash_state *state,
                     const char ctx[hydro_hash_CONTEXTBYTES], const uint8_t *key,
-                    size_t key_len, size_t out_len);
+                    size_t key_len);
 
 int hydro_hash_update(hydro_hash_state *state, const void *in_, size_t in_len);
 
