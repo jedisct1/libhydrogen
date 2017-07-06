@@ -95,6 +95,7 @@ hydro_secretbox_setup(uint8_t buf[gimli_BLOCKBYTES],
     mem_cpy(buf, prefix, sizeof prefix);
     mem_cpy(buf + sizeof prefix, ctx, hydro_secretbox_CONTEXTBYTES);
     if (first_pass != 0) {
+        buf[0] ^= 0x1f;
         buf[gimli_RATE - 1] ^= 0x80;
     }
     COMPILER_ASSERT(sizeof prefix + hydro_secretbox_CONTEXTBYTES == gimli_RATE);
