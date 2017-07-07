@@ -20,7 +20,7 @@ hydro_random_rbit(unsigned int x)
 static int
 hydro_random_init(void)
 {
-    const uint8_t ctx[hydro_hash_CONTEXTBYTES] = {
+    const char ctx[hydro_hash_CONTEXTBYTES] = {
         'h', 'y', 'd', 'r', 'o', 'P', 'R', 'G' };
     hydro_hash_state st;
     uint16_t         ebits = 0;
