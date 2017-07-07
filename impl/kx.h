@@ -5,36 +5,6 @@
 #define hydro_kx_CONTEXT "hydro_kx"
 #define hydro_kx_CONTEXT_CK_K "kdf_ck_k"
 
-static inline void
-hydro_kx_mem_ct_zero_u32(uint32_t *dst_, size_t n)
-{
-    volatile uint32_t * volatile dst =
-        (volatile uint32_t * volatile) (void *) dst_;
-    size_t i;
-
-    for (i = 0; i < n; i++) {
-        dst[i] = 0;
-    }
-}
-
-static inline uint32_t
-hydro_kx_mem_ct_cmp_u32(const uint32_t *b1_, const uint32_t *b2, size_t n)
-__attribute__((warn_unused_result));
-
-static inline uint32_t
-hydro_kx_mem_ct_cmp_u32(const uint32_t *b1_, const uint32_t *b2, size_t n)
-{
-    const volatile uint32_t * volatile b1 =
-        (const volatile uint32_t * volatile) (const void *) b1_;
-    size_t   i;
-    uint32_t cv = 0;
-
-    for (i = 0; i < n; i++) {
-        cv |= b1[i] ^ b2[i];
-    }
-    return cv;
-}
-
 void
 hydro_kx_keygen(hydro_kx_keypair *static_kp)
 {
@@ -171,9 +141,9 @@ hydro_kx_decrypt(hydro_kx_state *state, uint8_t *m, const uint8_t *c,
 
     COMPILER_ASSERT(hydro_kx_AEAD_MACBYTES <= gimli_BLOCKBYTES - gimli_RATE);
     COMPILER_ASSERT(gimli_RATE % 4 == 0);
-    cv = hydro_kx_mem_ct_cmp_u32(int_state + gimli_RATE / 4, pub_mac,
-                                 hydro_kx_AEAD_MACBYTES / 4);
-    hydro_kx_mem_ct_zero_u32(int_state, gimli_BLOCKBYTES / 4);
+    cv = hydro_mem_ct_cmp_u32(int_state + gimli_RATE / 4, pub_mac,
+                              hydro_kx_AEAD_MACBYTES / 4);
+    hydro_mem_ct_zero_u32(int_state, gimli_BLOCKBYTES / 4);
     if (cv != 0) {
         mem_zero(m, mlen);
         return -1;
