@@ -55,7 +55,8 @@ hydro_secretbox_setup(uint8_t buf[gimli_BLOCKBYTES],
                       uint64_t      msg_id,
                       const char    ctx[hydro_secretbox_CONTEXTBYTES],
                       const uint8_t key[hydro_secretbox_KEYBYTES],
-                      const uint8_t iv[hydro_secretbox_IVBYTES])
+                      const uint8_t iv[hydro_secretbox_IVBYTES],
+                      uint8_t key_tag)
 {
     static const uint8_t prefix[] = { 6, 's', 'b', 'x', '2', '5', '6', 8 };
     uint8_t msg_id_le[8];
@@ -70,9 +71,9 @@ hydro_secretbox_setup(uint8_t buf[gimli_BLOCKBYTES],
 
     COMPILER_ASSERT(hydro_secretbox_KEYBYTES == 2 * gimli_RATE);
     mem_xor(buf, key, gimli_RATE);
-    gimli_core_u8(buf, gimli_TAG_HEADER);
+    gimli_core_u8(buf, key_tag);
     mem_xor(buf, key + gimli_RATE, gimli_RATE);
-    gimli_core_u8(buf, gimli_TAG_HEADER);
+    gimli_core_u8(buf, key_tag);
 
     COMPILER_ASSERT(hydro_secretbox_IVBYTES < gimli_RATE * 2);
     buf[0] ^= hydro_secretbox_IVBYTES;
@@ -111,9 +112,9 @@ hydro_secretbox_encrypt_iv(uint8_t *c, const void *m_, size_t mlen,
     size_t         i;
     size_t         leftover;
 
-    /* first pass: compute the siv */
+    /* first pass: compute the SIV */
 
-    hydro_secretbox_setup(buf, msg_id, ctx, key, iv);
+    hydro_secretbox_setup(buf, msg_id, ctx, key, iv, gimli_TAG_KEY0);
     for (i = 0; i < mlen / gimli_RATE; i++) {
         mem_xor(buf, &m[i * gimli_RATE], gimli_RATE);
         gimli_core_u8(buf, gimli_TAG_PAYLOAD);
@@ -132,7 +133,7 @@ hydro_secretbox_encrypt_iv(uint8_t *c, const void *m_, size_t mlen,
     /* second pass: encrypt the message, mix the key, squeeze an extra block for the MAC */
 
     COMPILER_ASSERT(hydro_secretbox_SIVBYTES == hydro_secretbox_IVBYTES);
-    hydro_secretbox_setup(buf, msg_id, ctx, key, siv);
+    hydro_secretbox_setup(buf, msg_id, ctx, key, siv, gimli_TAG_KEY);
     hydro_secretbox_xor_enc(buf, ct, m, mlen);
 
     hydro_secretbox_finalize(buf, key);
@@ -179,7 +180,7 @@ hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen,
     mlen = clen - hydro_secretbox_HEADERBYTES;
     mem_cpy(pub_mac, mac, sizeof pub_mac);
     COMPILER_ASSERT(hydro_secretbox_SIVBYTES == hydro_secretbox_IVBYTES);
-    hydro_secretbox_setup(buf, msg_id, ctx, key, siv);
+    hydro_secretbox_setup(buf, msg_id, ctx, key, siv, gimli_TAG_KEY);
     hydro_secretbox_xor_dec(buf, m, ct, mlen);
 
     hydro_secretbox_finalize(buf, key);

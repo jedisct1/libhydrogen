@@ -27,9 +27,9 @@ hydro_kx_aead_setup(uint8_t buf[gimli_BLOCKBYTES],
 
     COMPILER_ASSERT(hydro_kx_AEAD_KEYBYTES == 2 * gimli_RATE);
     mem_xor(buf, state->k, gimli_RATE);
-    gimli_core_u8(buf, gimli_TAG_HEADER);
+    gimli_core_u8(buf, gimli_TAG_KEY);
     mem_xor(buf, state->k + gimli_RATE, gimli_RATE);
-    gimli_core_u8(buf, gimli_TAG_HEADER);
+    gimli_core_u8(buf, gimli_TAG_KEY);
 
     COMPILER_ASSERT(sizeof state->h == 2 * gimli_RATE);
     mem_xor(buf, state->h, gimli_RATE);
