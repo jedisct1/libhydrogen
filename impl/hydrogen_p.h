@@ -7,6 +7,7 @@ static int hydro_random_init(void);
 #define gimli_TAG_HEADER  0x01
 #define gimli_TAG_PAYLOAD 0x02
 #define gimli_TAG_FINAL   0x08
+#define gimli_TAG_FINAL0  0xf8
 #define gimli_TAG_KEY0    0xfe
 #define gimli_TAG_KEY     0xff
 
