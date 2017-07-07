@@ -47,13 +47,13 @@ hydro_secretbox_xor_enc(uint8_t buf[gimli_BLOCKBYTES],
 
     for (i = 0; i < inlen / gimli_RATE; i++) {
         mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, gimli_RATE);
-        mem_xor(buf, &in[i * gimli_RATE], gimli_RATE);
+        mem_cpy(buf, &out[i * gimli_RATE], gimli_RATE);
         gimli_core_u8(buf);
     }
     leftover = inlen % gimli_RATE;
     if (leftover != 0) {
         mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, leftover);
-        mem_xor(buf, &in[i * gimli_RATE], leftover);
+        mem_cpy(buf, &out[i * gimli_RATE], leftover);
         gimli_core_u8(buf);
     }
 }
@@ -67,13 +67,13 @@ hydro_secretbox_xor_dec(uint8_t buf[gimli_BLOCKBYTES],
 
     for (i = 0; i < inlen / gimli_RATE; i++) {
         mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, gimli_RATE);
-        mem_xor(buf, &out[i * gimli_RATE], gimli_RATE);
+        mem_cpy(buf, &in[i * gimli_RATE], gimli_RATE);
         gimli_core_u8(buf);
     }
     leftover = inlen % gimli_RATE;
     if (leftover != 0) {
         mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, leftover);
-        mem_xor(buf, &out[i * gimli_RATE], leftover);
+        mem_cpy(buf, &in[i * gimli_RATE], leftover);
         gimli_core_u8(buf);
     }
 }
