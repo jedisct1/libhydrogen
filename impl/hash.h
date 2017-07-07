@@ -105,10 +105,7 @@ hydro_hash_final(hydro_hash_state *state, uint8_t *out, size_t out_len)
     lc_len = (size_t) (1 + (lc[2] != 0));
     lc[0] = (uint8_t) lc_len;
     hydro_hash_update(state, lc, 1 + lc_len + 1);
-
-    buf[state->buf_off] ^= 0x1f;
-    buf[gimli_RATE - 1] ^= 0x80;
-
+    gimli_pad_u8(buf, state->buf_off);
     for (i = 0; out_len > 0; i++) {
         const size_t block_size = (out_len < gimli_BLOCKBYTES) ? out_len : gimli_BLOCKBYTES;
         gimli_core_u8(buf);

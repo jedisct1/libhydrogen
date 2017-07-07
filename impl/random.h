@@ -258,10 +258,7 @@ randombytes_buf_deterministic(void *out, size_t out_len,
     mem_xor(buf, seed, gimli_RATE);
     gimli_core_u8(buf);
     mem_xor(buf, seed + gimli_RATE, gimli_RATE);
-    gimli_core_u8(buf);
 
-    buf[0] ^= 0x1f;
-    buf[gimli_RATE - 1] ^= 0x80;
     for (i = 0; out_len > 0; i++) {
         const size_t block_size = (out_len < gimli_BLOCKBYTES) ? out_len : gimli_BLOCKBYTES;
         gimli_core_u8(buf);
