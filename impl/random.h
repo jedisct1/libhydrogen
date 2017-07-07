@@ -81,8 +81,8 @@ extern "C"
 static int
 hydro_random_init(void)
 {
-    if (!RtlGenRandom((PVOID) hydro_random_key,
-                      (ULONG) sizeof hydro_random_key)) {
+    if (!RtlGenRandom((PVOID) hydro_random_state,
+                      (ULONG) sizeof hydro_random_state)) {
         return -1;
     }
     hydro_random_initialized = 1;
@@ -195,7 +195,7 @@ randombytes_random(void)
 
     hydro_random_check_initialized();
     if (hydro_random_available < 4) {
-        gimli_core_u8(hydro_random_state);
+        gimli_core_u8(hydro_random_state, 0);
         hydro_random_available = gimli_RATE;
     }
     memcpy(&v, &hydro_random_state[gimli_RATE - hydro_random_available], 4);
@@ -228,10 +228,10 @@ randombytes_buf(void *out, size_t out_len)
     size_t   i;
     size_t   leftover;
 
-    gimli_core_u8(hydro_random_state);
+    gimli_core_u8(hydro_random_state, 0);
     for (i = 0; i < out_len / gimli_RATE; i++) {
         memcpy(p + i * gimli_RATE, hydro_random_state, gimli_RATE);
-        gimli_core_u8(hydro_random_state);
+        gimli_core_u8(hydro_random_state, 0);
     }
     leftover = out_len % gimli_RATE;
     if (leftover != 0) {
@@ -252,16 +252,16 @@ randombytes_buf_deterministic(void *out, size_t out_len,
     COMPILER_ASSERT(sizeof prefix <= gimli_RATE);
     mem_cpy(buf, prefix, sizeof prefix);
     mem_zero(buf + sizeof prefix, gimli_BLOCKBYTES - sizeof prefix);
-    gimli_core_u8(buf);
+    gimli_core_u8(buf, 0);
 
     COMPILER_ASSERT(randombytes_SEEDBYTES == 2 * gimli_RATE);
     mem_xor(buf, seed, gimli_RATE);
-    gimli_core_u8(buf);
+    gimli_core_u8(buf, 0);
     mem_xor(buf, seed + gimli_RATE, gimli_RATE);
 
     for (i = 0; out_len > 0; i++) {
         const size_t block_size = (out_len < gimli_BLOCKBYTES) ? out_len : gimli_BLOCKBYTES;
-        gimli_core_u8(buf);
+        gimli_core_u8(buf, 0);
         mem_cpy((uint8_t *) out + i * gimli_BLOCKBYTES, buf, block_size);
         out_len -= block_size;
     }

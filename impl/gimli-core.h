@@ -132,8 +132,9 @@ gimli_core(uint32_t state[gimli_BLOCKBYTES / 4])
 #endif
 
 void
-gimli_core_u8(uint8_t state_u8[gimli_BLOCKBYTES])
+gimli_core_u8(uint8_t state_u8[gimli_BLOCKBYTES], uint8_t tag)
 {
+    state_u8[gimli_BLOCKBYTES - 1] ^= tag;
 #ifndef NATIVE_LITTLE_ENDIAN
     uint32_t state_u32[12];
     int      i;

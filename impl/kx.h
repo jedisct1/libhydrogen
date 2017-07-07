@@ -53,26 +53,26 @@ hydro_kx_aead_setup(uint8_t buf[gimli_BLOCKBYTES],
 
     mem_zero(buf + sizeof prefix, gimli_BLOCKBYTES - sizeof prefix);
     mem_cpy(buf, prefix, sizeof prefix);
-    gimli_core_u8(buf);
+    gimli_core_u8(buf, gimli_TAG_HEADER);
 
     COMPILER_ASSERT(hydro_kx_AEAD_KEYBYTES == 2 * gimli_RATE);
     mem_xor(buf, state->k, gimli_RATE);
-    gimli_core_u8(buf);
+    gimli_core_u8(buf, gimli_TAG_HEADER);
     mem_xor(buf, state->k + gimli_RATE, gimli_RATE);
-    gimli_core_u8(buf);
+    gimli_core_u8(buf, gimli_TAG_HEADER);
 
     COMPILER_ASSERT(sizeof state->h == 2 * gimli_RATE);
     mem_xor(buf, state->h, gimli_RATE);
-    gimli_core_u8(buf);
+    gimli_core_u8(buf, gimli_TAG_HEADER);
     mem_xor(buf, state->h + gimli_RATE, gimli_RATE);
-    gimli_core_u8(buf);
+    gimli_core_u8(buf, gimli_TAG_HEADER);
 
     if (psk != NULL) {
         COMPILER_ASSERT(hydro_kx_PSKBYTES == 2 * gimli_RATE);
         mem_xor(buf, psk, gimli_RATE);
-        gimli_core_u8(buf);
+        gimli_core_u8(buf, gimli_TAG_HEADER);
         mem_xor(buf, psk + gimli_RATE, gimli_RATE);
-        gimli_core_u8(buf);
+        gimli_core_u8(buf, gimli_TAG_HEADER);
     }
 }
 
@@ -86,13 +86,14 @@ hydro_kx_aead_xor_enc(uint8_t buf[gimli_BLOCKBYTES],
     for (i = 0; i < inlen / gimli_RATE; i++) {
         mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, gimli_RATE);
         mem_cpy(buf, &out[i * gimli_RATE], gimli_RATE);
-        gimli_core_u8(buf);
+        gimli_core_u8(buf, gimli_TAG_PAYLOAD);
     }
     leftover = inlen % gimli_RATE;
     if (leftover != 0) {
         mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, leftover);
         mem_cpy(buf, &out[i * gimli_RATE], leftover);
-        gimli_core_u8(buf);
+        gimli_pad_u8(buf, leftover);
+        gimli_core_u8(buf, gimli_TAG_PAYLOAD);
     }
 }
 
@@ -106,13 +107,14 @@ hydro_kx_aead_xor_dec(uint8_t buf[gimli_BLOCKBYTES],
     for (i = 0; i < inlen / gimli_RATE; i++) {
         mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, gimli_RATE);
         mem_cpy(buf, &in[i * gimli_RATE], gimli_RATE);
-        gimli_core_u8(buf);
+        gimli_core_u8(buf, gimli_TAG_PAYLOAD);
     }
     leftover = inlen % gimli_RATE;
     if (leftover != 0) {
         mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, leftover);
         mem_cpy(buf, &in[i * gimli_RATE], leftover);
-        gimli_core_u8(buf);
+        gimli_pad_u8(buf, leftover);
+        gimli_core_u8(buf, gimli_TAG_PAYLOAD);
     }
 }
 
@@ -126,9 +128,12 @@ hydro_kx_encrypt(const hydro_kx_state *state, uint8_t *c, const uint8_t *m,
 
     hydro_kx_aead_setup(buf, state, psk);
     hydro_kx_aead_xor_enc(buf, ct, m, mlen);
+
     COMPILER_ASSERT(hydro_kx_AEAD_KEYBYTES == gimli_BLOCKBYTES - gimli_RATE);
     mem_xor(buf + gimli_RATE, state->k, hydro_kx_AEAD_KEYBYTES);
-    gimli_core_u8(buf);
+    gimli_core_u8(buf, gimli_TAG_FINAL);
+    mem_xor(buf + gimli_RATE, state->k, hydro_kx_AEAD_KEYBYTES);
+    gimli_core_u8(buf, gimli_TAG_FINAL);
 
     COMPILER_ASSERT(hydro_kx_AEAD_MACBYTES <= gimli_BLOCKBYTES - gimli_RATE);
     mem_cpy(mac, buf + gimli_RATE, hydro_kx_AEAD_MACBYTES);
@@ -160,7 +165,9 @@ hydro_kx_decrypt(hydro_kx_state *state, uint8_t *m, const uint8_t *c,
 
     COMPILER_ASSERT(hydro_kx_AEAD_KEYBYTES == gimli_BLOCKBYTES - gimli_RATE);
     mem_xor(buf + gimli_RATE, state->k, hydro_kx_AEAD_KEYBYTES);
-    gimli_core_u8(buf);
+    gimli_core_u8(buf, gimli_TAG_FINAL);
+    mem_xor(buf + gimli_RATE, state->k, hydro_kx_AEAD_KEYBYTES);
+    gimli_core_u8(buf, gimli_TAG_FINAL);
 
     COMPILER_ASSERT(hydro_kx_AEAD_MACBYTES <= gimli_BLOCKBYTES - gimli_RATE);
     COMPILER_ASSERT(gimli_RATE % 4 == 0);

@@ -48,13 +48,14 @@ hydro_secretbox_xor_enc(uint8_t buf[gimli_BLOCKBYTES],
     for (i = 0; i < inlen / gimli_RATE; i++) {
         mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, gimli_RATE);
         mem_cpy(buf, &out[i * gimli_RATE], gimli_RATE);
-        gimli_core_u8(buf);
+        gimli_core_u8(buf, gimli_TAG_PAYLOAD);
     }
     leftover = inlen % gimli_RATE;
     if (leftover != 0) {
         mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, leftover);
         mem_cpy(buf, &out[i * gimli_RATE], leftover);
-        gimli_core_u8(buf);
+        gimli_pad_u8(buf, leftover);
+        gimli_core_u8(buf, gimli_TAG_PAYLOAD);
     }
 }
 
@@ -68,13 +69,14 @@ hydro_secretbox_xor_dec(uint8_t buf[gimli_BLOCKBYTES],
     for (i = 0; i < inlen / gimli_RATE; i++) {
         mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, gimli_RATE);
         mem_cpy(buf, &in[i * gimli_RATE], gimli_RATE);
-        gimli_core_u8(buf);
+        gimli_core_u8(buf, gimli_TAG_PAYLOAD);
     }
     leftover = inlen % gimli_RATE;
     if (leftover != 0) {
         mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, leftover);
         mem_cpy(buf, &in[i * gimli_RATE], leftover);
-        gimli_core_u8(buf);
+        gimli_pad_u8(buf, leftover);
+        gimli_core_u8(buf, gimli_TAG_PAYLOAD);
     }
 }
 
@@ -83,8 +85,7 @@ hydro_secretbox_setup(uint8_t buf[gimli_BLOCKBYTES],
                       uint64_t      msg_id,
                       const char    ctx[hydro_secretbox_CONTEXTBYTES],
                       const uint8_t key[hydro_secretbox_KEYBYTES],
-                      const uint8_t iv[hydro_secretbox_IVBYTES],
-                      int           first_pass)
+                      const uint8_t iv[hydro_secretbox_IVBYTES])
 {
     static const uint8_t prefix[] = { 6, 's', 'b', 'x', '2', '5', '6', 8 };
     uint8_t msg_id_le[8];
@@ -94,28 +95,24 @@ hydro_secretbox_setup(uint8_t buf[gimli_BLOCKBYTES],
     COMPILER_ASSERT(sizeof prefix + hydro_secretbox_CONTEXTBYTES <= gimli_RATE);
     mem_cpy(buf, prefix, sizeof prefix);
     mem_cpy(buf + sizeof prefix, ctx, hydro_secretbox_CONTEXTBYTES);
-    if (first_pass != 0) {
-        buf[0] ^= 0x1f;
-        buf[gimli_RATE - 1] ^= 0x80;
-    }
     COMPILER_ASSERT(sizeof prefix + hydro_secretbox_CONTEXTBYTES == gimli_RATE);
-    gimli_core_u8(buf);
+    gimli_core_u8(buf, gimli_TAG_HEADER);
 
     COMPILER_ASSERT(hydro_secretbox_KEYBYTES == 2 * gimli_RATE);
     mem_xor(buf, key, gimli_RATE);
-    gimli_core_u8(buf);
+    gimli_core_u8(buf, gimli_TAG_HEADER);
     mem_xor(buf, key + gimli_RATE, gimli_RATE);
-    gimli_core_u8(buf);
+    gimli_core_u8(buf, gimli_TAG_HEADER);
 
     COMPILER_ASSERT(hydro_secretbox_IVBYTES < gimli_RATE * 2);
     buf[0] ^= hydro_secretbox_IVBYTES;
     mem_xor(&buf[1], iv, gimli_RATE - 1);
-    gimli_core_u8(buf);
+    gimli_core_u8(buf, gimli_TAG_HEADER);
     mem_xor(buf, iv + gimli_RATE - 1, hydro_secretbox_IVBYTES - (gimli_RATE - 1));
     STORE64_LE(msg_id_le, msg_id);
     COMPILER_ASSERT(hydro_secretbox_IVBYTES - gimli_RATE + 8 <= gimli_RATE);
     mem_xor(buf + hydro_secretbox_IVBYTES - gimli_RATE, msg_id_le, 8);
-    gimli_core_u8(buf);
+    gimli_core_u8(buf, gimli_TAG_HEADER);
 }
 
 static int
@@ -136,34 +133,38 @@ hydro_secretbox_encrypt_iv(uint8_t *c, const void *m_, size_t mlen,
 
     /* first pass: compute the siv */
 
-    hydro_secretbox_setup(buf, msg_id, ctx, key, iv, 1);
+    hydro_secretbox_setup(buf, msg_id, ctx, key, iv);
     for (i = 0; i < mlen / gimli_RATE; i++) {
         mem_xor(buf, &m[i * gimli_RATE], gimli_RATE);
-        gimli_core_u8(buf);
+        gimli_core_u8(buf, gimli_TAG_PAYLOAD);
     }
     leftover = mlen % gimli_RATE;
     if (leftover != 0) {
         mem_xor(buf, &m[i * gimli_RATE], leftover);
-        gimli_core_u8(buf);
+        gimli_pad_u8(buf, leftover);
+        gimli_core_u8(buf, gimli_TAG_PAYLOAD);
     }
-    gimli_pad_u8(buf, leftover);
-    gimli_core_u8(buf);
 
-    COMPILER_ASSERT(hydro_secretbox_SIVBYTES <= gimli_RATE * 2);
-    mem_cpy(siv, buf, hydro_secretbox_SIVBYTES);
-    gimli_core_u8(buf);
-    mem_cpy(siv + gimli_RATE, buf, hydro_secretbox_SIVBYTES - gimli_RATE);
+    COMPILER_ASSERT(hydro_secretbox_KEYBYTES == gimli_BLOCKBYTES - gimli_RATE);
+    mem_xor(buf + gimli_RATE, key, hydro_secretbox_KEYBYTES);
+    gimli_core_u8(buf, gimli_TAG_FINAL);
+    mem_xor(buf + gimli_RATE, key, hydro_secretbox_KEYBYTES);
+    gimli_core_u8(buf, gimli_TAG_FINAL);
 
-    /* second pass: encrypt the message, squeeze an extra block for the MAC */
+    COMPILER_ASSERT(hydro_secretbox_SIVBYTES <= gimli_BLOCKBYTES - gimli_RATE);
+    mem_cpy(siv, buf + gimli_RATE, hydro_secretbox_SIVBYTES - gimli_RATE);
+
+    /* second pass: encrypt the message, mix the key, squeeze an extra block for the MAC */
 
     COMPILER_ASSERT(hydro_secretbox_SIVBYTES == hydro_secretbox_IVBYTES);
-    hydro_secretbox_setup(buf, msg_id, ctx, key, siv, 0);
+    hydro_secretbox_setup(buf, msg_id, ctx, key, siv);
     hydro_secretbox_xor_enc(buf, ct, m, mlen);
 
-    COMPILER_ASSERT(hydro_secretbox_KEYBYTES <= gimli_BLOCKBYTES - gimli_RATE);
-    mem_xor(buf + gimli_RATE, key, hydro_secretbox_KEYBYTES);
     COMPILER_ASSERT(hydro_secretbox_KEYBYTES == gimli_BLOCKBYTES - gimli_RATE);
-    gimli_core_u8(buf);
+    mem_xor(buf + gimli_RATE, key, hydro_secretbox_KEYBYTES);
+    gimli_core_u8(buf, gimli_TAG_FINAL);
+    mem_xor(buf + gimli_RATE, key, hydro_secretbox_KEYBYTES);
+    gimli_core_u8(buf, gimli_TAG_FINAL);
 
     COMPILER_ASSERT(hydro_secretbox_MACBYTES <= gimli_BLOCKBYTES - gimli_RATE);
     mem_cpy(mac, buf + gimli_RATE, hydro_secretbox_MACBYTES);
@@ -208,13 +209,14 @@ hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen,
     mlen = clen - hydro_secretbox_HEADERBYTES;
     mem_cpy(pub_mac, mac, sizeof pub_mac);
     COMPILER_ASSERT(hydro_secretbox_SIVBYTES == hydro_secretbox_IVBYTES);
-    hydro_secretbox_setup(buf, msg_id, ctx, key, siv, 0);
+    hydro_secretbox_setup(buf, msg_id, ctx, key, siv);
     hydro_secretbox_xor_dec(buf, m, ct, mlen);
 
-    COMPILER_ASSERT(hydro_secretbox_KEYBYTES <= gimli_BLOCKBYTES - gimli_RATE);
-    mem_xor(buf + gimli_RATE, key, hydro_secretbox_KEYBYTES);
     COMPILER_ASSERT(hydro_secretbox_KEYBYTES == gimli_BLOCKBYTES - gimli_RATE);
-    gimli_core_u8(buf);
+    mem_xor(buf + gimli_RATE, key, hydro_secretbox_KEYBYTES);
+    gimli_core_u8(buf, gimli_TAG_FINAL);
+    mem_xor(buf + gimli_RATE, key, hydro_secretbox_KEYBYTES);
+    gimli_core_u8(buf, gimli_TAG_FINAL);
 
     COMPILER_ASSERT(hydro_secretbox_MACBYTES <= gimli_BLOCKBYTES - gimli_RATE);
     COMPILER_ASSERT(gimli_RATE % 4 == 0);

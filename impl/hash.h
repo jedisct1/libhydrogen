@@ -9,7 +9,7 @@ hydro_hash_update(hydro_hash_state *state, const void *in_, size_t in_len)
 
     while (in_len > 0) {
         if ((left = gimli_RATE - state->buf_off) == 0) {
-            gimli_core_u8(buf);
+            gimli_core_u8(buf, 0);
             state->buf_off = 0;
             left = gimli_RATE;
         }
@@ -108,7 +108,7 @@ hydro_hash_final(hydro_hash_state *state, uint8_t *out, size_t out_len)
     gimli_pad_u8(buf, state->buf_off);
     for (i = 0; out_len > 0; i++) {
         const size_t block_size = (out_len < gimli_BLOCKBYTES) ? out_len : gimli_BLOCKBYTES;
-        gimli_core_u8(buf);
+        gimli_core_u8(buf, 0);
         mem_cpy(out + i * gimli_BLOCKBYTES, buf, block_size);
         out_len -= block_size;
     }
