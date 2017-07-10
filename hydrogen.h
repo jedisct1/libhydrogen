@@ -72,6 +72,7 @@ int hydro_hash_hash(uint8_t *out, size_t out_len, const void *in_,
 #define hydro_secretbox_CONTEXTBYTES 8
 #define hydro_secretbox_HEADERBYTES (20 + 16)
 #define hydro_secretbox_KEYBYTES 32
+#define hydro_secretbox_PROBEBYTES 16
 
 void hydro_secretbox_keygen(uint8_t key[hydro_secretbox_KEYBYTES]);
 
@@ -85,6 +86,19 @@ int hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen,
                             const char    ctx[hydro_secretbox_CONTEXTBYTES],
                             const uint8_t key[hydro_secretbox_KEYBYTES])
     __attribute__((warn_unused_result));
+
+void
+hydro_secretbox_probe_create(uint8_t probe[hydro_secretbox_PROBEBYTES],
+                             const uint8_t *c, size_t c_len,
+                             const char    ctx[hydro_secretbox_CONTEXTBYTES],
+                             const uint8_t key[hydro_secretbox_KEYBYTES]);
+
+int
+hydro_secretbox_probe_verify(const uint8_t probe[hydro_secretbox_PROBEBYTES],
+                             const uint8_t *c, size_t c_len,
+                             const char    ctx[hydro_secretbox_CONTEXTBYTES],
+                             const uint8_t key[hydro_secretbox_KEYBYTES])
+            __attribute__((warn_unused_result));
 
 /* ---------------- */
 

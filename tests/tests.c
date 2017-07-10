@@ -140,6 +140,7 @@ test_secretbox(void)
     uint8_t m2[25];
     uint8_t c[hydro_secretbox_HEADERBYTES + 25];
     uint8_t dk[randombytes_SEEDBYTES];
+    uint8_t probe[hydro_secretbox_PROBEBYTES];
 
     memset(dk, 0, sizeof dk);
     randombytes_buf_deterministic(m, sizeof m, dk);
@@ -149,6 +150,16 @@ test_secretbox(void)
     hydro_secretbox_encrypt(c, m, sizeof m, 0, ctx, key);
     assert(hydro_secretbox_decrypt(m2, c, sizeof c, 0, ctx, key) == 0);
     assert(hydro_equal(m, m2, sizeof m));
+
+    hydro_secretbox_probe_create(probe, c, sizeof c, ctx, key);
+    assert(hydro_secretbox_probe_verify(probe, c, sizeof c, ctx, key) == 0);
+    probe[0]++;
+    assert(hydro_secretbox_probe_verify(probe, c, sizeof c, ctx, key) == -1);
+    probe[0]--;
+    key[0]++;
+    assert(hydro_secretbox_probe_verify(probe, c, sizeof c, ctx, key) == -1);
+    key[0]--;
+
     assert(hydro_secretbox_decrypt(m2, c, 0, 0, ctx, key) == -1);
     assert(hydro_secretbox_decrypt(m2, c, 1, 0, ctx, key) == -1);
     assert(hydro_secretbox_decrypt(m2, c, hydro_secretbox_HEADERBYTES, 0, ctx,

@@ -144,6 +144,49 @@ hydro_secretbox_encrypt_iv(uint8_t *c, const void *m_, size_t mlen,
     return 0;
 }
 
+void
+hydro_secretbox_probe_create(uint8_t probe[hydro_secretbox_PROBEBYTES],
+                             const uint8_t *c, size_t c_len,
+                             const char    ctx[hydro_secretbox_CONTEXTBYTES],
+                             const uint8_t key[hydro_secretbox_KEYBYTES])
+{
+    const uint8_t *mac;
+
+    if (c_len < hydro_secretbox_HEADERBYTES) {
+        abort();
+    }
+    mac = &c[hydro_secretbox_SIVBYTES];
+    COMPILER_ASSERT(hydro_secretbox_CONTEXTBYTES == hydro_hash_CONTEXTBYTES);
+    COMPILER_ASSERT(hydro_secretbox_KEYBYTES >= hydro_hash_KEYBYTES_MIN &&
+                    hydro_secretbox_KEYBYTES <= hydro_hash_KEYBYTES_MAX);
+    hydro_hash_hash(probe, hydro_secretbox_PROBEBYTES,
+                    mac, hydro_secretbox_MACBYTES,
+                    ctx, key, hydro_secretbox_KEYBYTES);
+}
+
+int
+hydro_secretbox_probe_verify(const uint8_t probe[hydro_secretbox_PROBEBYTES],
+                             const uint8_t *c, size_t c_len,
+                             const char    ctx[hydro_secretbox_CONTEXTBYTES],
+                             const uint8_t key[hydro_secretbox_KEYBYTES])
+{
+    uint8_t        computed_probe[hydro_secretbox_PROBEBYTES];
+    const uint8_t *mac;
+
+    if (c_len < hydro_secretbox_HEADERBYTES) {
+        return -1;
+    }
+    mac = &c[hydro_secretbox_SIVBYTES];
+    hydro_hash_hash(computed_probe, hydro_secretbox_PROBEBYTES,
+                    mac, hydro_secretbox_MACBYTES,
+                    ctx, key, hydro_secretbox_KEYBYTES);
+    if (hydro_equal(computed_probe, probe, hydro_secretbox_PROBEBYTES) == 1) {
+        return 0;
+    }
+    mem_zero(computed_probe, hydro_secretbox_PROBEBYTES);
+    return -1;
+}
+
 int
 hydro_secretbox_encrypt(uint8_t *c, const void *m_, size_t mlen,
                         uint64_t      msg_id,
@@ -167,9 +210,9 @@ hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen,
     uint32_t       pub_mac[hydro_secretbox_MACBYTES / 4];
     uint32_t       state[gimli_BLOCKBYTES / 4];
     uint8_t       *buf = (uint8_t *) (void *) state;
-    const uint8_t *siv = &c[0];
-    const uint8_t *mac = &c[hydro_secretbox_SIVBYTES];
-    const uint8_t *ct = &c[hydro_secretbox_SIVBYTES + hydro_secretbox_MACBYTES];
+    const uint8_t *siv;
+    const uint8_t *mac;
+    const uint8_t *ct;
     uint8_t       *m = (uint8_t *) m_;
     size_t         mlen;
     uint32_t       cv;
@@ -177,6 +220,9 @@ hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen,
     if (clen < hydro_secretbox_HEADERBYTES) {
         return -1;
     }
+    siv = &c[0];
+    mac = &c[hydro_secretbox_SIVBYTES];
+    ct = &c[hydro_secretbox_SIVBYTES + hydro_secretbox_MACBYTES];
 
     mlen = clen - hydro_secretbox_HEADERBYTES;
     mem_cpy(pub_mac, mac, sizeof pub_mac);
