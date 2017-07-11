@@ -1,6 +1,6 @@
 static uint8_t hydro_random_state[gimli_BLOCKBYTES];
-static uint8_t hydro_random_available;
 static uint8_t hydro_random_initialized;
+static uint8_t hydro_random_available;
 
 #if defined(AVR) && !defined(__unix__)
 #include <Arduino.h>
@@ -237,7 +237,8 @@ randombytes_buf(void *out, size_t out_len)
     if (leftover != 0) {
         memcpy(p + i * gimli_RATE, hydro_random_state, leftover);
     }
-    hydro_random_available = gimli_RATE - leftover;
+    COMPILER_ASSERT(gimli_RATE <= 0xff);
+    hydro_random_available = (uint8_t) (gimli_RATE - leftover);
 }
 
 void

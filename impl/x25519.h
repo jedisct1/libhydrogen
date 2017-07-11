@@ -58,7 +58,7 @@ hydro_x25519_umaal(hydro_x25519_limb_t *carry, hydro_x25519_limb_t acc,
         (hydro_x25519_dlimb_t) mand * mier + acc + *carry;
 
     *carry = tmp >> hydro_x25519_WBITS;
-    return tmp;
+    return (hydro_x25519_limb_t) tmp;
 }
 
 static inline hydro_x25519_limb_t
@@ -68,7 +68,7 @@ hydro_x25519_adc(hydro_x25519_limb_t *carry, hydro_x25519_limb_t acc,
     hydro_x25519_dlimb_t total = (hydro_x25519_dlimb_t) *carry + acc + mand;
 
     *carry = total >> hydro_x25519_WBITS;
-    return total;
+    return (hydro_x25519_limb_t) total;
 }
 
 static inline hydro_x25519_limb_t
@@ -77,7 +77,7 @@ hydro_x25519_adc0(hydro_x25519_limb_t *carry, hydro_x25519_limb_t acc)
     hydro_x25519_dlimb_t total = (hydro_x25519_dlimb_t) *carry + acc;
 
     *carry = total >> hydro_x25519_WBITS;
-    return total;
+    return (hydro_x25519_limb_t) total;
 }
 
 static void
