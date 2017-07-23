@@ -15,6 +15,9 @@
 # define __restrict__
 #endif
 
+#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+# define NATIVE_BIG_ENDIAN
+#endif
 #ifndef NATIVE_BIG_ENDIAN
 # ifndef NATIVE_LITTLE_ENDIAN
 #  define NATIVE_LITTLE_ENDIAN
