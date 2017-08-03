@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/jedisct1/libhydrogen.svg?branch=master)](https://travis-ci.org/jedisct1/libhydrogen?branch=master)
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/13315/badge.svg)](https://scan.coverity.com/projects/13315)
 
 ![libhydrogen](https://raw.github.com/jedisct1/libhydrogen/master/logo.png)
 ==============
