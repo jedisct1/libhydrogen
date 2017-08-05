@@ -14,6 +14,18 @@ hydro_kx_keygen(hydro_kx_keypair *static_kp)
     }
 }
 
+void
+hydro_kx_keygen_deterministic(hydro_kx_keypair *static_kp,
+                              const uint8_t     seed[hydro_kx_SEEDBYTES])
+{
+    COMPILER_ASSERT(hydro_kx_SEEDBYTES >= randombytes_SEEDBYTES);
+    randombytes_buf_deterministic(static_kp->sk, hydro_kx_SECRETKEYBYTES, seed);
+    if (hydro_x25519_scalarmult_base(static_kp->pk, static_kp->sk) != 0) {
+        abort();
+    }
+}
+
+
 static void
 hydro_kx_aead_setup(uint8_t buf[gimli_BLOCKBYTES],
                     const hydro_kx_state *state,

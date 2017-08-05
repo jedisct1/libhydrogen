@@ -165,6 +165,7 @@ int hydro_sign_verify(const uint8_t csig[hydro_sign_BYTES], const void *m_,
 #define hydro_kx_PUBLICKEYBYTES 32
 #define hydro_kx_SECRETKEYBYTES 32
 #define hydro_kx_PSKBYTES 32
+#define hydro_kx_SEEDBYTES 32
 
 #define hydro_kx_RESPONSE1BYTES 32
 #define hydro_kx_RESPONSE2BYTES 80
@@ -188,6 +189,9 @@ typedef struct hydro_kx_state {
 } hydro_kx_state;
 
 void hydro_kx_keygen(hydro_kx_keypair *static_kp);
+
+void hydro_kx_keygen_deterministic(hydro_kx_keypair *static_kp,
+                                   const uint8_t     seed[hydro_kx_SEEDBYTES]);
 
 int hydro_kx_xx_1(hydro_kx_state *state,
                   uint8_t         response1[hydro_kx_RESPONSE1BYTES],
