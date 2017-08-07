@@ -33,12 +33,9 @@ static const uint32_t coeffs[4 * 12] CRYPTO_ALIGN(16) = {
 static void
 gimli_core(uint32_t state[gimli_BLOCKBYTES / 4])
 {
-    __m128i x = _mm_loadu_si128((const __m128i *)
-                                (const void *) &state[0]);
-    __m128i y = _mm_loadu_si128((const __m128i *)
-                                (const void *) &state[4]);
-    __m128i z = _mm_loadu_si128((const __m128i *)
-                                (const void *) &state[8]);
+    __m128i x = _mm_loadu_si128((const __m128i *) (const void *) &state[0]);
+    __m128i y = _mm_loadu_si128((const __m128i *) (const void *) &state[4]);
+    __m128i z = _mm_loadu_si128((const __m128i *) (const void *) &state[8]);
     __m128i newy;
     __m128i newz;
     int     round;
