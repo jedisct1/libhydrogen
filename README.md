@@ -27,3 +27,6 @@ The documentation is maintained in the [libhydrogen wiki](https://github.com/jed
 
 # Warning
 This is a work in progress.
+
+The Gimli permutation may eventually be replaced by a revised version, or a
+different permutation.
