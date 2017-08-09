@@ -28,4 +28,4 @@ The documentation is maintained in the [libhydrogen wiki](https://github.com/jed
 # Warning
 This is a work in progress; the Gimli permutation may eventually be replaced by a revised version, or a different permutation.
 
-The legacy libhydrogen code (leveraging XChaCha20, SipHashX, Blake2SX, Curve25519) remains available in the [v0 branch](https://github.com/jedisct1/libhydrogen/tree/v0).
+The legacy libhydrogen code (leveraging XChaCha20, SipHashX, BLAKE2SX, Curve25519) remains available in the [v0 branch](https://github.com/jedisct1/libhydrogen/tree/v0).
