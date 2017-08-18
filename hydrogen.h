@@ -232,6 +232,12 @@ int hydro_hex2bin(uint8_t *bin, size_t bin_maxlen, const char *hex,
                   size_t hex_len, const char *ignore, size_t *bin_len,
                   const char **hex_end);
 
+int hydro_pad(size_t *padded_buflen_p, unsigned char *buf,
+	      size_t unpadded_buflen, size_t blocksize, size_t max_buflen);
+
+int hydro_unpad(size_t *unpadded_buflen_p, const unsigned char *buf,
+		size_t padded_buflen, size_t blocksize);
+
 /* ---------------- */
 
 #define HYDRO_HWTYPE_ATMEGA328 1
