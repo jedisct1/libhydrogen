@@ -129,7 +129,7 @@ hydro_secretbox_encrypt_iv(uint8_t *c, const void *m_, size_t mlen,
 
     hydro_secretbox_finalize(buf, key, gimli_TAG_FINAL0);
     COMPILER_ASSERT(hydro_secretbox_SIVBYTES <= gimli_BLOCKBYTES - gimli_RATE);
-    mem_cpy(siv, buf + gimli_RATE, hydro_secretbox_SIVBYTES - gimli_RATE);
+    mem_cpy(siv, buf + gimli_RATE, hydro_secretbox_SIVBYTES);
 
     /* second pass: encrypt the message, mix the key, squeeze an extra block for the MAC */
 
