@@ -128,7 +128,8 @@ test_core(void)
     randombytes_buf(x, sizeof x);
     assert(hydro_bin2hex(hex, sizeof hex, x, sizeof x) != NULL);
     assert(hydro_hex2bin(y, 1, hex, sizeof hex, NULL, NULL, NULL) == -1);
-    assert(hydro_hex2bin(y, sizeof y, hex, sizeof hex, NULL, NULL, NULL) == 0);
+    assert(hydro_hex2bin(y, sizeof y, hex, sizeof hex, NULL, NULL, NULL) == -1);
+    assert(hydro_hex2bin(y, sizeof y, hex, sizeof hex - 1, NULL, NULL, NULL) == 0);
     assert(hydro_equal(x, y, sizeof x));
 }
 

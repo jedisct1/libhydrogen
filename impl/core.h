@@ -101,9 +101,17 @@ hydro_hex2bin(uint8_t *bin, size_t bin_maxlen, const char *hex, size_t hex_len,
     }
     if (state != 0U) {
         hex_pos--;
+        errno = EINVAL;
+        ret = -1;
+    }
+    if (ret != 0) {
+        bin_pos = (size_t) 0U;
     }
     if (hex_end != NULL) {
         *hex_end = &hex[hex_pos];
+    } else if (hex_pos != hex_len) {
+        errno = EINVAL;
+        ret = -1;
     }
     if (bin_len != NULL) {
         *bin_len = bin_pos;
