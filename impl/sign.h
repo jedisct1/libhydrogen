@@ -1,5 +1,6 @@
 #define hydro_sign_CHALLENGEBYTES 32
 #define hydro_sign_NONCEBYTES 32
+#define hydro_sign_PREHASHBYTES 32
 
 static void
 hydro_sign_p2(uint8_t       sig[hydro_x25519_BYTES],
@@ -18,25 +19,47 @@ hydro_sign_p2(uint8_t       sig[hydro_x25519_BYTES],
     hydro_x25519_swapout(sig, scalar2);
 }
 
-static int
-hydro_sign_challenge(uint8_t       csig[hydro_sign_BYTES],
-                     const uint8_t challenge[hydro_sign_CHALLENGEBYTES],
-                     const uint8_t sk[hydro_sign_SECRETKEYBYTES])
+static void
+hydro_sign_challenge(uint8_t       challenge[hydro_sign_CHALLENGEBYTES],
+                     const uint8_t nonce[hydro_sign_NONCEBYTES],
+                     const uint8_t pk[hydro_sign_PUBLICKEYBYTES],
+                     const uint8_t prehash[hydro_sign_PREHASHBYTES])
 {
-    hydro_hash_state st;
-    uint8_t *        nonce  = &csig[0];
-    uint8_t *        sig    = &csig[hydro_sign_NONCEBYTES];
-    uint8_t *        eph_sk = sig;
+    hydro_hash_state  st;
+
+    hydro_hash_init(&st, (const char *) zero, NULL, 0);
+    hydro_hash_update(&st, nonce, hydro_sign_NONCEBYTES);
+    hydro_hash_update(&st, pk, hydro_sign_PUBLICKEYBYTES);
+    hydro_hash_update(&st, prehash, hydro_sign_PREHASHBYTES);
+    hydro_hash_final(&st, challenge, hydro_sign_CHALLENGEBYTES);
+}
+
+static int
+hydro_sign_prehash(uint8_t       csig[hydro_sign_BYTES],
+                   const uint8_t prehash[hydro_sign_PREHASHBYTES],
+                   const uint8_t sk[hydro_sign_SECRETKEYBYTES])
+{
+    hydro_hash_state  st;
+    uint8_t           challenge[hydro_sign_CHALLENGEBYTES];
+    uint8_t           pk[hydro_sign_PUBLICKEYBYTES];
+    uint8_t          *nonce  = &csig[0];
+    uint8_t          *sig    = &csig[hydro_sign_NONCEBYTES];
+    uint8_t          *eph_sk = sig;
+
+    hydro_x25519_scalarmult_base_uniform(pk, sk);
 
     randombytes_buf(eph_sk, hydro_x25519_SECRETKEYBYTES);
     hydro_hash_init(&st, (const char *) zero, sk, hydro_sign_SECRETKEYBYTES);
     hydro_hash_update(&st, eph_sk, hydro_x25519_SECRETKEYBYTES);
-    hydro_hash_update(&st, challenge, hydro_sign_CHALLENGEBYTES);
+    hydro_hash_update(&st, prehash, hydro_sign_CHALLENGEBYTES);
     hydro_hash_final(&st, eph_sk, hydro_x25519_SECRETKEYBYTES);
+
+    hydro_x25519_scalarmult_base_uniform(nonce, eph_sk);
+    hydro_sign_challenge(challenge, nonce, pk, prehash);
+
     COMPILER_ASSERT(hydro_sign_BYTES ==
                     hydro_sign_NONCEBYTES + hydro_x25519_SECRETKEYBYTES);
     COMPILER_ASSERT(hydro_sign_SECRETKEYBYTES <= hydro_sign_CHALLENGEBYTES);
-    hydro_x25519_scalarmult_base_uniform(nonce, eph_sk);
     hydro_sign_p2(sig, challenge, eph_sk, sk);
 
     return 0;
@@ -131,10 +154,11 @@ int
 hydro_sign_final_create(hydro_sign_state *state, uint8_t csig[hydro_sign_BYTES],
                         const uint8_t sk[hydro_sign_SECRETKEYBYTES])
 {
-    uint8_t challenge[hydro_sign_CHALLENGEBYTES];
+    uint8_t prehash[hydro_sign_PREHASHBYTES];
 
-    hydro_hash_final(&state->hash_st, challenge, sizeof challenge);
-    return hydro_sign_challenge(csig, challenge, sk);
+    hydro_hash_final(&state->hash_st, prehash, sizeof prehash);
+
+    return hydro_sign_prehash(csig, prehash, sk);
 }
 
 int
@@ -142,9 +166,13 @@ hydro_sign_final_verify(hydro_sign_state *state,
                         const uint8_t     csig[hydro_sign_BYTES],
                         const uint8_t     pk[hydro_sign_PUBLICKEYBYTES])
 {
-    uint8_t challenge[hydro_sign_CHALLENGEBYTES];
+    uint8_t                 challenge[hydro_sign_CHALLENGEBYTES];
+    uint8_t                 prehash[hydro_sign_PREHASHBYTES];
+    const uint8_t *nonce  = &csig[0];
 
-    hydro_hash_final(&state->hash_st, challenge, sizeof challenge);
+    hydro_hash_final(&state->hash_st, prehash, sizeof prehash);
+    hydro_sign_challenge(challenge, nonce, pk, prehash);
+
     return hydro_sign_verify_challenge(csig, challenge, pk);
 }
 
