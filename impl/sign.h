@@ -41,15 +41,13 @@ hydro_sign_prehash(uint8_t       csig[hydro_sign_BYTES],
 {
     hydro_hash_state  st;
     uint8_t           challenge[hydro_sign_CHALLENGEBYTES];
-    uint8_t           pk[hydro_sign_PUBLICKEYBYTES];
+    const uint8_t    *pk = &sk[hydro_x25519_SECRETKEYBYTES];
     uint8_t          *nonce  = &csig[0];
     uint8_t          *sig    = &csig[hydro_sign_NONCEBYTES];
     uint8_t          *eph_sk = sig;
 
-    hydro_x25519_scalarmult_base_uniform(pk, sk);
-
     randombytes_buf(eph_sk, hydro_x25519_SECRETKEYBYTES);
-    hydro_hash_init(&st, (const char *) zero, sk, hydro_sign_SECRETKEYBYTES);
+    hydro_hash_init(&st, (const char *) zero, sk, hydro_x25519_SECRETKEYBYTES);
     hydro_hash_update(&st, eph_sk, hydro_x25519_SECRETKEYBYTES);
     hydro_hash_update(&st, prehash, hydro_sign_CHALLENGEBYTES);
     hydro_hash_final(&st, eph_sk, hydro_x25519_SECRETKEYBYTES);
@@ -59,7 +57,7 @@ hydro_sign_prehash(uint8_t       csig[hydro_sign_BYTES],
 
     COMPILER_ASSERT(hydro_sign_BYTES ==
                     hydro_sign_NONCEBYTES + hydro_x25519_SECRETKEYBYTES);
-    COMPILER_ASSERT(hydro_sign_SECRETKEYBYTES <= hydro_sign_CHALLENGEBYTES);
+    COMPILER_ASSERT(hydro_x25519_SECRETKEYBYTES <= hydro_sign_CHALLENGEBYTES);
     hydro_sign_p2(sig, challenge, eph_sk, sk);
 
     return 0;
@@ -124,17 +122,26 @@ hydro_sign_verify_challenge(const uint8_t csig[hydro_sign_BYTES],
 void
 hydro_sign_keygen(hydro_sign_keypair *kp)
 {
-    randombytes_buf(kp->sk, hydro_sign_SECRETKEYBYTES);
+    uint8_t *pk_copy = &kp->sk[hydro_x25519_SECRETKEYBYTES];
+
+    COMPILER_ASSERT(hydro_sign_SECRETKEYBYTES ==
+                    hydro_x25519_SECRETKEYBYTES + hydro_x25519_PUBLICKEYBYTES);
+    COMPILER_ASSERT(hydro_sign_PUBLICKEYBYTES == hydro_x25519_PUBLICKEYBYTES);
+    randombytes_buf(kp->sk, hydro_x25519_SECRETKEYBYTES);
     hydro_x25519_scalarmult_base_uniform(kp->pk, kp->sk);
+    memcpy(pk_copy, kp->pk, hydro_x25519_PUBLICKEYBYTES);
 }
 
 void
 hydro_sign_keygen_deterministic(hydro_sign_keypair *kp,
                                 const uint8_t       seed[hydro_sign_SEEDBYTES])
 {
+    uint8_t *pk_copy = &kp->sk[hydro_x25519_SECRETKEYBYTES];
+
     COMPILER_ASSERT(hydro_sign_SEEDBYTES >= randombytes_SEEDBYTES);
-    randombytes_buf_deterministic(kp->sk, hydro_sign_SECRETKEYBYTES, seed);
+    randombytes_buf_deterministic(kp->sk, hydro_x25519_SECRETKEYBYTES, seed);
     hydro_x25519_scalarmult_base_uniform(kp->pk, kp->sk);
+    memcpy(pk_copy, kp->pk, hydro_x25519_PUBLICKEYBYTES);
 }
 
 int
