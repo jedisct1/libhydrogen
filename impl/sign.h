@@ -67,9 +67,9 @@ static int
 hydro_sign_verify_core(hydro_x25519_fe xs[5], const hydro_x25519_limb_t *other1,
                        const uint8_t other2[hydro_x25519_BYTES])
 {
-    hydro_x25519_fe           xo2;
-    const hydro_x25519_limb_t sixteen = 16;
-    hydro_x25519_limb_t *     z2 = xs[1], *x3 = xs[2], *z3 = xs[3];
+    hydro_x25519_limb_t       *z2 = xs[1], *x3 = xs[2], *z3 = xs[3];
+    hydro_x25519_fe            xo2;
+    const hydro_x25519_limb_t  sixteen = 16;
 
     hydro_x25519_swapin(xo2, other2);
     memcpy(x3, other1, 2 * sizeof(hydro_x25519_fe));

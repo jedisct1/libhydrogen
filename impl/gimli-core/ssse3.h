@@ -23,24 +23,25 @@ rotate24(__m128i x)
         x, _mm_set_epi8(12, 15, 14, 13, 8, 11, 10, 9, 4, 7, 6, 5, 0, 3, 2, 1));
 }
 
-static const uint32_t coeffs[4 * 12] CRYPTO_ALIGN(16) = {
-    0x9e377902, 0, 0, 0, 0x9e377904, 0, 0, 0, 0x9e377906, 0, 0, 0,
-    0x9e377908, 0, 0, 0, 0x9e37790a, 0, 0, 0, 0x9e37790c, 0, 0, 0,
-    0x9e37790e, 0, 0, 0, 0x9e377910, 0, 0, 0, 0x9e377912, 0, 0, 0,
-    0x9e377914, 0, 0, 0, 0x9e377916, 0, 0, 0, 0x9e377918, 0, 0, 0
+static const uint32_t coeffs[24] CRYPTO_ALIGN(16) = {
+    0x9e377904, 0, 0, 0, 0x9e377908, 0, 0, 0, 0x9e37790c, 0, 0, 0,
+    0x9e377910, 0, 0, 0, 0x9e377914, 0, 0, 0, 0x9e377918, 0, 0, 0,
 };
 
 static void
 gimli_core(uint32_t state[gimli_BLOCKBYTES / 4])
 {
-    __m128i x = _mm_loadu_si128((const __m128i *) (const void *) &state[0]);
-    __m128i y = _mm_loadu_si128((const __m128i *) (const void *) &state[4]);
-    __m128i z = _mm_loadu_si128((const __m128i *) (const void *) &state[8]);
+    __m128i x = _mm_loadu_si128((const __m128i *)
+                                (const void *) &state[0]);
+    __m128i y = _mm_loadu_si128((const __m128i *)
+                                (const void *) &state[4]);
+    __m128i z = _mm_loadu_si128((const __m128i *)
+                                (const void *) &state[8]);
     __m128i newy;
     __m128i newz;
     int     round;
 
-    for (round = 11; round >= 0; round--) {
+    for (round = 5; round >= 0; round--) {
         x    = rotate24(x);
         y    = rotate(y, S);
         newz = x ^ shift(z, 1) ^ shift(y & z, 2);
@@ -60,7 +61,23 @@ gimli_core(uint32_t state[gimli_BLOCKBYTES / 4])
         y    = newy;
         z    = newz;
 
+        x    = rotate24(x);
+        y    = rotate(y, S);
+        newz = x ^ shift(z, 1) ^ shift(y & z, 2);
+        newy = y ^ x ^ shift(x | z, 1);
+        x    = z ^ y ^ shift(x & y, 3);
+        y    = newy;
+        z    = newz;
+
         x = _mm_shuffle_epi32(x, _MM_SHUFFLE(1, 0, 3, 2));
+
+        x    = rotate24(x);
+        y    = rotate(y, S);
+        newz = x ^ shift(z, 1) ^ shift(y & z, 2);
+        newy = y ^ x ^ shift(x | z, 1);
+        x    = z ^ y ^ shift(x & y, 3);
+        y    = newy;
+        z    = newz;
     }
 
     _mm_storeu_si128((__m128i *) (void *) &state[0], x);
