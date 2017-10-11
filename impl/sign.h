@@ -1,15 +1,16 @@
 #define hydro_sign_CHALLENGEBYTES 32
 #define hydro_sign_NONCEBYTES 32
-#define hydro_sign_PREHASHBYTES 32
+#define hydro_sign_PREHASHBYTES 64
 
 static void
 hydro_sign_p2(uint8_t       sig[hydro_x25519_BYTES],
-              const uint8_t challenge[hydro_x25519_BYTES],
+              const uint8_t challenge[hydro_sign_CHALLENGEBYTES],
               const uint8_t eph_sk[hydro_x25519_BYTES],
               const uint8_t sk[hydro_x25519_BYTES])
 {
     hydro_x25519_scalar_t scalar1, scalar2, scalar3;
 
+    COMPILER_ASSERT(hydro_sign_CHALLENGEBYTES == hydro_x25519_BYTES);
     hydro_x25519_swapin(scalar1, eph_sk);
     hydro_x25519_swapin(scalar2, sk);
     hydro_x25519_swapin(scalar3, challenge);
