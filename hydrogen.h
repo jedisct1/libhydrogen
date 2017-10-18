@@ -150,7 +150,7 @@ int hydro_kdf_derive_from_key(uint8_t *subkey, size_t subkey_len,
 #define hydro_sign_BYTES 64
 #define hydro_sign_CONTEXTBYTES 8
 #define hydro_sign_PUBLICKEYBYTES 32
-#define hydro_sign_SECRETKEYBYTES 32
+#define hydro_sign_SECRETKEYBYTES 64
 #define hydro_sign_SEEDBYTES 32
 
 typedef struct hydro_sign_state {
