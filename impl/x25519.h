@@ -83,8 +83,8 @@ hydro_x25519_adc0(hydro_x25519_limb_t *carry, hydro_x25519_limb_t acc)
 static void
 hydro_x25519_propagate(hydro_x25519_fe x, hydro_x25519_limb_t over)
 {
-    int                 i;
     hydro_x25519_limb_t carry;
+    int                 i;
 
     over = x[hydro_x25519_NLIMBS - 1] >> (hydro_x25519_WBITS - 1) | over << 1;
     x[hydro_x25519_NLIMBS - 1] &=
@@ -241,10 +241,9 @@ hydro_x25519_ladder_part1(hydro_x25519_fe xs[5])
     hydro_x25519_sqr1(t1);        // t1 = AA
     hydro_x25519_sqr1(z2);        // z2 = BB
     hydro_x25519_sub(x2, t1, z2); // x2 = E = AA-BB
-    hydro_x25519_mul(z2, x2, hydro_x25519_a24,
-                     sizeof(hydro_x25519_a24) /
-                         sizeof(hydro_x25519_a24[0])); // z2 = E*a24
-    hydro_x25519_add(z2, z2, t1);                      // z2 = E*a24 + AA
+    hydro_x25519_mul(z2, x2, hydro_x25519_a24, // z2 = E*a24
+                     sizeof(hydro_x25519_a24) / sizeof(hydro_x25519_a24[0]));
+    hydro_x25519_add(z2, z2, t1); // z2 = E*a24 + AA
 }
 
 static void
