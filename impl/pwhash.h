@@ -53,7 +53,7 @@ _hydro_pwhash_hash(uint8_t out[randombytes_SEEDBYTES], size_t h_len,
 
     gimli_core_u8(state, 0);
     for (i = 0; i < opslimit; i++) {
-        mem_zero(state, gimli_RATE);
+        memset(state, 0, gimli_RATE);
         gimli_core_u8(state, 1);
     }
     gimli_core_u8(state, 2);
