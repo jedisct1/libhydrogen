@@ -18,8 +18,8 @@ _hydro_pwhash_hash(uint8_t out[randombytes_SEEDBYTES], size_t h_len,
                    const uint8_t salt[hydro_pwhash_SALTBYTES],
                    const char *passwd, size_t passwd_len,
                    const char    ctx[hydro_pwhash_CONTEXTBYTES],
-                   const uint8_t key[hydro_pwhash_KEYBYTES], uint64_t opslimit,
-                   size_t memlimit, uint8_t threads)
+                   const uint8_t master_key[hydro_pwhash_MASTERKEYBYTES],
+                   uint64_t opslimit, size_t memlimit, uint8_t threads)
 {
     hydro_hash_state h_st;
     uint8_t          state[gimli_BLOCKBYTES];
@@ -27,7 +27,7 @@ _hydro_pwhash_hash(uint8_t out[randombytes_SEEDBYTES], size_t h_len,
     uint64_t         i;
     uint8_t          tmp8;
 
-    hydro_hash_init(&h_st, ctx, key, hydro_pwhash_KEYBYTES);
+    hydro_hash_init(&h_st, ctx, master_key, hydro_pwhash_MASTERKEYBYTES);
 
     STORE64_LE(tmp64_u8, (uint64_t) passwd_len);
     hydro_hash_update(&h_st, tmp64_u8, sizeof tmp64_u8);
@@ -66,26 +66,26 @@ _hydro_pwhash_hash(uint8_t out[randombytes_SEEDBYTES], size_t h_len,
 }
 
 void
-hydro_pwhash_keygen(uint8_t key[hydro_pwhash_KEYBYTES])
+hydro_pwhash_keygen(uint8_t master_key[hydro_pwhash_MASTERKEYBYTES])
 {
-    randombytes_buf(key, hydro_pwhash_KEYBYTES);
+    randombytes_buf(master_key, hydro_pwhash_MASTERKEYBYTES);
 }
 
 int
-hydro_pwhash_deterministic(uint8_t *h, size_t h_len, const char *passwd,
-                           size_t        passwd_len,
-                           const char    ctx[hydro_pwhash_CONTEXTBYTES],
-                           const uint8_t key[hydro_pwhash_KEYBYTES],
-                           uint64_t opslimit, size_t memlimit, uint8_t threads)
+hydro_pwhash_deterministic(
+    uint8_t *h, size_t h_len, const char *passwd, size_t passwd_len,
+    const char    ctx[hydro_pwhash_CONTEXTBYTES],
+    const uint8_t master_key[hydro_pwhash_MASTERKEYBYTES], uint64_t opslimit,
+    size_t memlimit, uint8_t threads)
 {
     uint8_t seed[randombytes_SEEDBYTES];
 
     COMPILER_ASSERT(sizeof zero >= hydro_pwhash_SALTBYTES);
-    COMPILER_ASSERT(sizeof zero >= hydro_pwhash_KEYBYTES);
+    COMPILER_ASSERT(sizeof zero >= hydro_pwhash_MASTERKEYBYTES);
 
     (void) memlimit;
-    if (_hydro_pwhash_hash(seed, h_len, zero, passwd, passwd_len, ctx, key,
-                           opslimit, memlimit, threads) != 0) {
+    if (_hydro_pwhash_hash(seed, h_len, zero, passwd, passwd_len, ctx,
+                           master_key, opslimit, memlimit, threads) != 0) {
         return -1;
     }
     randombytes_buf_deterministic(h, h_len, seed);
@@ -97,8 +97,8 @@ hydro_pwhash_deterministic(uint8_t *h, size_t h_len, const char *passwd,
 int
 hydro_pwhash_create(uint8_t     stored[hydro_pwhash_STOREDBYTES],
                     const char *passwd, size_t passwd_len,
-                    const uint8_t key[hydro_pwhash_KEYBYTES], uint64_t opslimit,
-                    size_t memlimit, uint8_t threads)
+                    const uint8_t master_key[hydro_pwhash_MASTERKEYBYTES],
+                    uint64_t opslimit, size_t memlimit, uint8_t threads)
 {
     uint8_t *const enc_alg     = &stored[0];
     uint8_t *const secretbox   = &enc_alg[hydro_pwhash_ENC_ALGBYTES];
@@ -122,22 +122,22 @@ hydro_pwhash_create(uint8_t     stored[hydro_pwhash_STOREDBYTES],
     randombytes_buf(salt, hydro_pwhash_SALTBYTES);
 
     if (_hydro_pwhash_hash(h, hydro_pwhash_HASHBYTES, salt, passwd, passwd_len,
-                           hydro_pwhash_CONTEXT, key, opslimit, memlimit,
+                           hydro_pwhash_CONTEXT, master_key, opslimit, memlimit,
                            threads) != 0) {
         return -1;
     }
-    COMPILER_ASSERT(hydro_pwhash_KEYBYTES == hydro_secretbox_KEYBYTES);
+    COMPILER_ASSERT(hydro_pwhash_MASTERKEYBYTES == hydro_secretbox_KEYBYTES);
 
     return hydro_secretbox_encrypt(
         secretbox, hash_alg, hydro_pwhash_PARAMSBYTES, (uint64_t) *enc_alg,
-        hydro_pwhash_CONTEXT, key);
+        hydro_pwhash_CONTEXT, master_key);
 }
 
 static int
 _hydro_pwhash_verify(uint8_t       computed_h[hydro_pwhash_HASHBYTES],
                      const uint8_t stored[hydro_pwhash_STOREDBYTES],
                      const char *passwd, size_t passwd_len,
-                     const uint8_t key[hydro_pwhash_KEYBYTES],
+                     const uint8_t master_key[hydro_pwhash_MASTERKEYBYTES],
                      uint64_t opslimit_max, size_t memlimit_max,
                      uint8_t threads_max)
 {
@@ -163,7 +163,7 @@ _hydro_pwhash_verify(uint8_t       computed_h[hydro_pwhash_HASHBYTES],
     if (hydro_secretbox_decrypt(
             params, secretbox,
             hydro_secretbox_HEADERBYTES + hydro_pwhash_PARAMSBYTES,
-            (uint64_t) *enc_alg, hydro_pwhash_CONTEXT, key) != 0) {
+            (uint64_t) *enc_alg, hydro_pwhash_CONTEXT, master_key) != 0) {
         return -1;
     }
     if (*hash_alg != hydro_pwhash_HASH_ALG ||
@@ -173,8 +173,8 @@ _hydro_pwhash_verify(uint8_t       computed_h[hydro_pwhash_HASHBYTES],
         return -1;
     }
     if (_hydro_pwhash_hash(computed_h, hydro_pwhash_HASHBYTES, salt, passwd,
-                           passwd_len, hydro_pwhash_CONTEXT, key, opslimit,
-                           memlimit, threads) == 0 &&
+                           passwd_len, hydro_pwhash_CONTEXT, master_key,
+                           opslimit, memlimit, threads) == 0 &&
         hydro_equal(computed_h, h, hydro_pwhash_HASHBYTES) == 1) {
         return 0;
     }
@@ -184,32 +184,32 @@ _hydro_pwhash_verify(uint8_t       computed_h[hydro_pwhash_HASHBYTES],
 int
 hydro_pwhash_verify(const uint8_t stored[hydro_pwhash_STOREDBYTES],
                     const char *passwd, size_t passwd_len,
-                    const uint8_t key[hydro_pwhash_KEYBYTES],
+                    const uint8_t master_key[hydro_pwhash_MASTERKEYBYTES],
                     uint64_t opslimit_max, size_t memlimit_max,
                     uint8_t threads_max)
 {
     uint8_t computed_h[hydro_pwhash_HASHBYTES];
     int     ret;
 
-    ret = _hydro_pwhash_verify(computed_h, stored, passwd, passwd_len, key,
-                               opslimit_max, memlimit_max, threads_max);
+    ret =
+        _hydro_pwhash_verify(computed_h, stored, passwd, passwd_len, master_key,
+                             opslimit_max, memlimit_max, threads_max);
     hydro_memzero(computed_h, sizeof computed_h);
 
     return ret;
 }
 
 int
-hydro_pwhash_derive_static_key(uint8_t *static_key, size_t static_key_len,
-                               const uint8_t stored[hydro_pwhash_STOREDBYTES],
-                               const char *passwd, size_t passwd_len,
-                               const char    ctx[hydro_pwhash_CONTEXTBYTES],
-                               const uint8_t key[hydro_pwhash_KEYBYTES],
-                               uint64_t opslimit_max, size_t memlimit_max,
-                               uint8_t threads_max)
+hydro_pwhash_derive_static_key(
+    uint8_t *static_key, size_t static_key_len,
+    const uint8_t stored[hydro_pwhash_STOREDBYTES], const char *passwd,
+    size_t passwd_len, const char ctx[hydro_pwhash_CONTEXTBYTES],
+    const uint8_t master_key[hydro_pwhash_MASTERKEYBYTES],
+    uint64_t opslimit_max, size_t memlimit_max, uint8_t threads_max)
 {
     uint8_t computed_h[hydro_pwhash_HASHBYTES];
 
-    if (_hydro_pwhash_verify(computed_h, stored, passwd, passwd_len, key,
+    if (_hydro_pwhash_verify(computed_h, stored, passwd, passwd_len, master_key,
                              opslimit_max, memlimit_max, threads_max) != 0) {
         hydro_memzero(computed_h, sizeof computed_h);
         return -1;
