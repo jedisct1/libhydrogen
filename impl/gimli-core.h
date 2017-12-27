@@ -4,7 +4,7 @@
 # include "gimli-core/portable.h"
 #endif
 
-void
+static void
 gimli_core_u8(uint8_t state_u8[gimli_BLOCKBYTES], uint8_t tag)
 {
     state_u8[gimli_BLOCKBYTES - 1] ^= tag;
