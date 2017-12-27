@@ -237,7 +237,7 @@ int hydro_pwhash_verify(const uint8_t stored[hydro_pwhash_STOREDBYTES],
                         const char *passwd, size_t passwd_len,
                         const uint8_t master_key[hydro_pwhash_MASTERKEYBYTES],
                         uint64_t opslimit_max, size_t memlimit_max,
-                        uint8_t threads);
+                        uint8_t threads_max);
 
 int hydro_pwhash_derive_static_key(
     uint8_t *static_key, size_t static_key_len,
