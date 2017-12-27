@@ -82,14 +82,18 @@ test_hash(void)
     }
     hydro_hash_final(&st, h, sizeof h);
     hydro_bin2hex(hex, sizeof hex, h, sizeof h);
-    assert(
-        hydro_equal("724ad200fb004eac02a229af7b3f61153d4ffed316f663e6092e6d2747a61be7803889b4caeed92959045233d937a5cc4cf20c8fd2cc13271e2ffd1f90e963b11a8d96d9c1fa7aabfc481db29f855f61234e1f6d010c34ed2a8ee5faf73c17062146c304",
-                    hex, sizeof hex));
+    assert(hydro_equal(
+        "724ad200fb004eac02a229af7b3f61153d4ffed316f663e6092e6d2747a61be7803889"
+        "b4caeed92959045233d937a5cc4cf20c8fd2cc13271e2ffd1f90e963b11a8d96d9c1fa"
+        "7aabfc481db29f855f61234e1f6d010c34ed2a8ee5faf73c17062146c304",
+        hex, sizeof hex));
     hydro_hash_hash(h, sizeof h, msg, sizeof msg, ctx, key, sizeof key);
     hydro_bin2hex(hex, sizeof hex, h, sizeof h);
-    assert(
-        hydro_equal("5cea1d0440f8e0fed6889205cd6b1dc92fe294d12e8266101c3516a846b3e3c18c13a5c67a177facb4033c7a38b3c3784e02ffd0bfbd7f745e60f50e5df888463259f09e65f7496b3ce069238a0ed95ddedc4b795e171c140d4d92cf16231b26f05419fb",
-                    hex, sizeof hex));
+    assert(hydro_equal(
+        "5cea1d0440f8e0fed6889205cd6b1dc92fe294d12e8266101c3516a846b3e3c18c13a5"
+        "c67a177facb4033c7a38b3c3784e02ffd0bfbd7f745e60f50e5df888463259f09e65f7"
+        "496b3ce069238a0ed95ddedc4b795e171c140d4d92cf16231b26f05419fb",
+        hex, sizeof hex));
     hydro_hash_hash(h, hydro_hash_BYTES, msg, sizeof msg, ctx, key, sizeof key);
     hydro_bin2hex(hex, sizeof hex, h, hydro_hash_BYTES);
     assert(hydro_equal(
@@ -129,7 +133,8 @@ test_core(void)
     assert(hydro_bin2hex(hex, sizeof hex, x, sizeof x) != NULL);
     assert(hydro_hex2bin(y, 1, hex, sizeof hex, NULL, NULL, NULL) == -1);
     assert(hydro_hex2bin(y, sizeof y, hex, sizeof hex, NULL, NULL, NULL) == -1);
-    assert(hydro_hex2bin(y, sizeof y, hex, sizeof hex - 1, NULL, NULL, NULL) == 0);
+    assert(hydro_hex2bin(y, sizeof y, hex, sizeof hex - 1, NULL, NULL, NULL) ==
+           0);
     assert(hydro_equal(x, y, sizeof x));
 }
 
@@ -206,7 +211,8 @@ test_kdf(void)
         "5c732520d71c97bbf253f0c065e8f2aa2af15902cf2ce3973fbba51efc00a182",
         subkey3_hex, sizeof subkey3_hex));
     assert(
-        hydro_equal("74a98824faf4137dfe52678b6e1f865eafa331f322422373f369d3796017b37be69b8813e13810014ad18aa34e4eae9a001d",
+        hydro_equal("74a98824faf4137dfe52678b6e1f865eafa331f322422373f369d37960"
+                    "17b37be69b8813e13810014ad18aa34e4eae9a001d",
                     subkey4_hex, sizeof subkey4_hex));
 }
 
@@ -306,6 +312,46 @@ test_kx(void)
                        hydro_kx_PUBLICKEYBYTES));
 }
 
+static void
+test_pwhash(void)
+{
+    uint8_t key[hydro_pwhash_KEYBYTES];
+    uint8_t stored[hydro_pwhash_STOREDBYTES];
+    uint8_t h[64];
+    uint8_t static_key[64];
+    char    h_hex[2 * 64 + 1];
+
+    memset(key, 'x', sizeof key);
+    hydro_pwhash_deterministic(h, sizeof h, "test", sizeof "test" - 1, ctx, key,
+                               1000, 0, 1);
+    hydro_bin2hex(h_hex, sizeof h_hex, h, sizeof h);
+    assert(hydro_equal(
+        "788494c0bf8d567dfc0d8d94a396205a25639691298360c6380a0cbea5b43bdb745560"
+        "890291875e48d60fc229612051e898d997f01f0e9c640b761dbd95adc5",
+        h_hex, sizeof h_hex));
+
+    hydro_pwhash_keygen(key);
+    assert(hydro_pwhash_create(stored, "test", sizeof "test" - 1, key, 1000, 0,
+                               1) == 0);
+    assert(hydro_pwhash_verify(stored, "test", sizeof "test" - 1, key, 1000, 0,
+                               1) == 0);
+    assert(hydro_pwhash_verify(stored, "test", sizeof "test" - 1, key, 2000, 10,
+                               10) == 0);
+    assert(hydro_pwhash_verify(stored, "test", sizeof "test" - 1, key, 500, 10,
+                               10) == -1);
+    assert(hydro_pwhash_verify(stored, "Test", sizeof "Test" - 1, key, 1000, 0,
+                               1) == -1);
+    assert(hydro_pwhash_verify(stored, "test", sizeof "tes" - 1, key, 1000, 0,
+                               1) == -1);
+
+    assert(hydro_pwhash_derive_static_key(static_key, sizeof static_key, stored,
+                                          "test", sizeof "test" - 1, ctx, key,
+                                          1000, 0, 1) == 0);
+    assert(hydro_pwhash_derive_static_key(static_key, sizeof static_key, stored,
+                                          "Test", sizeof "Test" - 1, ctx, key,
+                                          1000, 0, 1) == -1);
+}
+
 int
 main(void)
 {
@@ -318,6 +364,7 @@ main(void)
     test_hash();
     test_kdf();
     test_kx();
+    test_pwhash();
     test_randombytes();
     test_secretbox();
     test_sign();

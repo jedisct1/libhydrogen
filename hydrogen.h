@@ -87,18 +87,17 @@ int hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen,
                             const uint8_t key[hydro_secretbox_KEYBYTES])
     __attribute__((warn_unused_result));
 
-void
-hydro_secretbox_probe_create(uint8_t probe[hydro_secretbox_PROBEBYTES],
-                             const uint8_t *c, size_t c_len,
-                             const char    ctx[hydro_secretbox_CONTEXTBYTES],
-                             const uint8_t key[hydro_secretbox_KEYBYTES]);
+void hydro_secretbox_probe_create(uint8_t probe[hydro_secretbox_PROBEBYTES],
+                                  const uint8_t *c, size_t c_len,
+                                  const char ctx[hydro_secretbox_CONTEXTBYTES],
+                                  const uint8_t key[hydro_secretbox_KEYBYTES]);
 
 int
-hydro_secretbox_probe_verify(const uint8_t probe[hydro_secretbox_PROBEBYTES],
+hydro_secretbox_probe_verify(const uint8_t  probe[hydro_secretbox_PROBEBYTES],
                              const uint8_t *c, size_t c_len,
                              const char    ctx[hydro_secretbox_CONTEXTBYTES],
                              const uint8_t key[hydro_secretbox_KEYBYTES])
-            __attribute__((warn_unused_result));
+    __attribute__((warn_unused_result));
 
 /* ---------------- */
 
@@ -217,6 +216,39 @@ int hydro_kx_xx_4(hydro_kx_state *state, hydro_kx_session_keypair *kp,
 
 /* ---------------- */
 
+#define hydro_pwhash_CONTEXTBYTES 8
+#define hydro_pwhash_KEYBYTES 32
+#define hydro_pwhash_STOREDBYTES 128
+
+void hydro_pwhash_keygen(uint8_t key[hydro_pwhash_KEYBYTES]);
+
+int hydro_pwhash_deterministic(uint8_t *h, size_t h_len, const char *passwd,
+                               size_t        passwd_len,
+                               const char    ctx[hydro_pwhash_CONTEXTBYTES],
+                               const uint8_t key[hydro_pwhash_KEYBYTES],
+                               uint64_t opslimit, size_t memlimit,
+                               uint8_t threads);
+
+int hydro_pwhash_create(uint8_t     stored[hydro_pwhash_STOREDBYTES],
+                        const char *passwd, size_t passwd_len,
+                        const uint8_t key[hydro_pwhash_KEYBYTES],
+                        uint64_t opslimit, size_t memlimit, uint8_t threads);
+
+int hydro_pwhash_verify(const uint8_t stored[hydro_pwhash_STOREDBYTES],
+                        const char *passwd, size_t passwd_len,
+                        const uint8_t key[hydro_pwhash_KEYBYTES],
+                        uint64_t opslimit_max, size_t memlimit_max,
+                        uint8_t threads);
+
+int hydro_pwhash_derive_static_key(
+    uint8_t *static_key, size_t static_key_len,
+    const uint8_t stored[hydro_pwhash_STOREDBYTES], const char *passwd,
+    size_t passwd_len, const char ctx[hydro_pwhash_CONTEXTBYTES],
+    const uint8_t key[hydro_pwhash_KEYBYTES], uint64_t opslimit_max,
+    size_t memlimit_max, uint8_t threads_max);
+
+/* ---------------- */
+
 void hydro_memzero(void *pnt, size_t len);
 
 void hydro_increment(uint8_t *n, size_t len);
@@ -233,10 +265,10 @@ int hydro_hex2bin(uint8_t *bin, size_t bin_maxlen, const char *hex,
                   const char **hex_end);
 
 int hydro_pad(size_t *padded_buflen_p, unsigned char *buf,
-	      size_t unpadded_buflen, size_t blocksize, size_t max_buflen);
+              size_t unpadded_buflen, size_t blocksize, size_t max_buflen);
 
 int hydro_unpad(size_t *unpadded_buflen_p, const unsigned char *buf,
-		size_t padded_buflen, size_t blocksize);
+                size_t padded_buflen, size_t blocksize);
 
 /* ---------------- */
 
