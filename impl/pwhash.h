@@ -53,14 +53,14 @@ _hydro_pwhash_hash(uint8_t out[randombytes_SEEDBYTES], size_t h_len,
 
     gimli_core_u8(state, 0);
     for (i = 0; i < opslimit; i++) {
-        memset(state, 0, gimli_RATE);
+        mem_zero(state, gimli_RATE);
         gimli_core_u8(state, 1);
     }
     gimli_core_u8(state, 2);
 
     COMPILER_ASSERT(randombytes_SEEDBYTES <= gimli_BLOCKBYTES);
-    mem_cpy(out, state, randombytes_SEEDBYTES);
-    mem_zero(state, sizeof state);
+    memcpy(out, state, randombytes_SEEDBYTES);
+    hydro_memzero(state, sizeof state);
 
     return 0;
 }
@@ -89,7 +89,7 @@ hydro_pwhash_deterministic(uint8_t *h, size_t h_len, const char *passwd,
         return -1;
     }
     randombytes_buf_deterministic(h, h_len, seed);
-    mem_zero(seed, sizeof seed);
+    hydro_memzero(seed, sizeof seed);
 
     return 0;
 }
@@ -143,16 +143,18 @@ _hydro_pwhash_verify(uint8_t       computed_h[hydro_pwhash_HASHBYTES],
 {
     const uint8_t *const enc_alg   = &stored[0];
     const uint8_t *const secretbox = &enc_alg[hydro_pwhash_ENC_ALGBYTES];
-    uint8_t              params[hydro_pwhash_PARAMSBYTES];
-    uint8_t *const       hash_alg    = &params[0];
-    uint8_t *const       threads_u8  = &hash_alg[hydro_pwhash_HASH_ALGBYTES];
-    uint8_t *const       opslimit_u8 = &threads_u8[hydro_pwhash_THREADSBYTES];
-    uint8_t *const       memlimit_u8 = &opslimit_u8[hydro_pwhash_OPSLIMITBYTES];
-    uint8_t *const       salt        = &memlimit_u8[hydro_pwhash_MEMLIMITBYTES];
-    uint8_t *const       h           = &salt[hydro_pwhash_SALTBYTES];
-    uint64_t             opslimit;
-    size_t               memlimit;
-    uint8_t              threads;
+
+    uint8_t        params[hydro_pwhash_PARAMSBYTES];
+    uint8_t *const hash_alg    = &params[0];
+    uint8_t *const threads_u8  = &hash_alg[hydro_pwhash_HASH_ALGBYTES];
+    uint8_t *const opslimit_u8 = &threads_u8[hydro_pwhash_THREADSBYTES];
+    uint8_t *const memlimit_u8 = &opslimit_u8[hydro_pwhash_OPSLIMITBYTES];
+    uint8_t *const salt        = &memlimit_u8[hydro_pwhash_MEMLIMITBYTES];
+    uint8_t *const h           = &salt[hydro_pwhash_SALTBYTES];
+
+    uint64_t opslimit;
+    size_t   memlimit;
+    uint8_t  threads;
 
     (void) memlimit;
     if (*enc_alg != hydro_pwhash_ENC_ALG) {

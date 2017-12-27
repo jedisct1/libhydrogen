@@ -34,7 +34,7 @@ hydro_kx_aead_setup(uint8_t buf[gimli_BLOCKBYTES],
     static const uint8_t prefix[] = { 6, 'k', 'x', 'x', '2', '5', '6', 0 };
 
     mem_zero(buf + sizeof prefix, gimli_BLOCKBYTES - sizeof prefix);
-    mem_cpy(buf, prefix, sizeof prefix);
+    memcpy(buf, prefix, sizeof prefix);
     gimli_core_u8(buf, gimli_TAG_HEADER);
 
     COMPILER_ASSERT(hydro_kx_AEAD_KEYBYTES == 2 * gimli_RATE);
@@ -77,7 +77,7 @@ hydro_kx_aead_xor_enc(uint8_t buf[gimli_BLOCKBYTES],
 
     for (i = 0; i < inlen / gimli_RATE; i++) {
         mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, gimli_RATE);
-        mem_cpy(buf, &out[i * gimli_RATE], gimli_RATE);
+        memcpy(buf, &out[i * gimli_RATE], gimli_RATE);
         gimli_core_u8(buf, gimli_TAG_PAYLOAD);
     }
     leftover = inlen % gimli_RATE;
@@ -98,7 +98,7 @@ hydro_kx_aead_xor_dec(uint8_t buf[gimli_BLOCKBYTES],
 
     for (i = 0; i < inlen / gimli_RATE; i++) {
         mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, gimli_RATE);
-        mem_cpy(buf, &in[i * gimli_RATE], gimli_RATE);
+        memcpy(buf, &in[i * gimli_RATE], gimli_RATE);
         gimli_core_u8(buf, gimli_TAG_PAYLOAD);
     }
     leftover = inlen % gimli_RATE;
@@ -123,7 +123,7 @@ hydro_kx_encrypt(const hydro_kx_state *state, uint8_t *c, const uint8_t *m,
 
     hydro_kx_finalize(buf, state->k);
     COMPILER_ASSERT(hydro_kx_AEAD_MACBYTES <= gimli_BLOCKBYTES - gimli_RATE);
-    mem_cpy(mac, buf + gimli_RATE, hydro_kx_AEAD_MACBYTES);
+    memcpy(mac, buf + gimli_RATE, hydro_kx_AEAD_MACBYTES);
 }
 
 static int hydro_kx_decrypt(hydro_kx_state *state, uint8_t *m, const uint8_t *c,
@@ -148,7 +148,7 @@ hydro_kx_decrypt(hydro_kx_state *state, uint8_t *m, const uint8_t *c,
     mac = &c[0];
     ct = &c[hydro_kx_AEAD_MACBYTES];
     mlen = clen - hydro_kx_AEAD_HEADERBYTES;
-    mem_cpy(pub_mac, mac, sizeof pub_mac);
+    memcpy(pub_mac, mac, sizeof pub_mac);
     hydro_kx_aead_setup(buf, state, psk);
     hydro_kx_aead_xor_dec(buf, m, ct, mlen);
 
@@ -213,7 +213,7 @@ int
 hydro_kx_xx_1(hydro_kx_state *state, uint8_t response1[hydro_kx_RESPONSE1BYTES],
               const uint8_t psk[hydro_kx_PSKBYTES])
 {
-    memset(state, 0, sizeof *state);
+    mem_zero(state, sizeof *state);
 
     hydro_kx_keygen(&state->eph_kp);
     hydro_hash_hash(state->h, sizeof state->h, state->eph_kp.pk,
@@ -233,7 +233,7 @@ hydro_kx_xx_2(hydro_kx_state *state, uint8_t response2[hydro_kx_RESPONSE2BYTES],
     uint8_t        dh_res[hydro_x25519_BYTES];
     const uint8_t *peer_eph_pk = response1;
 
-    memset(state, 0, sizeof *state);
+    mem_zero(state, sizeof *state);
 
     hydro_hash_hash(state->h, sizeof state->h, peer_eph_pk,
                     hydro_kx_PUBLICKEYBYTES, hydro_kx_CONTEXT, psk,

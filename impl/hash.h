@@ -45,7 +45,7 @@ hydro_hash_init(hydro_hash_state *state,
     COMPILER_ASSERT(hydro_hash_KEYBYTES_MAX <= sizeof block - gimli_RATE - 1);
     COMPILER_ASSERT(hydro_hash_CONTEXTBYTES == 8);
     mem_zero(block + 14, sizeof block - 14);
-    mem_cpy(block + 6, ctx, 8);
+    memcpy(block + 6, ctx, 8);
     block[gimli_RATE] = (uint8_t) key_len;
     mem_cpy(block + gimli_RATE + 1, key, key_len);
     p = (gimli_RATE + 1 + key_len + (gimli_RATE - 1)) & ~ (size_t) (gimli_RATE - 1);
@@ -74,7 +74,7 @@ hydro_hash_init_with_tweak(hydro_hash_state *state,
     COMPILER_ASSERT(hydro_hash_KEYBYTES_MAX <= sizeof block - 2 * gimli_RATE - 1);
     COMPILER_ASSERT(hydro_hash_CONTEXTBYTES == 8);
     mem_zero(block + 14, sizeof block - 14);
-    mem_cpy(block + 6, ctx, 8);
+    memcpy(block + 6, ctx, 8);
     block[gimli_RATE] = (uint8_t) key_len;
     mem_cpy(block + gimli_RATE + 1, key, key_len);
     p = (gimli_RATE + 1 + key_len + (gimli_RATE - 1)) & ~ (size_t) (gimli_RATE - 1);

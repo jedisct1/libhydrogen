@@ -276,8 +276,8 @@ mem_cpy(void *__restrict__ dst_, const void *__restrict__ src_, size_t n)
 static inline void
 mem_zero(void *dst_, size_t n)
 {
-    volatile unsigned char *dst = (volatile unsigned char *) dst_;
-    size_t                  i;
+    unsigned char *dst = (unsigned char *) dst_;
+    size_t         i;
 
     for (i = 0; i < n; i++) {
         dst[i] = 0;

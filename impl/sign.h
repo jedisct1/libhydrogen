@@ -15,7 +15,7 @@ hydro_sign_p2(uint8_t       sig[hydro_x25519_BYTES],
     hydro_x25519_swapin(scalar2, sk);
     hydro_x25519_swapin(scalar3, challenge);
     hydro_x25519_sc_montmul(scalar1, scalar2, scalar3);
-    memset(scalar2, 0, sizeof scalar2);
+    mem_zero(scalar2, sizeof scalar2);
     hydro_x25519_sc_montmul(scalar2, scalar1, hydro_x25519_sc_r2);
     hydro_x25519_swapout(sig, scalar2);
 }

@@ -273,7 +273,7 @@ hydro_x25519_core(hydro_x25519_fe xs[5],
     hydro_x25519_swapin(x1i, x1);
     x1   = (const uint8_t *) x1i;
     swap = 0;
-    memset(xs, 0, 4 * sizeof(hydro_x25519_fe));
+    mem_zero(xs, 4 * sizeof(hydro_x25519_fe));
     x2[0] = z3[0] = 1;
     memcpy(x3, x1, sizeof(hydro_x25519_fe));
     for (i = 255; i >= 0; i--) {

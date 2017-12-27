@@ -237,7 +237,7 @@ randombytes_buf(void *out, size_t out_len)
     }
     leftover = out_len % gimli_RATE;
     if (leftover != 0) {
-        memcpy(p + i * gimli_RATE, hydro_random_state, leftover);
+        mem_cpy(p + i * gimli_RATE, hydro_random_state, leftover);
     }
     COMPILER_ASSERT(gimli_RATE <= 0xff);
     hydro_random_available = (uint8_t) (gimli_RATE - leftover);
@@ -253,7 +253,7 @@ randombytes_buf_deterministic(void *out, size_t out_len,
     int       i;
 
     COMPILER_ASSERT(sizeof prefix <= gimli_RATE);
-    mem_cpy(buf, prefix, sizeof prefix);
+    memcpy(buf, prefix, sizeof prefix);
     mem_zero(buf + sizeof prefix, gimli_BLOCKBYTES - sizeof prefix);
     gimli_core_u8(buf, 0);
 
