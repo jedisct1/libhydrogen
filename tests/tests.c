@@ -327,10 +327,12 @@ test_pwhash(void)
     hydro_pwhash_deterministic(h, sizeof h, "test", sizeof "test" - 1, ctx,
                                master_key, ops, 0, 1);
     hydro_bin2hex(h_hex, sizeof h_hex, h, sizeof h);
-    assert(hydro_equal(
-        "788494c0bf8d567dfc0d8d94a396205a25639691298360c6380a0cbea5b43bdb745560"
-        "890291875e48d60fc229612051e898d997f01f0e9c640b761dbd95adc5",
-        h_hex, sizeof h_hex));
+    if (ops == 1000) {
+        assert(hydro_equal(
+            "788494c0bf8d567dfc0d8d94a396205a25639691298360c6380a0cbea5b43bdb74"
+            "5560890291875e48d60fc229612051e898d997f01f0e9c640b761dbd95adc5",
+            h_hex, sizeof h_hex));
+    }
 
     hydro_pwhash_keygen(master_key);
     assert(hydro_pwhash_create(stored, "test", sizeof "test" - 1, master_key,
