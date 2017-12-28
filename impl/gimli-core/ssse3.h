@@ -2,8 +2,6 @@
 
 #define S 9
 
-typedef unsigned int uint32;
-
 static inline __m128i
 shift(__m128i x, int bits)
 {
