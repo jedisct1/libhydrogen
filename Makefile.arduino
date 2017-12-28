@@ -21,6 +21,7 @@ SRC = \
 	impl/hydrogen_p.h \
 	impl/kdf.h \
 	impl/kx.h \
+	impl/pwhash.h \
 	impl/random.h \
 	impl/secretbox.h \
 	impl/sign.h \
