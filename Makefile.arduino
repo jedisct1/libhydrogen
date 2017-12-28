@@ -32,7 +32,7 @@ all: lib package
 package: $(ARDUINO_PACKAGE)
 
 $(ARDUINO_PACKAGE):
-	7z a -tzip -mx=9 -r $(ARDUINO_PACKAGE) $(SRC)
+	7z a -tzip -mx=9 -r $(ARDUINO_PACKAGE) $(SRC) library.properties
 
 lib: libhydrogen.a
 
