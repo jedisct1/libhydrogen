@@ -121,8 +121,9 @@ hydro_pwhash_create(uint8_t     stored[hydro_pwhash_STOREDBYTES],
     STORE64_LE(memlimit_u8, (uint64_t) memlimit);
     randombytes_buf(salt, hydro_pwhash_SALTBYTES);
 
+    COMPILER_ASSERT(sizeof zero >= hydro_pwhash_MASTERKEYBYTES);
     if (_hydro_pwhash_hash(h, hydro_pwhash_HASHBYTES, salt, passwd, passwd_len,
-                           hydro_pwhash_CONTEXT, master_key, opslimit, memlimit,
+                           hydro_pwhash_CONTEXT, zero, opslimit, memlimit,
                            threads) != 0) {
         return -1;
     }
@@ -173,8 +174,8 @@ _hydro_pwhash_verify(uint8_t       computed_h[hydro_pwhash_HASHBYTES],
         return -1;
     }
     if (_hydro_pwhash_hash(computed_h, hydro_pwhash_HASHBYTES, salt, passwd,
-                           passwd_len, hydro_pwhash_CONTEXT, master_key,
-                           opslimit, memlimit, threads) == 0 &&
+                           passwd_len, hydro_pwhash_CONTEXT, zero, opslimit,
+                           memlimit, threads) == 0 &&
         hydro_equal(computed_h, h, hydro_pwhash_HASHBYTES) == 1) {
         return 0;
     }
@@ -220,4 +221,30 @@ hydro_pwhash_derive_static_key(
     hydro_memzero(computed_h, sizeof computed_h);
 
     return 0;
+}
+
+int
+hydro_pwhash_reencrypt(
+    uint8_t       stored[hydro_pwhash_STOREDBYTES],
+    const uint8_t master_key[hydro_pwhash_MASTERKEYBYTES],
+    const uint8_t new_master_key[hydro_pwhash_MASTERKEYBYTES])
+{
+    uint8_t *const enc_alg   = &stored[0];
+    uint8_t *const secretbox = &enc_alg[hydro_pwhash_ENC_ALGBYTES];
+
+    if (*enc_alg != hydro_pwhash_ENC_ALG) {
+        return -1;
+    }
+    if (hydro_secretbox_decrypt(
+            secretbox, secretbox,
+            hydro_secretbox_HEADERBYTES + hydro_pwhash_PARAMSBYTES,
+            (uint64_t) *enc_alg, hydro_pwhash_CONTEXT, master_key) != 0) {
+        return -1;
+    }
+    memmove(secretbox + hydro_secretbox_HEADERBYTES, secretbox,
+            hydro_pwhash_PARAMSBYTES);
+    return hydro_secretbox_encrypt(
+        secretbox, secretbox + hydro_secretbox_HEADERBYTES,
+        hydro_pwhash_PARAMSBYTES, (uint64_t) *enc_alg, hydro_pwhash_CONTEXT,
+        new_master_key);
 }

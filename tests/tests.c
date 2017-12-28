@@ -316,6 +316,7 @@ static void
 test_pwhash(void)
 {
     uint8_t master_key[hydro_pwhash_MASTERKEYBYTES];
+    uint8_t new_master_key[hydro_pwhash_MASTERKEYBYTES];
     uint8_t stored[hydro_pwhash_STOREDBYTES];
     uint8_t h[64];
     uint8_t static_key[64];
@@ -350,6 +351,16 @@ test_pwhash(void)
     assert(hydro_pwhash_derive_static_key(static_key, sizeof static_key, stored,
                                           "Test", sizeof "Test" - 1, ctx,
                                           master_key, 1000, 0, 1) == -1);
+
+    assert(hydro_pwhash_reencrypt(stored, master_key, master_key) == 0);
+    assert(hydro_pwhash_verify(stored, "test", sizeof "test" - 1, master_key,
+                               1000, 0, 1) == 0);
+    hydro_pwhash_keygen(new_master_key);
+    assert(hydro_pwhash_reencrypt(stored, master_key, new_master_key) == 0);
+    assert(hydro_pwhash_verify(stored, "test", sizeof "test" - 1, master_key,
+                               1000, 0, 1) == -1);
+    assert(hydro_pwhash_verify(stored, "test", sizeof "test" - 1,
+                               new_master_key, 1000, 0, 1) == 0);
 }
 
 int

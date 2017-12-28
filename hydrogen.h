@@ -246,6 +246,11 @@ int hydro_pwhash_derive_static_key(
     const uint8_t master_key[hydro_pwhash_MASTERKEYBYTES],
     uint64_t opslimit_max, size_t memlimit_max, uint8_t threads_max);
 
+int hydro_pwhash_reencrypt(
+    uint8_t       stored[hydro_pwhash_STOREDBYTES],
+    const uint8_t master_key[hydro_pwhash_MASTERKEYBYTES],
+    const uint8_t new_master_key[hydro_pwhash_MASTERKEYBYTES]);
+
 /* ---------------- */
 
 void hydro_memzero(void *pnt, size_t len);
