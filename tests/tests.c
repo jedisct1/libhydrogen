@@ -315,16 +315,17 @@ test_kx(void)
 static void
 test_pwhash(void)
 {
-    uint8_t master_key[hydro_pwhash_MASTERKEYBYTES];
-    uint8_t new_master_key[hydro_pwhash_MASTERKEYBYTES];
-    uint8_t stored[hydro_pwhash_STOREDBYTES];
-    uint8_t h[64];
-    uint8_t static_key[64];
-    char    h_hex[2 * 64 + 1];
+    uint8_t            master_key[hydro_pwhash_MASTERKEYBYTES];
+    uint8_t            new_master_key[hydro_pwhash_MASTERKEYBYTES];
+    uint8_t            stored[hydro_pwhash_STOREDBYTES];
+    uint8_t            h[64];
+    uint8_t            static_key[64];
+    char               h_hex[2 * 64 + 1];
+    unsigned long long ops = 1000;
 
     memset(master_key, 'x', sizeof master_key);
     hydro_pwhash_deterministic(h, sizeof h, "test", sizeof "test" - 1, ctx,
-                               master_key, 1000, 0, 1);
+                               master_key, ops, 0, 1);
     hydro_bin2hex(h_hex, sizeof h_hex, h, sizeof h);
     assert(hydro_equal(
         "788494c0bf8d567dfc0d8d94a396205a25639691298360c6380a0cbea5b43bdb745560"
@@ -333,34 +334,34 @@ test_pwhash(void)
 
     hydro_pwhash_keygen(master_key);
     assert(hydro_pwhash_create(stored, "test", sizeof "test" - 1, master_key,
-                               1000, 0, 1) == 0);
+                               ops, 0, 1) == 0);
     assert(hydro_pwhash_verify(stored, "test", sizeof "test" - 1, master_key,
-                               1000, 0, 1) == 0);
+                               ops, 0, 1) == 0);
     assert(hydro_pwhash_verify(stored, "test", sizeof "test" - 1, master_key,
-                               2000, 10, 10) == 0);
+                               ops * 2, 10, 10) == 0);
     assert(hydro_pwhash_verify(stored, "test", sizeof "test" - 1, master_key,
-                               500, 10, 10) == -1);
+                               ops / 2, 10, 10) == -1);
     assert(hydro_pwhash_verify(stored, "Test", sizeof "Test" - 1, master_key,
-                               1000, 0, 1) == -1);
+                               ops, 0, 1) == -1);
     assert(hydro_pwhash_verify(stored, "test", sizeof "tes" - 1, master_key,
-                               1000, 0, 1) == -1);
+                               ops, 0, 1) == -1);
 
     assert(hydro_pwhash_derive_static_key(static_key, sizeof static_key, stored,
                                           "test", sizeof "test" - 1, ctx,
-                                          master_key, 1000, 0, 1) == 0);
+                                          master_key, ops, 0, 1) == 0);
     assert(hydro_pwhash_derive_static_key(static_key, sizeof static_key, stored,
                                           "Test", sizeof "Test" - 1, ctx,
-                                          master_key, 1000, 0, 1) == -1);
+                                          master_key, ops, 0, 1) == -1);
 
     assert(hydro_pwhash_reencrypt(stored, master_key, master_key) == 0);
     assert(hydro_pwhash_verify(stored, "test", sizeof "test" - 1, master_key,
-                               1000, 0, 1) == 0);
+                               ops, 0, 1) == 0);
     hydro_pwhash_keygen(new_master_key);
     assert(hydro_pwhash_reencrypt(stored, master_key, new_master_key) == 0);
     assert(hydro_pwhash_verify(stored, "test", sizeof "test" - 1, master_key,
-                               1000, 0, 1) == -1);
+                               ops, 0, 1) == -1);
     assert(hydro_pwhash_verify(stored, "test", sizeof "test" - 1,
-                               new_master_key, 1000, 0, 1) == 0);
+                               new_master_key, ops, 0, 1) == 0);
 }
 
 int
