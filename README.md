@@ -19,7 +19,8 @@ Features:
 Non-goals:
 - Having multiple primitives serving the same purpose, even to provide compatibility with other libraries.
 - Networking -- but a simple key exchange API based on the Noise protocol is available, and a STROBE-based transport API will be implemented.
-- Replacing libsodium. Libhydrogen focuses on being small and is for environments where libsodium cannot be used.
+- Iteroperability with other libraries.
+- Replacing libsodium. Libhydrogen tries to keep the number of APIs and the code size down to a minimum.
 
 # [Libhydrogen documentation](https://github.com/jedisct1/libhydrogen/wiki)
 
