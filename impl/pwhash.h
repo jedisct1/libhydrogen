@@ -40,9 +40,6 @@ _hydro_pwhash_hash(uint8_t out[randombytes_SEEDBYTES], size_t h_len,
 
     hydro_hash_update(&h_st, &threads, 1);
 
-    STORE64_LE(tmp64_u8, (uint64_t) opslimit);
-    hydro_hash_update(&h_st, tmp64_u8, sizeof tmp64_u8);
-
     STORE64_LE(tmp64_u8, (uint64_t) memlimit);
     hydro_hash_update(&h_st, tmp64_u8, sizeof tmp64_u8);
 
@@ -51,15 +48,17 @@ _hydro_pwhash_hash(uint8_t out[randombytes_SEEDBYTES], size_t h_len,
 
     hydro_hash_final(&h_st, (uint8_t *) (void *) &state, sizeof state);
 
-    gimli_core_u8(state, 0);
+    gimli_core_u8(state, 1);
+    COMPILER_ASSERT(gimli_RATE >= 8);
     for (i = 0; i < opslimit; i++) {
         mem_zero(state, gimli_RATE);
-        gimli_core_u8(state, 1);
+        STORE64_LE(state, i);
+        gimli_core_u8(state, 0);
     }
-    gimli_core_u8(state, 2);
+    mem_zero(state, gimli_RATE);
 
-    COMPILER_ASSERT(randombytes_SEEDBYTES <= gimli_BLOCKBYTES);
-    memcpy(out, state, randombytes_SEEDBYTES);
+    COMPILER_ASSERT(randombytes_SEEDBYTES == gimli_BLOCKBYTES - gimli_RATE);
+    memcpy(out, state + gimli_RATE, randombytes_SEEDBYTES);
     hydro_memzero(state, sizeof state);
 
     return 0;

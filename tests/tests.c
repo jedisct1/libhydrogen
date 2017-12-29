@@ -329,8 +329,8 @@ test_pwhash(void)
     hydro_bin2hex(h_hex, sizeof h_hex, h, sizeof h);
     if (ops == 1000) {
         assert(hydro_equal(
-            "788494c0bf8d567dfc0d8d94a396205a25639691298360c6380a0cbea5b43bdb74"
-            "5560890291875e48d60fc229612051e898d997f01f0e9c640b761dbd95adc5",
+            "c29a43f1bb82da2b586c4d7e51c476789267179e1469d7f68c95a5b5f037e697b0"
+            "fc3ac2afff03f2061fbc2ddc91a3c99a79648210b27c44eb2229b9cf0a5006",
             h_hex, sizeof h_hex));
     }
 
