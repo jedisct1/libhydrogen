@@ -230,6 +230,7 @@ hydro_pwhash_reencrypt(
 {
     uint8_t *const enc_alg   = &stored[0];
     uint8_t *const secretbox = &enc_alg[hydro_pwhash_ENC_ALGBYTES];
+    uint8_t *const params    = &secretbox[hydro_secretbox_HEADERBYTES];
 
     if (*enc_alg != hydro_pwhash_ENC_ALG) {
         return -1;
@@ -240,10 +241,59 @@ hydro_pwhash_reencrypt(
             (uint64_t) *enc_alg, hydro_pwhash_CONTEXT, master_key) != 0) {
         return -1;
     }
-    memmove(secretbox + hydro_secretbox_HEADERBYTES, secretbox,
-            hydro_pwhash_PARAMSBYTES);
-    return hydro_secretbox_encrypt(
-        secretbox, secretbox + hydro_secretbox_HEADERBYTES,
-        hydro_pwhash_PARAMSBYTES, (uint64_t) *enc_alg, hydro_pwhash_CONTEXT,
-        new_master_key);
+    memmove(params, secretbox, hydro_pwhash_PARAMSBYTES);
+    return hydro_secretbox_encrypt(secretbox, params, hydro_pwhash_PARAMSBYTES,
+                                   (uint64_t) *enc_alg, hydro_pwhash_CONTEXT,
+                                   new_master_key);
+}
+
+int
+hydro_pwhash_upgrade(uint8_t       stored[hydro_pwhash_STOREDBYTES],
+                     const uint8_t master_key[hydro_pwhash_MASTERKEYBYTES],
+                     uint64_t opslimit, size_t memlimit, uint8_t threads)
+{
+    uint8_t *const enc_alg     = &stored[0];
+    uint8_t *const secretbox   = &enc_alg[hydro_pwhash_ENC_ALGBYTES];
+    uint8_t *const params      = &secretbox[hydro_secretbox_HEADERBYTES];
+    uint8_t *const hash_alg    = &params[0];
+    uint8_t *const threads_u8  = &hash_alg[hydro_pwhash_HASH_ALGBYTES];
+    uint8_t *const opslimit_u8 = &threads_u8[hydro_pwhash_THREADSBYTES];
+    uint8_t *const memlimit_u8 = &opslimit_u8[hydro_pwhash_OPSLIMITBYTES];
+    uint8_t *const salt        = &memlimit_u8[hydro_pwhash_MEMLIMITBYTES];
+    uint8_t *const h           = &salt[hydro_pwhash_SALTBYTES];
+    uint8_t        state[gimli_BLOCKBYTES];
+    uint64_t       i;
+    uint64_t       opslimit_prev;
+
+    if (*enc_alg != hydro_pwhash_ENC_ALG) {
+        return -1;
+    }
+    if (hydro_secretbox_decrypt(
+            secretbox, secretbox,
+            hydro_secretbox_HEADERBYTES + hydro_pwhash_PARAMSBYTES,
+            (uint64_t) *enc_alg, hydro_pwhash_CONTEXT, master_key) != 0) {
+        return -1;
+    }
+    memmove(params, secretbox, hydro_pwhash_PARAMSBYTES);
+    opslimit_prev = LOAD64_LE(opslimit_u8);
+    if (*hash_alg != hydro_pwhash_HASH_ALG) {
+        mem_zero(stored, hydro_pwhash_STOREDBYTES);
+        return -1;
+    }
+    COMPILER_ASSERT(randombytes_SEEDBYTES == gimli_BLOCKBYTES - gimli_RATE);
+    memcpy(state + gimli_RATE, h, randombytes_SEEDBYTES);
+    for (i = opslimit_prev; i < opslimit; i++) {
+        mem_zero(state, gimli_RATE);
+        STORE64_LE(state, i);
+        gimli_core_u8(state, 0);
+    }
+    mem_zero(state, gimli_RATE);
+    memcpy(h, state + gimli_RATE, randombytes_SEEDBYTES);
+    *threads_u8 = threads;
+    STORE64_LE(opslimit_u8, opslimit);
+    STORE64_LE(memlimit_u8, (uint64_t) memlimit);
+
+    return hydro_secretbox_encrypt(secretbox, params, hydro_pwhash_PARAMSBYTES,
+                                   (uint64_t) *enc_alg, hydro_pwhash_CONTEXT,
+                                   master_key);
 }

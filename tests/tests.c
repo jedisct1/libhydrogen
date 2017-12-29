@@ -364,6 +364,12 @@ test_pwhash(void)
                                ops, 0, 1) == -1);
     assert(hydro_pwhash_verify(stored, "test", sizeof "test" - 1,
                                new_master_key, ops, 0, 1) == 0);
+
+    assert(hydro_pwhash_upgrade(stored, new_master_key, ops * 2, 0, 1) == 0);
+    assert(hydro_pwhash_verify(stored, "test", sizeof "test" - 1,
+                               new_master_key, ops, 0, 1) == -1);
+    assert(hydro_pwhash_verify(stored, "test", sizeof "test" - 1,
+                               new_master_key, ops * 2, 0, 1) == 0);
 }
 
 int

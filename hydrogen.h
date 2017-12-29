@@ -251,6 +251,10 @@ int hydro_pwhash_reencrypt(
     const uint8_t master_key[hydro_pwhash_MASTERKEYBYTES],
     const uint8_t new_master_key[hydro_pwhash_MASTERKEYBYTES]);
 
+int hydro_pwhash_upgrade(uint8_t       stored[hydro_pwhash_STOREDBYTES],
+                         const uint8_t master_key[hydro_pwhash_MASTERKEYBYTES],
+                         uint64_t opslimit, size_t memlimit, uint8_t threads);
+
 /* ---------------- */
 
 void hydro_memzero(void *pnt, size_t len);
