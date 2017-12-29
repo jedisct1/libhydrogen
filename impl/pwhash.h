@@ -261,9 +261,10 @@ hydro_pwhash_upgrade(uint8_t       stored[hydro_pwhash_STOREDBYTES],
     uint8_t *const memlimit_u8 = &opslimit_u8[hydro_pwhash_OPSLIMITBYTES];
     uint8_t *const salt        = &memlimit_u8[hydro_pwhash_MEMLIMITBYTES];
     uint8_t *const h           = &salt[hydro_pwhash_SALTBYTES];
-    uint8_t        state[gimli_BLOCKBYTES];
-    uint64_t       i;
-    uint64_t       opslimit_prev;
+
+    uint8_t  state[gimli_BLOCKBYTES];
+    uint64_t i;
+    uint64_t opslimit_prev;
 
     if (*enc_alg != hydro_pwhash_ENC_ALG) {
         return -1;
