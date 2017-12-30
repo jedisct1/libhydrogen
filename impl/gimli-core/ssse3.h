@@ -17,8 +17,7 @@ rotate(__m128i x, int bits)
 static inline __m128i
 rotate24(__m128i x)
 {
-    return _mm_shuffle_epi8(
-        x, _mm_set_epi8(12, 15, 14, 13, 8, 11, 10, 9, 4, 7, 6, 5, 0, 3, 2, 1));
+    return _mm_shuffle_epi8(x, _mm_set_epi8(12, 15, 14, 13, 8, 11, 10, 9, 4, 7, 6, 5, 0, 3, 2, 1));
 }
 
 static const uint32_t coeffs[24] CRYPTO_ALIGN(16) = {
@@ -29,12 +28,9 @@ static const uint32_t coeffs[24] CRYPTO_ALIGN(16) = {
 static void
 gimli_core(uint32_t state[gimli_BLOCKBYTES / 4])
 {
-    __m128i x = _mm_loadu_si128((const __m128i *)
-                                (const void *) &state[0]);
-    __m128i y = _mm_loadu_si128((const __m128i *)
-                                (const void *) &state[4]);
-    __m128i z = _mm_loadu_si128((const __m128i *)
-                                (const void *) &state[8]);
+    __m128i x = _mm_loadu_si128((const __m128i *) (const void *) &state[0]);
+    __m128i y = _mm_loadu_si128((const __m128i *) (const void *) &state[4]);
+    __m128i z = _mm_loadu_si128((const __m128i *) (const void *) &state[8]);
     __m128i newy;
     __m128i newz;
     int     round;

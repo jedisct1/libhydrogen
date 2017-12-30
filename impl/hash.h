@@ -1,8 +1,8 @@
 int
 hydro_hash_update(hydro_hash_state *state, const void *in_, size_t in_len)
 {
-    const uint8_t *in = (const uint8_t *) in_;
-    uint8_t       *buf = (uint8_t *) (void *) state->state;
+    const uint8_t *in  = (const uint8_t *) in_;
+    uint8_t *      buf = (uint8_t *) (void *) state->state;
     size_t         left;
     size_t         ps;
     size_t         i;
@@ -11,7 +11,7 @@ hydro_hash_update(hydro_hash_state *state, const void *in_, size_t in_len)
         if ((left = gimli_RATE - state->buf_off) == 0) {
             gimli_core_u8(buf, 0);
             state->buf_off = 0;
-            left = gimli_RATE;
+            left           = gimli_RATE;
         }
         if ((ps = in_len) > left) {
             ps = left;
@@ -30,15 +30,13 @@ hydro_hash_update(hydro_hash_state *state, const void *in_, size_t in_len)
    msg || right_enc(msg_len) || 0x00 */
 
 int
-hydro_hash_init(hydro_hash_state *state,
-                const char ctx[hydro_hash_CONTEXTBYTES],
+hydro_hash_init(hydro_hash_state *state, const char ctx[hydro_hash_CONTEXTBYTES],
                 const uint8_t *key, size_t key_len)
 {
     uint8_t block[64] = { 4, 'k', 'm', 'a', 'c', 8 };
     size_t  p;
 
-    if ((key != NULL && (key_len < hydro_hash_KEYBYTES_MIN ||
-                         key_len > hydro_hash_KEYBYTES_MAX)) ||
+    if ((key != NULL && (key_len < hydro_hash_KEYBYTES_MIN || key_len > hydro_hash_KEYBYTES_MAX)) ||
         (key == NULL && key_len > 0)) {
         return -1;
     }
@@ -48,7 +46,7 @@ hydro_hash_init(hydro_hash_state *state,
     memcpy(block + 6, ctx, 8);
     block[gimli_RATE] = (uint8_t) key_len;
     mem_cpy(block + gimli_RATE + 1, key, key_len);
-    p = (gimli_RATE + 1 + key_len + (gimli_RATE - 1)) & ~ (size_t) (gimli_RATE - 1);
+    p = (gimli_RATE + 1 + key_len + (gimli_RATE - 1)) & ~(size_t)(gimli_RATE - 1);
     mem_zero(state, sizeof *state);
     hydro_hash_update(state, block, p);
 
@@ -59,15 +57,13 @@ hydro_hash_init(hydro_hash_state *state,
    pad(right_enc(tweak)) || msg || right_enc(msg_len) || 0x00 */
 
 static int
-hydro_hash_init_with_tweak(hydro_hash_state *state,
-                           const char ctx[hydro_hash_CONTEXTBYTES],
+hydro_hash_init_with_tweak(hydro_hash_state *state, const char ctx[hydro_hash_CONTEXTBYTES],
                            uint64_t tweak, const uint8_t *key, size_t key_len)
 {
     uint8_t block[80] = { 4, 't', 'm', 'a', 'c', 8 };
     size_t  p;
 
-    if ((key != NULL && (key_len < hydro_hash_KEYBYTES_MIN ||
-                         key_len > hydro_hash_KEYBYTES_MAX)) ||
+    if ((key != NULL && (key_len < hydro_hash_KEYBYTES_MIN || key_len > hydro_hash_KEYBYTES_MAX)) ||
         (key == NULL && key_len > 0)) {
         return -1;
     }
@@ -77,7 +73,7 @@ hydro_hash_init_with_tweak(hydro_hash_state *state,
     memcpy(block + 6, ctx, 8);
     block[gimli_RATE] = (uint8_t) key_len;
     mem_cpy(block + gimli_RATE + 1, key, key_len);
-    p = (gimli_RATE + 1 + key_len + (gimli_RATE - 1)) & ~ (size_t) (gimli_RATE - 1);
+    p        = (gimli_RATE + 1 + key_len + (gimli_RATE - 1)) & ~(size_t)(gimli_RATE - 1);
     block[p] = (uint8_t) sizeof tweak;
     STORE64_LE(&block[p + 1], tweak);
     p += gimli_RATE;
@@ -99,11 +95,11 @@ hydro_hash_final(hydro_hash_state *state, uint8_t *out, size_t out_len)
         return -1;
     }
     COMPILER_ASSERT(hydro_hash_BYTES_MAX <= 0xffff);
-    lc[1] = (uint8_t) out_len;
-    lc[2] = (uint8_t) (out_len >> 8);
-    lc[3] = 0;
-    lc_len = (size_t) (1 + (lc[2] != 0));
-    lc[0] = (uint8_t) lc_len;
+    lc[1]  = (uint8_t) out_len;
+    lc[2]  = (uint8_t)(out_len >> 8);
+    lc[3]  = 0;
+    lc_len = (size_t)(1 + (lc[2] != 0));
+    lc[0]  = (uint8_t) lc_len;
     hydro_hash_update(state, lc, 1 + lc_len + 1);
     gimli_pad_u8(buf, state->buf_off);
     for (i = 0; out_len > 0; i++) {
@@ -117,14 +113,12 @@ hydro_hash_final(hydro_hash_state *state, uint8_t *out, size_t out_len)
 
 int
 hydro_hash_hash(uint8_t *out, size_t out_len, const void *in_, size_t in_len,
-                const char ctx[hydro_hash_CONTEXTBYTES], const uint8_t *key,
-                size_t key_len)
+                const char ctx[hydro_hash_CONTEXTBYTES], const uint8_t *key, size_t key_len)
 {
     hydro_hash_state st;
     const uint8_t *  in = (const uint8_t *) in_;
 
-    if (hydro_hash_init(&st, ctx, key, key_len) != 0 ||
-        hydro_hash_update(&st, in, in_len) != 0 ||
+    if (hydro_hash_init(&st, ctx, key, key_len) != 0 || hydro_hash_update(&st, in, in_len) != 0 ||
         hydro_hash_final(&st, out, out_len) != 0) {
         return -1;
     }

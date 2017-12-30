@@ -1,9 +1,9 @@
-static uint8_t hydro_random_state[gimli_BLOCKBYTES];
+static CRYPTO_ALIGN(16) uint8_t hydro_random_state[gimli_BLOCKBYTES];
 static uint8_t hydro_random_initialized;
 static uint8_t hydro_random_available;
 
 #if defined(AVR) && !defined(__unix__)
-#include <Arduino.h>
+# include <Arduino.h>
 
 static bool
 hydro_random_rbit(unsigned int x)
@@ -20,8 +20,7 @@ hydro_random_rbit(unsigned int x)
 static int
 hydro_random_init(void)
 {
-    const char ctx[hydro_hash_CONTEXTBYTES] = {
-        'h', 'y', 'd', 'r', 'o', 'P', 'R', 'G' };
+    const char       ctx[hydro_hash_CONTEXTBYTES] = { 'h', 'y', 'd', 'r', 'o', 'P', 'R', 'G' };
     hydro_hash_state st;
     uint16_t         ebits = 0;
     uint16_t         tc;
@@ -63,26 +62,23 @@ hydro_random_init(void)
     return 0;
 }
 
-ISR(WDT_vect)
-{
-}
+ISR(WDT_vect) {}
 
 #elif defined(_WIN32)
 
-#include <windows.h>
-#define RtlGenRandom SystemFunction036
-#if defined(__cplusplus)
+# include <windows.h>
+# define RtlGenRandom SystemFunction036
+# if defined(__cplusplus)
 extern "C"
-#endif
-    BOOLEAN NTAPI
-    RtlGenRandom(PVOID RandomBuffer, ULONG RandomBufferLength);
-#pragma comment(lib, "advapi32.lib")
+# endif
+BOOLEAN NTAPI
+RtlGenRandom(PVOID RandomBuffer, ULONG RandomBufferLength);
+# pragma comment(lib, "advapi32.lib")
 
 static int
 hydro_random_init(void)
 {
-    if (!RtlGenRandom((PVOID) hydro_random_state,
-                      (ULONG) sizeof hydro_random_state)) {
+    if (!RtlGenRandom((PVOID) hydro_random_state, (ULONG) sizeof hydro_random_state)) {
         return -1;
     }
     hydro_random_initialized = 1;
@@ -91,15 +87,15 @@ hydro_random_init(void)
 
 #elif defined(__unix__)
 
-#include <errno.h>
-#include <fcntl.h>
-#ifdef __linux__
-#include <poll.h>
-#endif
-#include <sys/types.h>
-#include <unistd.h>
+# include <errno.h>
+# include <fcntl.h>
+# ifdef __linux__
+#  include <poll.h>
+# endif
+# include <sys/types.h>
+# include <unistd.h>
 
-#ifdef __linux__
+# ifdef __linux__
 static int
 hydro_random_block_on_dev_random(void)
 {
@@ -124,7 +120,7 @@ hydro_random_block_on_dev_random(void)
     }
     return close(fd);
 }
-#endif
+# endif
 
 static ssize_t
 hydro_random_safe_read(const int fd, void *const buf_, size_t len)
@@ -133,8 +129,7 @@ hydro_random_safe_read(const int fd, void *const buf_, size_t len)
     ssize_t        readnb;
 
     do {
-        while ((readnb = read(fd, buf, len)) < (ssize_t) 0 &&
-               (errno == EINTR || errno == EAGAIN))
+        while ((readnb = read(fd, buf, len)) < (ssize_t) 0 && (errno == EINTR || errno == EAGAIN))
             ;
         if (readnb < (ssize_t) 0) {
             return readnb;
@@ -177,7 +172,7 @@ hydro_random_init(void)
 }
 
 #else
-#error Unsupported platform
+# error Unsupported platform
 #endif
 
 static void
@@ -240,17 +235,16 @@ randombytes_buf(void *out, size_t out_len)
         mem_cpy(p + i * gimli_RATE, hydro_random_state, leftover);
     }
     COMPILER_ASSERT(gimli_RATE <= 0xff);
-    hydro_random_available = (uint8_t) (gimli_RATE - leftover);
+    hydro_random_available = (uint8_t)(gimli_RATE - leftover);
 }
 
 void
-randombytes_buf_deterministic(void *out, size_t out_len,
-                              const uint8_t seed[randombytes_SEEDBYTES])
+randombytes_buf_deterministic(void *out, size_t out_len, const uint8_t seed[randombytes_SEEDBYTES])
 {
-    static const uint8_t prefix[] = { 7, 'd', 'r', 'b', 'g', '2', '5', '6' };
-    uint32_t  state[gimli_BLOCKBYTES / 4];
-    uint8_t  *buf = (uint8_t *) (void *) state;
-    int       i;
+    static const uint8_t      prefix[] = { 7, 'd', 'r', 'b', 'g', '2', '5', '6' };
+    CRYPTO_ALIGN(16) uint32_t state[gimli_BLOCKBYTES / 4];
+    uint8_t *                 buf = (uint8_t *) (void *) state;
+    int                       i;
 
     COMPILER_ASSERT(sizeof prefix <= gimli_RATE);
     memcpy(buf, prefix, sizeof prefix);

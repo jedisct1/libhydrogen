@@ -15,7 +15,8 @@
 # define __restrict__
 #endif
 
-#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && \
+    __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 # define NATIVE_BIG_ENDIAN
 #endif
 #ifndef NATIVE_BIG_ENDIAN
@@ -34,7 +35,7 @@
 # if defined(__INTEL_COMPILER) || defined(_MSC_VER)
 #  define CRYPTO_ALIGN(x) __declspec(align(x))
 # else
-#  define CRYPTO_ALIGN(x) __attribute__ ((aligned(x)))
+#  define CRYPTO_ALIGN(x) __attribute__((aligned(x)))
 # endif
 #endif
 
@@ -297,10 +298,10 @@ mem_xor(void *__restrict__ dst_, const void *__restrict__ src_, size_t n)
 }
 
 static inline void
-mem_xor2(void *__restrict__ dst_, const void *__restrict__ src1_,
-         const void *__restrict__ src2_, size_t n)
+mem_xor2(void *__restrict__ dst_, const void *__restrict__ src1_, const void *__restrict__ src2_,
+         size_t n)
 {
-    unsigned char *      dst = (unsigned char *) dst_;
+    unsigned char *      dst  = (unsigned char *) dst_;
     const unsigned char *src1 = (const unsigned char *) src1_;
     const unsigned char *src2 = (const unsigned char *) src2_;
     size_t               i;

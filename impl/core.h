@@ -10,9 +10,8 @@ hydro_init(void)
 void
 hydro_memzero(void *pnt, size_t len)
 {
-    volatile unsigned char *volatile pnt_ =
-        (volatile unsigned char *volatile) pnt;
-    size_t i = (size_t) 0U;
+    volatile unsigned char *volatile pnt_ = (volatile unsigned char *volatile) pnt;
+    size_t i                              = (size_t) 0U;
 
     while (i < len) {
         pnt_[i++] = 0U;
@@ -59,8 +58,8 @@ hydro_bin2hex(char *hex, size_t hex_maxlen, const uint8_t *bin, size_t bin_len)
 }
 
 int
-hydro_hex2bin(uint8_t *bin, size_t bin_maxlen, const char *hex, size_t hex_len,
-              const char *ignore, size_t *bin_len, const char **hex_end)
+hydro_hex2bin(uint8_t *bin, size_t bin_maxlen, const char *hex, size_t hex_len, const char *ignore,
+              size_t *bin_len, const char **hex_end)
 {
     size_t        bin_pos = (size_t) 0U;
     size_t        hex_pos = (size_t) 0U;
@@ -102,7 +101,7 @@ hydro_hex2bin(uint8_t *bin, size_t bin_maxlen, const char *hex, size_t hex_len,
     if (state != 0U) {
         hex_pos--;
         errno = EINVAL;
-        ret = -1;
+        ret   = -1;
     }
     if (ret != 0) {
         bin_pos = (size_t) 0U;
@@ -111,7 +110,7 @@ hydro_hex2bin(uint8_t *bin, size_t bin_maxlen, const char *hex, size_t hex_len,
         *hex_end = &hex[hex_pos];
     } else if (hex_pos != hex_len) {
         errno = EINVAL;
-        ret = -1;
+        ret   = -1;
     }
     if (bin_len != NULL) {
         *bin_len = bin_pos;
@@ -122,9 +121,8 @@ hydro_hex2bin(uint8_t *bin, size_t bin_maxlen, const char *hex, size_t hex_len,
 bool
 hydro_equal(const void *b1_, const void *b2_, size_t len)
 {
-    const volatile uint8_t *volatile b1 =
-        (const volatile uint8_t *volatile) b1_;
-    const uint8_t *b2 = (const uint8_t *) b2_;
+    const volatile uint8_t *volatile b1 = (const volatile uint8_t *volatile) b1_;
+    const uint8_t *b2                   = (const uint8_t *) b2_;
     size_t         i;
     uint8_t        d = (uint8_t) 0U;
 
@@ -140,11 +138,10 @@ hydro_equal(const void *b1_, const void *b2_, size_t len)
 int
 hydro_compare(const uint8_t *b1_, const uint8_t *b2_, size_t len)
 {
-    const volatile uint8_t *volatile b1 =
-        (const volatile uint8_t *volatile) b1_;
-    const uint8_t *b2 = (const uint8_t *) b2_;
-    uint8_t        gt = 0U;
-    uint8_t        eq = 1U;
+    const volatile uint8_t *volatile b1 = (const volatile uint8_t *volatile) b1_;
+    const uint8_t *b2                   = (const uint8_t *) b2_;
+    uint8_t        gt                   = 0U;
+    uint8_t        eq                   = 1U;
     size_t         i;
 
     i = len;
@@ -157,15 +154,15 @@ hydro_compare(const uint8_t *b1_, const uint8_t *b2_, size_t len)
 }
 
 int
-hydro_pad(size_t *padded_buflen_p, unsigned char *buf,
-	  size_t unpadded_buflen, size_t blocksize, size_t max_buflen)
+hydro_pad(size_t *padded_buflen_p, unsigned char *buf, size_t unpadded_buflen, size_t blocksize,
+          size_t max_buflen)
 {
-    unsigned char          *tail;
-    size_t                  i;
-    size_t                  xpadlen;
-    size_t                  xpadded_len;
-    volatile unsigned char  mask;
-    unsigned char           barrier_mask;
+    unsigned char *        tail;
+    size_t                 i;
+    size_t                 xpadlen;
+    size_t                 xpadded_len;
+    volatile unsigned char mask;
+    unsigned char          barrier_mask;
 
     if (blocksize <= 0U) {
         return -1;
@@ -183,25 +180,25 @@ hydro_pad(size_t *padded_buflen_p, unsigned char *buf,
     if (xpadded_len >= max_buflen) {
         return -1;
     }
-    tail = &buf[xpadded_len];
+    tail             = &buf[xpadded_len];
     *padded_buflen_p = xpadded_len + 1U;
-    mask = 0U;
+    mask             = 0U;
     for (i = 0; i < blocksize; i++) {
         barrier_mask = (unsigned char) (((i ^ xpadlen) - 1U) >> 8);
-        tail[-i] = (tail[-i] & mask) | (0x80 & barrier_mask);
+        tail[-i]     = (tail[-i] & mask) | (0x80 & barrier_mask);
         mask |= barrier_mask;
     }
     return 0;
 }
 
 int
-hydro_unpad(size_t *unpadded_buflen_p, const unsigned char *buf,
-	    size_t padded_buflen, size_t blocksize)
+hydro_unpad(size_t *unpadded_buflen_p, const unsigned char *buf, size_t padded_buflen,
+            size_t blocksize)
 {
     const unsigned char *tail;
     unsigned char        acc = 0U;
     unsigned char        c;
-    unsigned char        valid = 0U;
+    unsigned char        valid   = 0U;
     volatile size_t      pad_len = 0U;
     size_t               i;
     size_t               is_barrier;
@@ -212,11 +209,10 @@ hydro_unpad(size_t *unpadded_buflen_p, const unsigned char *buf,
     tail = &buf[padded_buflen - 1U];
 
     for (i = 0U; i < blocksize; i++) {
-        c = tail[-i];
-        is_barrier =
-            (( (acc - 1U) & (pad_len - 1U) & ((c ^ 0x80) - 1U) ) >> 8) & 1U;
+        c          = tail[-i];
+        is_barrier = (((acc - 1U) & (pad_len - 1U) & ((c ^ 0x80) - 1U)) >> 8) & 1U;
         acc |= c;
-        pad_len |= (i & - is_barrier);
+        pad_len |= (i & -is_barrier);
         valid |= (unsigned char) is_barrier;
     }
     *unpadded_buflen_p = padded_buflen - 1U - pad_len;
