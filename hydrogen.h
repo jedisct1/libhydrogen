@@ -37,6 +37,8 @@ void randombytes_buf(void *out, size_t out_len);
 void randombytes_buf_deterministic(void *out, size_t out_len,
                                    const uint8_t seed[randombytes_SEEDBYTES]);
 
+void randombytes_ratchet(void);
+
 /* ---------------- */
 
 #define hydro_hash_BYTES 32

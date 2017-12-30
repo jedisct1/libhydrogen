@@ -263,3 +263,11 @@ randombytes_buf_deterministic(void *out, size_t out_len, const uint8_t seed[rand
         out_len -= block_size;
     }
 }
+
+void
+randombytes_ratchet(void)
+{
+    mem_zero(hydro_random_state, gimli_RATE);
+    gimli_core_u8(hydro_random_state, 0);
+    hydro_random_available = gimli_RATE;
+}
