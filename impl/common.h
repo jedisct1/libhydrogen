@@ -25,6 +25,14 @@
 # endif
 #endif
 
+#ifndef TLS
+# ifdef _WIN32
+#  define TLS __declspec(thread)
+# else
+#  define TLS
+# endif
+#endif
+
 #ifndef SIZE_MAX
 # define SIZE_MAX ((size_t) -1)
 #endif

@@ -1,6 +1,8 @@
-static CRYPTO_ALIGN(16) uint8_t hydro_random_state[gimli_BLOCKBYTES];
-static uint8_t hydro_random_initialized;
-static uint8_t hydro_random_available;
+static TLS struct {
+    CRYPTO_ALIGN(16) uint8_t state[gimli_BLOCKBYTES];
+    uint8_t initialized;
+    uint8_t available;
+} hydro_random_context;
 
 #if defined(AVR) && !defined(__unix__)
 # include <Arduino.h>
@@ -56,8 +58,8 @@ hydro_random_init(void)
     WDTCSR = 0;
     sei();
 
-    hydro_hash_final(&st, hydro_random_state, sizeof hydro_random_state);
-    hydro_random_initialized = 1;
+    hydro_hash_final(&st, hydro_random_context.state, sizeof hydro_random_context.state);
+    hydro_random_context.initialized = 1;
 
     return 0;
 }
@@ -78,10 +80,11 @@ RtlGenRandom(PVOID RandomBuffer, ULONG RandomBufferLength);
 static int
 hydro_random_init(void)
 {
-    if (!RtlGenRandom((PVOID) hydro_random_state, (ULONG) sizeof hydro_random_state)) {
+    if (!RtlGenRandom((PVOID) hydro_random_context.state,
+                      (ULONG) sizeof hydro_random_context.state)) {
         return -1;
     }
-    hydro_random_initialized = 1;
+    hydro_random_context.initialized = 1;
     return 0;
 }
 
@@ -150,21 +153,21 @@ hydro_random_init(void)
     int fd;
     int ret = -1;
 
-#ifdef __linux__
+# ifdef __linux__
     if (hydro_random_block_on_dev_random() != 0) {
         return -1;
     }
-#endif
+# endif
     do {
         fd = open("/dev/urandom", O_RDONLY);
         if (fd == -1 && errno != EINTR) {
             return -1;
         }
     } while (fd == -1);
-    if (hydro_random_safe_read(fd, hydro_random_state, sizeof hydro_random_state) ==
-        (ssize_t) sizeof hydro_random_state) {
-        ret                      = 0;
-        hydro_random_initialized = 1;
+    if (hydro_random_safe_read(fd, hydro_random_context.state, sizeof hydro_random_context.state) ==
+        (ssize_t) sizeof hydro_random_context.state) {
+        ret                              = 0;
+        hydro_random_context.initialized = 1;
     }
     ret |= close(fd);
 
@@ -178,7 +181,7 @@ hydro_random_init(void)
 static void
 hydro_random_check_initialized(void)
 {
-    if (hydro_random_initialized == 0 && hydro_random_init() != 0) {
+    if (hydro_random_context.initialized == 0 && hydro_random_init() != 0) {
         abort();
     }
 }
@@ -189,12 +192,12 @@ randombytes_random(void)
     uint32_t v;
 
     hydro_random_check_initialized();
-    if (hydro_random_available < 4) {
-        gimli_core_u8(hydro_random_state, 0);
-        hydro_random_available = gimli_RATE;
+    if (hydro_random_context.available < 4) {
+        gimli_core_u8(hydro_random_context.state, 0);
+        hydro_random_context.available = gimli_RATE;
     }
-    memcpy(&v, &hydro_random_state[gimli_RATE - hydro_random_available], 4);
-    hydro_random_available -= 4;
+    memcpy(&v, &hydro_random_context.state[gimli_RATE - hydro_random_context.available], 4);
+    hydro_random_context.available -= 4;
 
     return v;
 }
@@ -225,17 +228,17 @@ randombytes_buf(void *out, size_t out_len)
     size_t   i;
     size_t   leftover;
 
-    gimli_core_u8(hydro_random_state, 0);
+    gimli_core_u8(hydro_random_context.state, 0);
     for (i = 0; i < out_len / gimli_RATE; i++) {
-        memcpy(p + i * gimli_RATE, hydro_random_state, gimli_RATE);
-        gimli_core_u8(hydro_random_state, 0);
+        memcpy(p + i * gimli_RATE, hydro_random_context.state, gimli_RATE);
+        gimli_core_u8(hydro_random_context.state, 0);
     }
     leftover = out_len % gimli_RATE;
     if (leftover != 0) {
-        mem_cpy(p + i * gimli_RATE, hydro_random_state, leftover);
+        mem_cpy(p + i * gimli_RATE, hydro_random_context.state, leftover);
     }
     COMPILER_ASSERT(gimli_RATE <= 0xff);
-    hydro_random_available = (uint8_t)(gimli_RATE - leftover);
+    hydro_random_context.available = (uint8_t)(gimli_RATE - leftover);
 }
 
 void
@@ -267,7 +270,7 @@ randombytes_buf_deterministic(void *out, size_t out_len, const uint8_t seed[rand
 void
 randombytes_ratchet(void)
 {
-    mem_zero(hydro_random_state, gimli_RATE);
-    gimli_core_u8(hydro_random_state, 0);
-    hydro_random_available = gimli_RATE;
+    mem_zero(hydro_random_context.state, gimli_RATE);
+    gimli_core_u8(hydro_random_context.state, 0);
+    hydro_random_context.available = gimli_RATE;
 }
