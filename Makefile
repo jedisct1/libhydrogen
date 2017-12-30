@@ -6,6 +6,9 @@ OBJ = hydrogen.o
 AR ?= ar
 RANLIB ?= ranlib
 
+# Uncomment for pthread support
+# CFLAGS += -pthread -DTLS=__thread
+
 SRC = \
 	hydrogen.c \
 	hydrogen.h \
