@@ -28,6 +28,8 @@
 #ifndef TLS
 # ifdef _WIN32
 #  define TLS __declspec(thread)
+# elif (defined(__clang__) || defined(__GNUC__)) && defined(__unix__)
+#  define TLS __thread
 # else
 #  define TLS
 # endif

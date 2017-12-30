@@ -6,9 +6,6 @@ OBJ = hydrogen.o
 AR ?= ar
 RANLIB ?= ranlib
 
-# Comment out if TLS is not supported
-CFLAGS += -DTLS=__thread
-
 SRC = \
 	hydrogen.c \
 	hydrogen.h \
