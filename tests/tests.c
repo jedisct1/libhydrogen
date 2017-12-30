@@ -6,14 +6,16 @@
 
 static const char *ctx = "libtests";
 
-static void
-assert_streq(const char *expected, const char *found)
+static int
+streq(const char *expected, const char *found)
 {
     if (strcmp(expected, found) != 0) {
-        fprintf(stderr, "Expected: [%s] - Found: [%s]\n", expected, found);
-        assert(0);
+        fprintf(stderr, "Found: [%s]\n", found);
+        return 0;
     }
+    return 1;
 }
+#define assert_streq(EXPECTED, FOUND) assert(streq((EXPECTED), (FOUND)))
 
 static void
 test_randombytes(void)
@@ -92,20 +94,20 @@ test_hash(void)
     hydro_hash_final(&st, h, sizeof h);
     hydro_bin2hex(hex, sizeof hex, h, sizeof h);
     assert_streq(
-        "6ff6bd27fc51dbe7dae007a23a55141500ce3067e1e54a72bd0ce6665c916853bdbfa3240dd73f"
-        "da0bf2ee39718098f70a3cff128ffbe4c7b7c2978eb0747e225ca9a54ea04f6440f1683bbb58c2"
-        "000817de5166f298aa2988dbd4465d82584e0a8b73cf",
+        "ea01e71e7896772a331151c44261587094208e576603072be1acaa0d95d15284a742034736bd89adceb31b009e"
+        "19361d0f88c6b99a8f326d00006e368de8dc3877ac2d02d19c7c51492763e224d54afcb72ccf47e60681e0b3de"
+        "aee73b3e58901895c837",
         hex);
     hydro_hash_hash(h, sizeof h, msg, sizeof msg, ctx, key, sizeof key);
     hydro_bin2hex(hex, sizeof hex, h, sizeof h);
     assert_streq(
-        "cfedeaf17eba400b48d0ff0cca511414d50577e6baa70794652ecaf546539688aafa4a82f72c51"
-        "8e7f14a99a0cd9b128b9b7f4cffdd6ac31fe4fe1899af07ea8be66cc837bb40d45c2119b62cf32"
-        "98b4f9f6dd88945563c0b6226ca270e5c4bf37ff4d87",
+        "6516e548efe4b58b8b8520780dd589751cbf39d25e2b2ed2975c770ede504c79cfcb46f4c0a92a5d5550e9d233"
+        "6d1427a9f478a3c94460b64bc19ada3d1fd904a583e5f280319b81772937ace6cb9ca159593f8d5bf142676e29"
+        "5f535ef52c0728de4eb4",
         hex);
     hydro_hash_hash(h, hydro_hash_BYTES, msg, sizeof msg, ctx, key, sizeof key);
     hydro_bin2hex(hex, sizeof hex, h, hydro_hash_BYTES);
-    assert_streq("3d3b3c9bb1bc10c5dccd1f62e3e6b90e4b0680453ca63ebdab9e8d3551060d5f", hex);
+    assert_streq("de0a207dbf897c0c7e45305ad462ef9c8620ec926e5fff409fce87cda87aed94", hex);
 }
 
 static void
@@ -208,12 +210,12 @@ test_kdf(void)
     hydro_bin2hex(subkey2_hex, sizeof subkey2_hex, subkey2, sizeof subkey2);
     hydro_bin2hex(subkey3_hex, sizeof subkey3_hex, subkey3, sizeof subkey3);
     hydro_bin2hex(subkey4_hex, sizeof subkey4_hex, subkey4, sizeof subkey4);
-    assert_streq("41db0de11bed2cccd4013ff13e17b21c", subkey1_hex);
-    assert_streq("fae22553f3a1833ab529faefbf2aef0b", subkey2_hex);
-    assert_streq("b45886fe09f7b9b06315e48922e8f89cf253ab1eae932d3242fe874ea4dac25f", subkey3_hex);
+    assert_streq("99f102e0560078c41dc228b43fab302b", subkey1_hex);
+    assert_streq("b80162ca9773b6789a371fd275ecb668", subkey2_hex);
+    assert_streq("dd1a1bb6382834f31df2e30830f178b5b079fe2131b75882234c04cdf67781e1", subkey3_hex);
     assert_streq(
-        "dfdcd22e49d36e5433b7331b5b2c02e5b7601f8bb32a315f6e13da2f1d10560d3b76d31d2bb299"
-        "d6b30b15a07dea6232f9ae",
+        "896162735939b1760b712e23deab33f5a1d43f0110743db172b02cba9c5a957a7af8c48f80c2bfa913e9ebd669"
+        "f1f1104554",
         subkey4_hex);
 }
 
@@ -322,8 +324,8 @@ test_pwhash(void)
     hydro_bin2hex(h_hex, sizeof h_hex, h, sizeof h);
     if (ops == 1000) {
         assert_streq(
-            "5e1d6adfb99d0067ae5bf8677c4e9bd7fe4cc7ea482aa0f673bdfd85d04e3257af17a354304d5f9c9be52a"
-            "c8bcdbe1c9e445280831885c70093d8ca45aad849a",
+            "54c9ac658d5f75c65ad3b67c40f25ff4266ad8d8c4a3e75e1f5c6037f287ac0b3d14fb2d0a31f215df4c71"
+            "2d8f723c76ccb4a4ae39c89452029ae95f5860c9da",
             h_hex);
     }
 

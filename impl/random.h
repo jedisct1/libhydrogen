@@ -60,7 +60,7 @@ hydro_random_init(void)
     sei();
 
     hydro_hash_final(&st, hydro_random_context.state, sizeof hydro_random_context.state);
-    hydro_random_context.counter     = LOAD64_LE(hydro_random_context.state);
+    hydro_random_context.counter     = ~LOAD64_LE(hydro_random_context.state);
     hydro_random_context.initialized = 1;
 
     return 0;
@@ -86,7 +86,7 @@ hydro_random_init(void)
                       (ULONG) sizeof hydro_random_context.state)) {
         return -1;
     }
-    hydro_random_context.counter     = LOAD64_LE(hydro_random_context.state);
+    hydro_random_context.counter     = ~LOAD64_LE(hydro_random_context.state);
     hydro_random_context.initialized = 1;
     return 0;
 }
@@ -169,7 +169,7 @@ hydro_random_init(void)
     } while (fd == -1);
     if (hydro_random_safe_read(fd, hydro_random_context.state, sizeof hydro_random_context.state) ==
         (ssize_t) sizeof hydro_random_context.state) {
-        hydro_random_context.counter     = LOAD64_LE(hydro_random_context.state);
+        hydro_random_context.counter     = ~LOAD64_LE(hydro_random_context.state);
         ret                              = 0;
         hydro_random_context.initialized = 1;
     }
@@ -244,13 +244,13 @@ randombytes_buf(void *out, size_t out_len)
     size_t   i;
     size_t   leftover;
 
-    gimli_core_u8(hydro_random_context.state, 0);
     for (i = 0; i < out_len / gimli_RATE; i++) {
-        memcpy(p + i * gimli_RATE, hydro_random_context.state, gimli_RATE);
         gimli_core_u8(hydro_random_context.state, 0);
+        memcpy(p + i * gimli_RATE, hydro_random_context.state, gimli_RATE);
     }
     leftover = out_len % gimli_RATE;
     if (leftover != 0) {
+        gimli_core_u8(hydro_random_context.state, 0);
         mem_cpy(p + i * gimli_RATE, hydro_random_context.state, leftover);
     }
     COMPILER_ASSERT(gimli_RATE <= 0xff);
@@ -265,17 +265,16 @@ randombytes_buf_deterministic(void *out, size_t out_len, const uint8_t seed[rand
     uint8_t *                 buf = (uint8_t *) (void *) state;
     int                       i;
 
+    mem_zero(buf, gimli_BLOCKBYTES);
     COMPILER_ASSERT(sizeof prefix <= gimli_RATE);
     memcpy(buf, prefix, sizeof prefix);
-    mem_zero(buf + sizeof prefix, gimli_BLOCKBYTES - sizeof prefix);
+    COMPILER_ASSERT(randombytes_SEEDBYTES == gimli_BLOCKBYTES - gimli_RATE);
+    memcpy(buf + gimli_RATE, seed, randombytes_SEEDBYTES);
     gimli_core_u8(buf, 0);
 
-    COMPILER_ASSERT(randombytes_SEEDBYTES == 2 * gimli_RATE);
-    mem_xor(buf, seed, gimli_RATE);
-    gimli_core_u8(buf, 0);
-    mem_xor(buf, seed + gimli_RATE, gimli_RATE);
     mem_zero(buf, gimli_RATE);
     STORE64_LE(buf, (uint64_t) out_len);
+
     for (i = 0; out_len > 0; i++) {
         const size_t block_size = (out_len < gimli_BLOCKBYTES) ? out_len : gimli_BLOCKBYTES;
         gimli_core_u8(buf, 0);
