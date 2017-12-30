@@ -113,6 +113,11 @@ hydro_secretbox_encrypt_iv(uint8_t *c, const void *m_, size_t mlen,
     size_t         i;
     size_t         leftover;
 
+    if (c == m) {
+        memmove(c + hydro_secretbox_HEADERBYTES, m, mlen);
+        m = c + hydro_secretbox_HEADERBYTES;
+    }
+
     /* first pass: compute the SIV */
 
     hydro_secretbox_setup(buf, msg_id, ctx, key, iv, gimli_TAG_KEY0);
