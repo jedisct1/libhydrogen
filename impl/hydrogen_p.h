@@ -2,14 +2,15 @@ static int hydro_random_init(void);
 
 /* ---------------- */
 
-#define gimli_BLOCKBYTES 48
-#define gimli_RATE 16
-#define gimli_TAG_HEADER 0x01
+#define gimli_BLOCKBYTES  48
+#define gimli_RATE        16
+
+#define gimli_TAG_HEADER  0x01
 #define gimli_TAG_PAYLOAD 0x02
-#define gimli_TAG_FINAL 0x08
-#define gimli_TAG_FINAL0 0xf8
-#define gimli_TAG_KEY0 0xfe
-#define gimli_TAG_KEY 0xff
+#define gimli_TAG_FINAL   0x08
+#define gimli_TAG_FINAL0  0xf8
+#define gimli_TAG_KEY0    0xfe
+#define gimli_TAG_KEY     0xff
 
 static void gimli_core_u8(uint8_t state_u8[gimli_BLOCKBYTES], uint8_t tag);
 
