@@ -1,11 +1,12 @@
 static TLS struct {
     CRYPTO_ALIGN(16) uint8_t state[gimli_BLOCKBYTES];
-    uint8_t initialized;
-    uint8_t available;
+    uint64_t counter;
+    uint8_t  initialized;
+    uint8_t  available;
 } hydro_random_context;
 
 #if defined(AVR) && !defined(__unix__)
-# include <Arduino.h>
+#include <Arduino.h>
 
 static bool
 hydro_random_rbit(unsigned int x)
@@ -59,6 +60,7 @@ hydro_random_init(void)
     sei();
 
     hydro_hash_final(&st, hydro_random_context.state, sizeof hydro_random_context.state);
+    hydro_random_context.counter     = LOAD64_LE(hydro_random_context.state);
     hydro_random_context.initialized = 1;
 
     return 0;
@@ -68,14 +70,14 @@ ISR(WDT_vect) {}
 
 #elif defined(_WIN32)
 
-# include <windows.h>
-# define RtlGenRandom SystemFunction036
-# if defined(__cplusplus)
+#include <windows.h>
+#define RtlGenRandom SystemFunction036
+#if defined(__cplusplus)
 extern "C"
-# endif
-BOOLEAN NTAPI
-RtlGenRandom(PVOID RandomBuffer, ULONG RandomBufferLength);
-# pragma comment(lib, "advapi32.lib")
+#endif
+    BOOLEAN NTAPI
+            RtlGenRandom(PVOID RandomBuffer, ULONG RandomBufferLength);
+#pragma comment(lib, "advapi32.lib")
 
 static int
 hydro_random_init(void)
@@ -84,21 +86,22 @@ hydro_random_init(void)
                       (ULONG) sizeof hydro_random_context.state)) {
         return -1;
     }
+    hydro_random_context.counter     = LOAD64_LE(hydro_random_context.state);
     hydro_random_context.initialized = 1;
     return 0;
 }
 
 #elif defined(__unix__)
 
-# include <errno.h>
-# include <fcntl.h>
-# ifdef __linux__
-#  include <poll.h>
-# endif
-# include <sys/types.h>
-# include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
+#ifdef __linux__
+#include <poll.h>
+#endif
+#include <sys/types.h>
+#include <unistd.h>
 
-# ifdef __linux__
+#ifdef __linux__
 static int
 hydro_random_block_on_dev_random(void)
 {
@@ -123,7 +126,7 @@ hydro_random_block_on_dev_random(void)
     }
     return close(fd);
 }
-# endif
+#endif
 
 static ssize_t
 hydro_random_safe_read(const int fd, void *const buf_, size_t len)
@@ -153,11 +156,11 @@ hydro_random_init(void)
     int fd;
     int ret = -1;
 
-# ifdef __linux__
+#ifdef __linux__
     if (hydro_random_block_on_dev_random() != 0) {
         return -1;
     }
-# endif
+#endif
     do {
         fd = open("/dev/urandom", O_RDONLY);
         if (fd == -1 && errno != EINTR) {
@@ -166,6 +169,7 @@ hydro_random_init(void)
     } while (fd == -1);
     if (hydro_random_safe_read(fd, hydro_random_context.state, sizeof hydro_random_context.state) ==
         (ssize_t) sizeof hydro_random_context.state) {
+        hydro_random_context.counter     = LOAD64_LE(hydro_random_context.state);
         ret                              = 0;
         hydro_random_context.initialized = 1;
     }
@@ -175,7 +179,7 @@ hydro_random_init(void)
 }
 
 #else
-# error Unsupported platform
+#error Unsupported platform
 #endif
 
 static void
@@ -189,6 +193,16 @@ hydro_random_check_initialized(void)
     }
 }
 
+void
+randombytes_ratchet(void)
+{
+    mem_zero(hydro_random_context.state, gimli_RATE);
+    STORE64_LE(hydro_random_context.state, hydro_random_context.counter);
+    hydro_random_context.counter++;
+    gimli_core_u8(hydro_random_context.state, 0);
+    hydro_random_context.available = gimli_RATE;
+}
+
 uint32_t
 randombytes_random(void)
 {
@@ -196,8 +210,7 @@ randombytes_random(void)
 
     hydro_random_check_initialized();
     if (hydro_random_context.available < 4) {
-        gimli_core_u8(hydro_random_context.state, 0);
-        hydro_random_context.available = gimli_RATE;
+        randombytes_ratchet();
     }
     memcpy(&v, &hydro_random_context.state[gimli_RATE - hydro_random_context.available], 4);
     hydro_random_context.available -= 4;
@@ -241,7 +254,7 @@ randombytes_buf(void *out, size_t out_len)
         mem_cpy(p + i * gimli_RATE, hydro_random_context.state, leftover);
     }
     COMPILER_ASSERT(gimli_RATE <= 0xff);
-    hydro_random_context.available = (uint8_t)(gimli_RATE - leftover);
+    randombytes_ratchet();
 }
 
 void
@@ -261,21 +274,15 @@ randombytes_buf_deterministic(void *out, size_t out_len, const uint8_t seed[rand
     mem_xor(buf, seed, gimli_RATE);
     gimli_core_u8(buf, 0);
     mem_xor(buf, seed + gimli_RATE, gimli_RATE);
-
+    mem_zero(buf, gimli_RATE);
+    STORE64_LE(buf, (uint64_t) out_len);
     for (i = 0; out_len > 0; i++) {
         const size_t block_size = (out_len < gimli_BLOCKBYTES) ? out_len : gimli_BLOCKBYTES;
         gimli_core_u8(buf, 0);
         mem_cpy((uint8_t *) out + i * gimli_BLOCKBYTES, buf, block_size);
         out_len -= block_size;
     }
-}
-
-void
-randombytes_ratchet(void)
-{
-    mem_zero(hydro_random_context.state, gimli_RATE);
-    gimli_core_u8(hydro_random_context.state, 0);
-    hydro_random_context.available = gimli_RATE;
+    randombytes_ratchet();
 }
 
 void
