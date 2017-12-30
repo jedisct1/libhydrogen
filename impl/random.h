@@ -181,8 +181,11 @@ hydro_random_init(void)
 static void
 hydro_random_check_initialized(void)
 {
-    if (hydro_random_context.initialized == 0 && hydro_random_init() != 0) {
-        abort();
+    if (hydro_random_context.initialized == 0) {
+        hydro_random_context.available = 0;
+        if (hydro_random_init() != 0) {
+            abort();
+        }
     }
 }
 
@@ -273,4 +276,11 @@ randombytes_ratchet(void)
     mem_zero(hydro_random_context.state, gimli_RATE);
     gimli_core_u8(hydro_random_context.state, 0);
     hydro_random_context.available = gimli_RATE;
+}
+
+void
+randombytes_reseed(void)
+{
+    hydro_random_context.initialized = 0;
+    hydro_random_check_initialized();
 }
