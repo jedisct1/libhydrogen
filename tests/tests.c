@@ -7,6 +7,15 @@
 static const char *ctx = "libtests";
 
 static void
+assert_streq(const char *expected, const char *found)
+{
+    if (strcmp(expected, found) != 0) {
+        fprintf(stderr, "Expected: [%s] - Found: [%s]\n", expected, found);
+        assert(0);
+    }
+}
+
+static void
 test_randombytes(void)
 {
     uint8_t       dk[randombytes_SEEDBYTES];
@@ -82,22 +91,21 @@ test_hash(void)
     }
     hydro_hash_final(&st, h, sizeof h);
     hydro_bin2hex(hex, sizeof hex, h, sizeof h);
-    assert(
-        hydro_equal("6ff6bd27fc51dbe7dae007a23a55141500ce3067e1e54a72bd0ce6665c916853bdbfa3240dd73f"
-                    "da0bf2ee39718098f70a3cff128ffbe4c7b7c2978eb0747e225ca9a54ea04f6440f1683bbb58c2"
-                    "000817de5166f298aa2988dbd4465d82584e0a8b73cf",
-                    hex, sizeof hex));
+    assert_streq(
+        "6ff6bd27fc51dbe7dae007a23a55141500ce3067e1e54a72bd0ce6665c916853bdbfa3240dd73f"
+        "da0bf2ee39718098f70a3cff128ffbe4c7b7c2978eb0747e225ca9a54ea04f6440f1683bbb58c2"
+        "000817de5166f298aa2988dbd4465d82584e0a8b73cf",
+        hex);
     hydro_hash_hash(h, sizeof h, msg, sizeof msg, ctx, key, sizeof key);
     hydro_bin2hex(hex, sizeof hex, h, sizeof h);
-    assert(
-        hydro_equal("cfedeaf17eba400b48d0ff0cca511414d50577e6baa70794652ecaf546539688aafa4a82f72c51"
-                    "8e7f14a99a0cd9b128b9b7f4cffdd6ac31fe4fe1899af07ea8be66cc837bb40d45c2119b62cf32"
-                    "98b4f9f6dd88945563c0b6226ca270e5c4bf37ff4d87",
-                    hex, sizeof hex));
+    assert_streq(
+        "cfedeaf17eba400b48d0ff0cca511414d50577e6baa70794652ecaf546539688aafa4a82f72c51"
+        "8e7f14a99a0cd9b128b9b7f4cffdd6ac31fe4fe1899af07ea8be66cc837bb40d45c2119b62cf32"
+        "98b4f9f6dd88945563c0b6226ca270e5c4bf37ff4d87",
+        hex);
     hydro_hash_hash(h, hydro_hash_BYTES, msg, sizeof msg, ctx, key, sizeof key);
     hydro_bin2hex(hex, sizeof hex, h, hydro_hash_BYTES);
-    assert(hydro_equal("3d3b3c9bb1bc10c5dccd1f62e3e6b90e4b0680453ca63ebdab9e8d3551060d5f", hex,
-                       strlen(hex) + 1));
+    assert_streq("3d3b3c9bb1bc10c5dccd1f62e3e6b90e4b0680453ca63ebdab9e8d3551060d5f", hex);
 }
 
 static void
@@ -200,14 +208,13 @@ test_kdf(void)
     hydro_bin2hex(subkey2_hex, sizeof subkey2_hex, subkey2, sizeof subkey2);
     hydro_bin2hex(subkey3_hex, sizeof subkey3_hex, subkey3, sizeof subkey3);
     hydro_bin2hex(subkey4_hex, sizeof subkey4_hex, subkey4, sizeof subkey4);
-    assert(hydro_equal("41db0de11bed2cccd4013ff13e17b21c", subkey1_hex, sizeof subkey1_hex));
-    assert(hydro_equal("fae22553f3a1833ab529faefbf2aef0b", subkey2_hex, sizeof subkey2_hex));
-    assert(hydro_equal("b45886fe09f7b9b06315e48922e8f89cf253ab1eae932d3242fe874ea4dac25f",
-                       subkey3_hex, sizeof subkey3_hex));
-    assert(
-        hydro_equal("dfdcd22e49d36e5433b7331b5b2c02e5b7601f8bb32a315f6e13da2f1d10560d3b76d31d2bb299"
-                    "d6b30b15a07dea6232f9ae",
-                    subkey4_hex, sizeof subkey4_hex));
+    assert_streq("41db0de11bed2cccd4013ff13e17b21c", subkey1_hex);
+    assert_streq("fae22553f3a1833ab529faefbf2aef0b", subkey2_hex);
+    assert_streq("b45886fe09f7b9b06315e48922e8f89cf253ab1eae932d3242fe874ea4dac25f", subkey3_hex);
+    assert_streq(
+        "dfdcd22e49d36e5433b7331b5b2c02e5b7601f8bb32a315f6e13da2f1d10560d3b76d31d2bb299"
+        "d6b30b15a07dea6232f9ae",
+        subkey4_hex);
 }
 
 static void
@@ -314,10 +321,10 @@ test_pwhash(void)
     hydro_pwhash_deterministic(h, sizeof h, "test", sizeof "test" - 1, ctx, master_key, ops, 0, 1);
     hydro_bin2hex(h_hex, sizeof h_hex, h, sizeof h);
     if (ops == 1000) {
-        assert(
-            hydro_equal("5e1d6adfb99d0067ae5bf8677c4e9bd7fe4cc7ea482aa0f673bdfd85d04e3257af17a35430"
-                        "4d5f9c9be52ac8bcdbe1c9e445280831885c70093d8ca45aad849a",
-                        h_hex, sizeof h_hex));
+        assert_streq(
+            "5e1d6adfb99d0067ae5bf8677c4e9bd7fe4cc7ea482aa0f673bdfd85d04e3257af17a354304d5f9c9be52a"
+            "c8bcdbe1c9e445280831885c70093d8ca45aad849a",
+            h_hex);
     }
 
     hydro_pwhash_keygen(master_key);
