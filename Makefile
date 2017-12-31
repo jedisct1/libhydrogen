@@ -55,3 +55,7 @@ libhydrogen.a: $(OBJ)
 clean:
 	rm -f libhydrogen.a $(OBJ)
 	rm -f tests/tests tests/*.done
+
+check: test
+
+distclean: clean
