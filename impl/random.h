@@ -260,22 +260,22 @@ randombytes_buf(void *out, size_t out_len)
 void
 randombytes_buf_deterministic(void *out, size_t out_len, const uint8_t seed[randombytes_SEEDBYTES])
 {
-    static const uint8_t     prefix[] = { 7, 'd', 'r', 'b', 'g', '2', '5', '6' };
+    static const uint8_t     prefix[8] = { 7, 'd', 'r', 'b', 'g', '2', '5', '6' };
     CRYPTO_ALIGN(16) uint8_t state[gimli_BLOCKBYTES];
     uint8_t *                p = (uint8_t *) out;
     size_t                   i;
     size_t                   leftover;
 
     mem_zero(state, gimli_BLOCKBYTES);
-    COMPILER_ASSERT(sizeof prefix <= gimli_RATE);
+    COMPILER_ASSERT(sizeof prefix + 8 <= gimli_RATE);
     memcpy(state, prefix, sizeof prefix);
-    COMPILER_ASSERT(randombytes_SEEDBYTES == gimli_BLOCKBYTES - gimli_RATE);
-    memcpy(state + gimli_RATE, seed, randombytes_SEEDBYTES);
-    gimli_core_u8(state, 0);
-
-    mem_zero(state, gimli_RATE);
-    STORE64_LE(state, (uint64_t) out_len);
-
+    STORE64_LE(state + sizeof prefix, (uint64_t) out_len);        
+    gimli_core_u8(state, 1);
+    COMPILER_ASSERT(randombytes_SEEDBYTES == gimli_RATE * 2);
+    mem_xor(state, seed, gimli_RATE);
+    gimli_core_u8(state, 2);
+    mem_xor(state, seed + gimli_RATE, gimli_RATE);
+    gimli_core_u8(state, 2);
     for (i = 0; i < out_len / gimli_RATE; i++) {
         gimli_core_u8(state, 0);
         memcpy(p + i * gimli_RATE, state, gimli_RATE);

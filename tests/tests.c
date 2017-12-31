@@ -94,20 +94,20 @@ test_hash(void)
     hydro_hash_final(&st, h, sizeof h);
     hydro_bin2hex(hex, sizeof hex, h, sizeof h);
     assert_streq(
-        "a7ecc9dc7d071d53707bb6de6c1c4a5570de0e05e134d549c09f99cfcdb2e7219883fa6267684e069205b35d75"
-        "7bc8d85d3f6b476587cc4e61949fad90a8f764a91cb65257d817a88cf810a87700c00d00434c3a00957eca08da"
-        "eeb0c3171a6d3a8fd943",
+        "e5d2beb77a039965850ee76327e06b2fa6cb5121db8038b11bce4641a9c4bd843658104bdf07342570bb5fd1d7"
+        "2c0d31a8981b47c718fddaffbd4171605c873cbaf921bb57988dd814f3a3fbef9799ff7c762705c4bf37ab2981"
+        "5981bf0d8833d60afe14",
         hex);
     hydro_hash_hash(h, sizeof h, msg, sizeof msg, ctx, key, sizeof key);
     hydro_bin2hex(hex, sizeof hex, h, sizeof h);
     assert_streq(
-        "64f2110af6cee905fbcd4fcd6a206a2867cffb994793acc1f59771ac924bfb74c2f4a92adb23cc5774654406cd"
-        "4c9259e6cc6940df78fc1ae7729c529936cace00383bd160c230b1657972bdafd5eccba3760a5de1007d4d22e1"
-        "acd4cad1d90378b33901",
+        "724bd8883df73320ffd70923cb997f9a99bc670c4d78887be4975add0099fbf489b266a85d1f56743062d60a05"
+        "590cbce47e45108367879bf4641cbaefe584e8618cbeb8c230ae956da22c7c5c4f11a8804ca576ec20fa5da239"
+        "dde3d03a6018383c21f5",
         hex);
     hydro_hash_hash(h, hydro_hash_BYTES, msg, sizeof msg, ctx, key, sizeof key);
     hydro_bin2hex(hex, sizeof hex, h, hydro_hash_BYTES);
-    assert_streq("01b7c6fa3991b1050bf9a378a09bd59b86f8c9d347dff3ed698cc4760e02a672", hex);
+    assert_streq("7dfa45ce18210e2422fd658bf7beccb6e534e44f99ae359f4af3ba41af8ca463", hex);
 }
 
 static void
@@ -210,12 +210,12 @@ test_kdf(void)
     hydro_bin2hex(subkey2_hex, sizeof subkey2_hex, subkey2, sizeof subkey2);
     hydro_bin2hex(subkey3_hex, sizeof subkey3_hex, subkey3, sizeof subkey3);
     hydro_bin2hex(subkey4_hex, sizeof subkey4_hex, subkey4, sizeof subkey4);
-    assert_streq("568840104e51cb09086e15423decc0c2", subkey1_hex);
-    assert_streq("48acf73104fc610bd83545bb41ffcacf", subkey2_hex);
-    assert_streq("4f469708a2eac52892ff241a81650c09e3d2db126029d7d544ce34fb771ef3a1", subkey3_hex);
+    assert_streq("af8019d3516d4ba6c80a7ea5a87e4d77", subkey1_hex);
+    assert_streq("af8c4cba4e1f36c293631cc7001717dd", subkey2_hex);
+    assert_streq("ff9345489dea1e4fe59194cea8794c9b0af9380c2d18c3ab38eeef2af95c1e26", subkey3_hex);
     assert_streq(
-        "cf58c396525ab2a515ae2ee0f8546a3f960e78b64fe44063e1f5e717bf4e82f7b58d69360a4b51316c82760c85"
-        "e840f79d52",
+        "a8dd79ca19d604d1487b82d76b8d4ad4138a29dfaeeb207b99b2e5904e7855555bb94a76070fa71871df6ed911"
+        "661d99efec",
         subkey4_hex);
 }
 
@@ -324,8 +324,8 @@ test_pwhash(void)
     hydro_bin2hex(h_hex, sizeof h_hex, h, sizeof h);
     if (ops == 1000) {
         assert_streq(
-            "fb26cb59c27dc48efab0a11cdd67872f9798de5029e05843ae28489324545631996ed52fa1f63ddf2c141c"
-            "1d5b5c14aa8df48ae84edf28c8579a382b35950965",
+            "2f1a804a02f25066fd0688bf8b8e03dff3a3866958a9cf5883c459e602e232d38e3e488723f0b4a2bc61d2"
+            "0cb36a04a4d2eb18be99bc61870d72d7de5d67f237",
             h_hex);
     }
 
