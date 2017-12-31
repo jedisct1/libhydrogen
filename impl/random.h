@@ -260,7 +260,7 @@ randombytes_buf(void *out, size_t out_len)
 void
 randombytes_buf_deterministic(void *out, size_t out_len, const uint8_t seed[randombytes_SEEDBYTES])
 {
-    static const uint8_t     prefix[8] = { 7, 'd', 'r', 'b', 'g', '2', '5', '6' };
+    static const uint8_t     prefix[] = { 7, 'd', 'r', 'b', 'g', '2', '5', '6' };
     CRYPTO_ALIGN(16) uint8_t state[gimli_BLOCKBYTES];
     uint8_t *                p = (uint8_t *) out;
     size_t                   i;
