@@ -12,12 +12,15 @@ static int hydro_random_init(void);
 #define gimli_TAG_KEY0    0xfe
 #define gimli_TAG_KEY     0xff
 
+#define gimli_DOMAIN_AEAD 0x0
+#define gimli_DOMAIN_XOF  0xf
+
 static void gimli_core_u8(uint8_t state_u8[gimli_BLOCKBYTES], uint8_t tag);
 
 static inline void
-gimli_pad_u8(uint8_t buf[gimli_BLOCKBYTES], size_t pos)
+gimli_pad_u8(uint8_t buf[gimli_BLOCKBYTES], size_t pos, uint8_t domain)
 {
-    buf[pos] ^= 0x1f;
+    buf[pos] ^= (domain << 1) | 1;
     buf[gimli_RATE - 1] ^= 0x80;
 }
 

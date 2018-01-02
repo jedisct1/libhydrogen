@@ -80,9 +80,9 @@ hydro_kx_aead_xor_enc(uint8_t buf[gimli_BLOCKBYTES], uint8_t *out, const uint8_t
     if (leftover != 0) {
         mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, leftover);
         mem_cpy(buf, &out[i * gimli_RATE], leftover);
-        gimli_pad_u8(buf, leftover);
-        gimli_core_u8(buf, gimli_TAG_PAYLOAD);
     }
+    gimli_pad_u8(buf, leftover, gimli_DOMAIN_AEAD);
+    gimli_core_u8(buf, gimli_TAG_PAYLOAD);
 }
 
 static void
@@ -100,9 +100,9 @@ hydro_kx_aead_xor_dec(uint8_t buf[gimli_BLOCKBYTES], uint8_t *out, const uint8_t
     if (leftover != 0) {
         mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, leftover);
         mem_cpy(buf, &in[i * gimli_RATE], leftover);
-        gimli_pad_u8(buf, leftover);
-        gimli_core_u8(buf, gimli_TAG_PAYLOAD);
     }
+    gimli_pad_u8(buf, leftover, gimli_DOMAIN_AEAD);
+    gimli_core_u8(buf, gimli_TAG_PAYLOAD);
 }
 
 static void

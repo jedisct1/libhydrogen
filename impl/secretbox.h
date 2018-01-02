@@ -24,9 +24,9 @@ hydro_secretbox_xor_enc(uint8_t buf[gimli_BLOCKBYTES], uint8_t *out, const uint8
     if (leftover != 0) {
         mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, leftover);
         mem_cpy(buf, &out[i * gimli_RATE], leftover);
-        gimli_pad_u8(buf, leftover);
-        gimli_core_u8(buf, gimli_TAG_PAYLOAD);
     }
+    gimli_pad_u8(buf, leftover, gimli_DOMAIN_AEAD);
+    gimli_core_u8(buf, gimli_TAG_PAYLOAD);
 }
 
 static void
@@ -45,9 +45,9 @@ hydro_secretbox_xor_dec(uint8_t buf[gimli_BLOCKBYTES], uint8_t *out, const uint8
     if (leftover != 0) {
         mem_xor2(&out[i * gimli_RATE], &in[i * gimli_RATE], buf, leftover);
         mem_cpy(buf, &in[i * gimli_RATE], leftover);
-        gimli_pad_u8(buf, leftover);
-        gimli_core_u8(buf, gimli_TAG_PAYLOAD);
     }
+    gimli_pad_u8(buf, leftover, gimli_DOMAIN_AEAD);
+    gimli_core_u8(buf, gimli_TAG_PAYLOAD);
 }
 
 static void
@@ -124,9 +124,9 @@ hydro_secretbox_encrypt_iv(uint8_t *c, const void *m_, size_t mlen, uint64_t msg
     leftover = mlen % gimli_RATE;
     if (leftover != 0) {
         mem_xor(buf, &m[i * gimli_RATE], leftover);
-        gimli_pad_u8(buf, leftover);
-        gimli_core_u8(buf, gimli_TAG_PAYLOAD);
     }
+    gimli_pad_u8(buf, leftover, gimli_DOMAIN_XOF);
+    gimli_core_u8(buf, gimli_TAG_PAYLOAD);
 
     hydro_secretbox_finalize(buf, key, gimli_TAG_FINAL0);
     COMPILER_ASSERT(hydro_secretbox_SIVBYTES <= gimli_BLOCKBYTES - gimli_RATE);

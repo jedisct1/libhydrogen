@@ -102,7 +102,7 @@ hydro_hash_final(hydro_hash_state *state, uint8_t *out, size_t out_len)
     lc_len = (size_t)(1 + (lc[2] != 0));
     lc[0]  = (uint8_t) lc_len;
     hydro_hash_update(state, lc, 1 + lc_len + 1);
-    gimli_pad_u8(buf, state->buf_off);
+    gimli_pad_u8(buf, state->buf_off, gimli_DOMAIN_XOF);
     for (i = 0; i < out_len / gimli_RATE; i++) {
         gimli_core_u8(buf, 0);
         memcpy(out + i * gimli_RATE, buf, gimli_RATE);
