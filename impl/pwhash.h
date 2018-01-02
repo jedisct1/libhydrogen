@@ -55,7 +55,7 @@ _hydro_pwhash_hash(uint8_t out[randombytes_SEEDBYTES], size_t h_len,
     }
     mem_zero(state, gimli_RATE);
 
-    COMPILER_ASSERT(randombytes_SEEDBYTES == gimli_BLOCKBYTES - gimli_RATE);
+    COMPILER_ASSERT(randombytes_SEEDBYTES == gimli_CAPACITY);
     memcpy(out, state + gimli_RATE, randombytes_SEEDBYTES);
     hydro_memzero(state, sizeof state);
 
@@ -262,7 +262,7 @@ hydro_pwhash_upgrade(uint8_t       stored[hydro_pwhash_STOREDBYTES],
         mem_zero(stored, hydro_pwhash_STOREDBYTES);
         return -1;
     }
-    COMPILER_ASSERT(randombytes_SEEDBYTES == gimli_BLOCKBYTES - gimli_RATE);
+    COMPILER_ASSERT(randombytes_SEEDBYTES == gimli_CAPACITY);
     memcpy(state + gimli_RATE, h, randombytes_SEEDBYTES);
     for (i = opslimit_prev; i < opslimit; i++) {
         mem_zero(state, gimli_RATE);

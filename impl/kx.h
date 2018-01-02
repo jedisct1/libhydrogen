@@ -58,7 +58,7 @@ hydro_kx_aead_setup(uint8_t buf[gimli_BLOCKBYTES], const hydro_kx_state *state,
 static void
 hydro_kx_finalize(uint8_t *buf, const uint8_t key[hydro_kx_AEAD_KEYBYTES])
 {
-    COMPILER_ASSERT(hydro_kx_AEAD_KEYBYTES == gimli_BLOCKBYTES - gimli_RATE);
+    COMPILER_ASSERT(hydro_kx_AEAD_KEYBYTES == gimli_CAPACITY);
     mem_xor(buf + gimli_RATE, key, hydro_kx_AEAD_KEYBYTES);
     gimli_core_u8(buf, gimli_TAG_FINAL);
     mem_xor(buf + gimli_RATE, key, hydro_kx_AEAD_KEYBYTES);
@@ -117,7 +117,7 @@ hydro_kx_encrypt(const hydro_kx_state *state, uint8_t *c, const uint8_t *m, size
     hydro_kx_aead_xor_enc(buf, ct, m, mlen);
 
     hydro_kx_finalize(buf, state->k);
-    COMPILER_ASSERT(hydro_kx_AEAD_MACBYTES <= gimli_BLOCKBYTES - gimli_RATE);
+    COMPILER_ASSERT(hydro_kx_AEAD_MACBYTES <= gimli_CAPACITY);
     memcpy(mac, buf + gimli_RATE, hydro_kx_AEAD_MACBYTES);
 }
 
@@ -148,7 +148,7 @@ hydro_kx_decrypt(hydro_kx_state *state, uint8_t *m, const uint8_t *c, size_t cle
     hydro_kx_aead_xor_dec(buf, m, ct, mlen);
 
     hydro_kx_finalize(buf, state->k);
-    COMPILER_ASSERT(hydro_kx_AEAD_MACBYTES <= gimli_BLOCKBYTES - gimli_RATE);
+    COMPILER_ASSERT(hydro_kx_AEAD_MACBYTES <= gimli_CAPACITY);
     COMPILER_ASSERT(gimli_RATE % 4 == 0);
     cv = hydro_mem_ct_cmp_u32(int_state + gimli_RATE / 4, pub_mac, hydro_kx_AEAD_MACBYTES / 4);
     hydro_mem_ct_zero_u32(int_state, gimli_BLOCKBYTES / 4);

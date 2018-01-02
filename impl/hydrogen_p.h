@@ -3,6 +3,7 @@ static int hydro_random_init(void);
 /* ---------------- */
 
 #define gimli_BLOCKBYTES  48
+#define gimli_CAPACITY    32
 #define gimli_RATE        16
 
 #define gimli_TAG_HEADER  0x01
