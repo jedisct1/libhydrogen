@@ -26,7 +26,7 @@ int hydro_init(void);
 
 /* ---------------- */
 
-#define randombytes_SEEDBYTES 32
+#define randombytes_SEEDBYTES ((size_t) 32)
 
 uint32_t randombytes_random(void);
 
@@ -43,13 +43,13 @@ void randombytes_reseed(void);
 
 /* ---------------- */
 
-#define hydro_hash_BYTES 32
-#define hydro_hash_BYTES_MAX 65535
-#define hydro_hash_BYTES_MIN 16
-#define hydro_hash_CONTEXTBYTES 8
-#define hydro_hash_KEYBYTES 32
-#define hydro_hash_KEYBYTES_MAX 32
-#define hydro_hash_KEYBYTES_MIN 16
+#define hydro_hash_BYTES ((size_t) 32)
+#define hydro_hash_BYTES_MAX ((size_t) 65535)
+#define hydro_hash_BYTES_MIN ((size_t) 16)
+#define hydro_hash_CONTEXTBYTES ((size_t) 8)
+#define hydro_hash_KEYBYTES ((size_t) 32)
+#define hydro_hash_KEYBYTES_MAX ((size_t) 32)
+#define hydro_hash_KEYBYTES_MIN ((size_t) 16)
 
 typedef struct hydro_hash_state {
     uint32_t state[12];
@@ -71,10 +71,10 @@ int hydro_hash_hash(uint8_t *out, size_t out_len, const void *in_, size_t in_len
 
 /* ---------------- */
 
-#define hydro_secretbox_CONTEXTBYTES 8
-#define hydro_secretbox_HEADERBYTES (20 + 16)
-#define hydro_secretbox_KEYBYTES 32
-#define hydro_secretbox_PROBEBYTES 16
+#define hydro_secretbox_CONTEXTBYTES ((size_t) 8)
+#define hydro_secretbox_HEADERBYTES ((size_t)(20 + 16))
+#define hydro_secretbox_KEYBYTES ((size_t) 32)
+#define hydro_secretbox_PROBEBYTES ((size_t) 16)
 
 void hydro_secretbox_keygen(uint8_t key[hydro_secretbox_KEYBYTES]);
 
@@ -98,10 +98,10 @@ int hydro_secretbox_probe_verify(const uint8_t probe[hydro_secretbox_PROBEBYTES]
 
 /* ---------------- */
 
-#define hydro_kdf_CONTEXTBYTES 8
-#define hydro_kdf_KEYBYTES 32
-#define hydro_kdf_BYTES_MAX 65535
-#define hydro_kdf_BYTES_MIN 16
+#define hydro_kdf_CONTEXTBYTES ((size_t) 8)
+#define hydro_kdf_KEYBYTES ((size_t) 32)
+#define hydro_kdf_BYTES_MAX ((size_t) 65535)
+#define hydro_kdf_BYTES_MIN ((size_t) 16)
 
 void hydro_kdf_keygen(uint8_t key[hydro_kdf_KEYBYTES]);
 
@@ -111,11 +111,11 @@ int hydro_kdf_derive_from_key(uint8_t *subkey, size_t subkey_len, uint64_t subke
 
 /* ---------------- */
 
-#define hydro_sign_BYTES 64
-#define hydro_sign_CONTEXTBYTES 8
-#define hydro_sign_PUBLICKEYBYTES 32
-#define hydro_sign_SECRETKEYBYTES 64
-#define hydro_sign_SEEDBYTES 32
+#define hydro_sign_BYTES ((size_t) 64)
+#define hydro_sign_CONTEXTBYTES ((size_t) 8)
+#define hydro_sign_PUBLICKEYBYTES ((size_t) 32)
+#define hydro_sign_SECRETKEYBYTES ((size_t) 64)
+#define hydro_sign_SEEDBYTES ((size_t) 32)
 
 typedef struct hydro_sign_state {
     hydro_hash_state hash_st;
@@ -153,15 +153,15 @@ int hydro_sign_verify(const uint8_t csig[hydro_sign_BYTES], const void *m_, size
 
 /* ---------------- */
 
-#define hydro_kx_SESSIONKEYBYTES 32
-#define hydro_kx_PUBLICKEYBYTES 32
-#define hydro_kx_SECRETKEYBYTES 32
-#define hydro_kx_PSKBYTES 32
-#define hydro_kx_SEEDBYTES 32
+#define hydro_kx_SESSIONKEYBYTES ((size_t) 32)
+#define hydro_kx_PUBLICKEYBYTES ((size_t) 32)
+#define hydro_kx_SECRETKEYBYTES ((size_t) 32)
+#define hydro_kx_PSKBYTES ((size_t) 32)
+#define hydro_kx_SEEDBYTES ((size_t) 32)
 
-#define hydro_kx_RESPONSE1BYTES 32
-#define hydro_kx_RESPONSE2BYTES 80
-#define hydro_kx_RESPONSE3BYTES 48
+#define hydro_kx_RESPONSE1BYTES ((size_t) 32)
+#define hydro_kx_RESPONSE2BYTES ((size_t) 80)
+#define hydro_kx_RESPONSE3BYTES ((size_t) 48)
 
 typedef struct hydro_kx_keypair {
     uint8_t pk[hydro_kx_PUBLICKEYBYTES];
@@ -205,9 +205,9 @@ int hydro_kx_xx_4(hydro_kx_state *state, hydro_kx_session_keypair *kp,
 
 /* ---------------- */
 
-#define hydro_pwhash_CONTEXTBYTES 8
-#define hydro_pwhash_MASTERKEYBYTES 32
-#define hydro_pwhash_STOREDBYTES 128
+#define hydro_pwhash_CONTEXTBYTES ((size_t) 8)
+#define hydro_pwhash_MASTERKEYBYTES ((size_t) 32)
+#define hydro_pwhash_STOREDBYTES ((size_t) 128)
 
 void hydro_pwhash_keygen(uint8_t master_key[hydro_pwhash_MASTERKEYBYTES]);
 
