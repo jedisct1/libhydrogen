@@ -144,6 +144,9 @@ test_core(void)
     assert(hydro_hex2bin(y, sizeof y, hex, sizeof hex, NULL, NULL, NULL) == -1);
     assert(hydro_hex2bin(y, sizeof y, hex, sizeof hex - 1, NULL, NULL, NULL) == 0);
     assert(hydro_equal(x, y, sizeof x));
+    assert(hydro_hex2bin(x, sizeof x, "452a", 4, NULL, NULL, NULL) == 0);
+    assert(hydro_hex2bin(y, sizeof y, "#452a#", 6, "#", NULL, NULL) == 0);
+    assert(hydro_equal(x, y, sizeof x));
 }
 
 static void
