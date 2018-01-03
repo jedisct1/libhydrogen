@@ -25,7 +25,8 @@ _hydro_pwhash_hash(uint8_t out[randombytes_SEEDBYTES], size_t h_len,
     uint64_t                 i;
     uint8_t                  tmp8;
 
-    hydro_hash_init(&h_st, ctx, master_key, hydro_pwhash_MASTERKEYBYTES);
+    COMPILER_ASSERT(hydro_pwhash_MASTERKEYBYTES >= hydro_hash_KEYBYTES);
+    hydro_hash_init(&h_st, ctx, master_key);
 
     STORE64_LE(tmp64_u8, (uint64_t) passwd_len);
     hydro_hash_update(&h_st, tmp64_u8, sizeof tmp64_u8);

@@ -5,8 +5,9 @@ hydro_kdf_derive_from_key(uint8_t *subkey, size_t subkey_len, uint64_t subkey_id
 {
     hydro_hash_state st;
 
-    COMPILER_ASSERT(hydro_kdf_CONTEXTBYTES == hydro_hash_CONTEXTBYTES);
-    if (hydro_hash_init_with_tweak(&st, ctx, subkey_id, key, hydro_kdf_KEYBYTES) != 0) {
+    COMPILER_ASSERT(hydro_kdf_CONTEXTBYTES >= hydro_hash_CONTEXTBYTES);
+    COMPILER_ASSERT(hydro_kdf_KEYBYTES >= hydro_hash_KEYBYTES);
+    if (hydro_hash_init_with_tweak(&st, ctx, subkey_id, key) != 0) {
         return -1;
     }
     return hydro_hash_final(&st, subkey, subkey_len);

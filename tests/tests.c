@@ -77,7 +77,7 @@ test_hash(void)
     hydro_hash_state st;
     uint8_t          dk[randombytes_SEEDBYTES];
     uint8_t          h[100];
-    uint8_t          key[hydro_hash_KEYBYTES_MAX];
+    uint8_t          key[hydro_hash_KEYBYTES];
     uint8_t          msg[1000];
     char             hex[100 * 2 + 1];
     size_t           i;
@@ -85,7 +85,7 @@ test_hash(void)
     memset(dk, 0, sizeof dk);
     randombytes_buf_deterministic(key, sizeof key, dk);
     hydro_increment(dk, sizeof dk);
-    hydro_hash_init(&st, ctx, key, sizeof key);
+    hydro_hash_init(&st, ctx, key);
     for (i = 0; i <= sizeof msg; i++) {
         randombytes_buf_deterministic(msg, i, dk);
         hydro_increment(dk, sizeof dk);
@@ -98,14 +98,14 @@ test_hash(void)
         "2c0d31a8981b47c718fddaffbd4171605c873cbaf921bb57988dd814f3a3fbef9799ff7c762705c4bf37ab2981"
         "5981bf0d8833d60afe14",
         hex);
-    hydro_hash_hash(h, sizeof h, msg, sizeof msg, ctx, key, sizeof key);
+    hydro_hash_hash(h, sizeof h, msg, sizeof msg, ctx, key);
     hydro_bin2hex(hex, sizeof hex, h, sizeof h);
     assert_streq(
         "724bd8883df73320ffd70923cb997f9a99bc670c4d78887be4975add0099fbf489b266a85d1f56743062d60a05"
         "590cbce47e45108367879bf4641cbaefe584e8618cbeb8c230ae956da22c7c5c4f11a8804ca576ec20fa5da239"
         "dde3d03a6018383c21f5",
         hex);
-    hydro_hash_hash(h, hydro_hash_BYTES, msg, sizeof msg, ctx, key, sizeof key);
+    hydro_hash_hash(h, hydro_hash_BYTES, msg, sizeof msg, ctx, key);
     hydro_bin2hex(hex, sizeof hex, h, hydro_hash_BYTES);
     assert_streq("7dfa45ce18210e2422fd658bf7beccb6e534e44f99ae359f4af3ba41af8ca463", hex);
 }

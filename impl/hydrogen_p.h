@@ -56,7 +56,7 @@ hydro_mem_ct_cmp_u32(const uint32_t *b1_, const uint32_t *b2, size_t n)
 
 static int hydro_hash_init_with_tweak(hydro_hash_state *state,
                                       const char ctx[hydro_hash_CONTEXTBYTES], uint64_t tweak,
-                                      const uint8_t *key, size_t key_len);
+                                      const uint8_t key[hydro_hash_KEYBYTES]);
 
 /* ---------------- */
 

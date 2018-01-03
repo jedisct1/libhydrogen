@@ -48,8 +48,6 @@ void randombytes_reseed(void);
 #define hydro_hash_BYTES_MIN 16
 #define hydro_hash_CONTEXTBYTES 8
 #define hydro_hash_KEYBYTES 32
-#define hydro_hash_KEYBYTES_MAX 32
-#define hydro_hash_KEYBYTES_MIN 16
 
 typedef struct hydro_hash_state {
     uint32_t state[12];
@@ -57,17 +55,18 @@ typedef struct hydro_hash_state {
     uint8_t  align[3];
 } hydro_hash_state;
 
-void hydro_hash_keygen(uint8_t *key, size_t key_len);
+void hydro_hash_keygen(uint8_t key[hydro_hash_KEYBYTES]);
 
 int hydro_hash_init(hydro_hash_state *state, const char ctx[hydro_hash_CONTEXTBYTES],
-                    const uint8_t *key, size_t key_len);
+                    const uint8_t key[hydro_hash_KEYBYTES]);
 
 int hydro_hash_update(hydro_hash_state *state, const void *in_, size_t in_len);
 
 int hydro_hash_final(hydro_hash_state *state, uint8_t *out, size_t out_len);
 
 int hydro_hash_hash(uint8_t *out, size_t out_len, const void *in_, size_t in_len,
-                    const char ctx[hydro_hash_CONTEXTBYTES], const uint8_t *key, size_t key_len);
+                    const char    ctx[hydro_hash_CONTEXTBYTES],
+                    const uint8_t key[hydro_hash_KEYBYTES]);
 
 /* ---------------- */
 

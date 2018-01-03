@@ -157,11 +157,9 @@ hydro_secretbox_probe_create(uint8_t probe[hydro_secretbox_PROBEBYTES], const ui
         abort();
     }
     mac = &c[hydro_secretbox_SIVBYTES];
-    COMPILER_ASSERT(hydro_secretbox_CONTEXTBYTES == hydro_hash_CONTEXTBYTES);
-    COMPILER_ASSERT(hydro_secretbox_KEYBYTES >= hydro_hash_KEYBYTES_MIN &&
-                    hydro_secretbox_KEYBYTES <= hydro_hash_KEYBYTES_MAX);
-    hydro_hash_hash(probe, hydro_secretbox_PROBEBYTES, mac, hydro_secretbox_MACBYTES, ctx, key,
-                    hydro_secretbox_KEYBYTES);
+    COMPILER_ASSERT(hydro_secretbox_CONTEXTBYTES >= hydro_hash_CONTEXTBYTES);
+    COMPILER_ASSERT(hydro_secretbox_KEYBYTES >= hydro_hash_KEYBYTES);
+    hydro_hash_hash(probe, hydro_secretbox_PROBEBYTES, mac, hydro_secretbox_MACBYTES, ctx, key);
 }
 
 int
@@ -177,7 +175,7 @@ hydro_secretbox_probe_verify(const uint8_t probe[hydro_secretbox_PROBEBYTES], co
     }
     mac = &c[hydro_secretbox_SIVBYTES];
     hydro_hash_hash(computed_probe, hydro_secretbox_PROBEBYTES, mac, hydro_secretbox_MACBYTES, ctx,
-                    key, hydro_secretbox_KEYBYTES);
+                    key);
     if (hydro_equal(computed_probe, probe, hydro_secretbox_PROBEBYTES) == 1) {
         return 0;
     }
