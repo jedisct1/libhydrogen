@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <sys/types.h>
 
 #ifdef __cplusplus
 # ifdef __GNUC__
@@ -251,12 +250,12 @@ int hydro_compare(const uint8_t *b1_, const uint8_t *b2_, size_t len);
 
 char *hydro_bin2hex(char *hex, size_t hex_maxlen, const uint8_t *bin, size_t bin_len);
 
-ssize_t hydro_hex2bin(uint8_t *bin, size_t bin_maxlen, const char *hex, size_t hex_len,
-                      const char *ignore, const char **hex_end_p);
+int hydro_hex2bin(uint8_t *bin, size_t bin_maxlen, const char *hex, size_t hex_len,
+                  const char *ignore, const char **hex_end_p);
 
-ssize_t hydro_pad(unsigned char *buf, size_t unpadded_buflen, size_t blocksize, size_t max_buflen);
+int hydro_pad(unsigned char *buf, size_t unpadded_buflen, size_t blocksize, size_t max_buflen);
 
-ssize_t hydro_unpad(const unsigned char *buf, size_t padded_buflen, size_t blocksize);
+int hydro_unpad(const unsigned char *buf, size_t padded_buflen, size_t blocksize);
 
 /* ---------------- */
 

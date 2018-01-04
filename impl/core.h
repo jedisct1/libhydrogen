@@ -57,7 +57,7 @@ hydro_bin2hex(char *hex, size_t hex_maxlen, const uint8_t *bin, size_t bin_len)
     return hex;
 }
 
-ssize_t
+int
 hydro_hex2bin(uint8_t *bin, size_t bin_maxlen, const char *hex, size_t hex_len, const char *ignore,
               const char **hex_end_p)
 {
@@ -115,7 +115,7 @@ hydro_hex2bin(uint8_t *bin, size_t bin_maxlen, const char *hex, size_t hex_len, 
     if (ret != 0) {
         return ret;
     }
-    return (ssize_t) bin_pos;
+    return (int) bin_pos;
 }
 
 bool
@@ -153,7 +153,7 @@ hydro_compare(const uint8_t *b1_, const uint8_t *b2_, size_t len)
     return (int) (gt + gt + eq) - 1;
 }
 
-ssize_t
+int
 hydro_pad(unsigned char *buf, size_t unpadded_buflen, size_t blocksize, size_t max_buflen)
 {
     unsigned char *        tail;
@@ -163,7 +163,7 @@ hydro_pad(unsigned char *buf, size_t unpadded_buflen, size_t blocksize, size_t m
     volatile unsigned char mask;
     unsigned char          barrier_mask;
 
-    if (blocksize <= 0U) {
+    if (blocksize <= 0U || max_buflen > INT_MAX) {
         return -1;
     }
     xpadlen = blocksize - 1U;
@@ -172,8 +172,8 @@ hydro_pad(unsigned char *buf, size_t unpadded_buflen, size_t blocksize, size_t m
     } else {
         xpadlen -= unpadded_buflen % blocksize;
     }
-    if (SSIZE_MAX - unpadded_buflen <= xpadlen) {
-        abort();
+    if (SIZE_MAX - unpadded_buflen <= xpadlen) {
+        return -1;
     }
     xpadded_len = unpadded_buflen + xpadlen;
     if (xpadded_len >= max_buflen) {
@@ -186,10 +186,10 @@ hydro_pad(unsigned char *buf, size_t unpadded_buflen, size_t blocksize, size_t m
         tail[-i]     = (tail[-i] & mask) | (0x80 & barrier_mask);
         mask |= barrier_mask;
     }
-    return (ssize_t)(xpadded_len + 1);
+    return (int)(xpadded_len + 1);
 }
 
-ssize_t
+int
 hydro_unpad(const unsigned char *buf, size_t padded_buflen, size_t blocksize)
 {
     const unsigned char *tail;
@@ -215,5 +215,5 @@ hydro_unpad(const unsigned char *buf, size_t padded_buflen, size_t blocksize)
     if (valid == 0) {
         return -1;
     }
-    return (ssize_t)(padded_buflen - 1 - pad_len);
+    return (int)(padded_buflen - 1 - pad_len);
 }
