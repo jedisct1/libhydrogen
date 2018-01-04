@@ -35,7 +35,7 @@ hydro_random_init(void)
     WDTCSR = _BV(WDIE);
     sei();
 
-    hydro_hash_init(&st, ctx, NULL, 0);
+    hydro_hash_init(&st, ctx, NULL);
 
     while (ebits < 256) {
         delay(1);
