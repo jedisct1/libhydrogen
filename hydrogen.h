@@ -28,7 +28,7 @@ int hydro_init(void);
 
 #define hydro_random_SEEDBYTES 32
 
-uint32_t hydro_random_random(void);
+uint32_t hydro_random_u32(void);
 
 uint32_t hydro_random_uniform(const uint32_t upper_bound);
 

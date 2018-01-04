@@ -28,7 +28,7 @@ test_randombytes(void)
     size_t        i, j;
 
     for (i = 0; i < 10000; i++) {
-        x = hydro_random_random();
+        x = hydro_random_u32();
         for (j = 0; j < sizeof x; j++) {
             b += (x >> j) & 1;
         }
