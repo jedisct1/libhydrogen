@@ -281,29 +281,29 @@ test_kx(void)
     uint8_t                  psk[hydro_kx_PSKBYTES];
     uint8_t                  client_peer_pk[hydro_kx_PUBLICKEYBYTES];
     uint8_t                  server_peer_pk[hydro_kx_PUBLICKEYBYTES];
-    uint8_t                  response1[hydro_kx_RESPONSE1BYTES];
-    uint8_t                  response2[hydro_kx_RESPONSE2BYTES];
-    uint8_t                  response3[hydro_kx_RESPONSE3BYTES];
+    uint8_t                  packet1[hydro_kx_XX_PACKET1BYTES];
+    uint8_t                  packet2[hydro_kx_XX_PACKET2BYTES];
+    uint8_t                  packet3[hydro_kx_XX_PACKET3BYTES];
     hydro_kx_session_keypair kp_client;
     hydro_kx_session_keypair kp_server;
 
     hydro_kx_keygen(&client_static_kp);
     hydro_kx_keygen(&server_static_kp);
 
-    hydro_kx_xx_1(&st_client, response1, NULL);
-    hydro_kx_xx_2(&st_server, response2, response1, NULL, &server_static_kp);
-    hydro_kx_xx_3(&st_client, &kp_client, response3, NULL, response2, NULL, &client_static_kp);
-    hydro_kx_xx_4(&st_server, &kp_server, NULL, response3, NULL);
+    hydro_kx_xx_1(&st_client, packet1, NULL);
+    hydro_kx_xx_2(&st_server, packet2, packet1, NULL, &server_static_kp);
+    hydro_kx_xx_3(&st_client, &kp_client, packet3, NULL, packet2, NULL, &client_static_kp);
+    hydro_kx_xx_4(&st_server, &kp_server, NULL, packet3, NULL);
 
     assert(hydro_equal(kp_client.tx, kp_server.rx, hydro_kx_SESSIONKEYBYTES));
     assert(hydro_equal(kp_client.rx, kp_server.tx, hydro_kx_SESSIONKEYBYTES));
 
     randombytes_buf(psk, sizeof psk);
-    hydro_kx_xx_1(&st_client, response1, psk);
-    hydro_kx_xx_2(&st_server, response2, response1, psk, &server_static_kp);
-    hydro_kx_xx_3(&st_client, &kp_client, response3, client_peer_pk, response2, psk,
+    hydro_kx_xx_1(&st_client, packet1, psk);
+    hydro_kx_xx_2(&st_server, packet2, packet1, psk, &server_static_kp);
+    hydro_kx_xx_3(&st_client, &kp_client, packet3, client_peer_pk, packet2, psk,
                   &client_static_kp);
-    hydro_kx_xx_4(&st_server, &kp_server, server_peer_pk, response3, psk);
+    hydro_kx_xx_4(&st_server, &kp_server, server_peer_pk, packet3, psk);
 
     assert(hydro_equal(kp_client.tx, kp_server.rx, hydro_kx_SESSIONKEYBYTES));
     assert(hydro_equal(kp_client.rx, kp_server.tx, hydro_kx_SESSIONKEYBYTES));

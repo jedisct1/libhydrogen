@@ -158,9 +158,9 @@ int hydro_sign_verify(const uint8_t csig[hydro_sign_BYTES], const void *m_, size
 #define hydro_kx_PSKBYTES 32
 #define hydro_kx_SEEDBYTES 32
 
-#define hydro_kx_RESPONSE1BYTES 32
-#define hydro_kx_RESPONSE2BYTES 80
-#define hydro_kx_RESPONSE3BYTES 48
+#define hydro_kx_XX_PACKET1BYTES 32
+#define hydro_kx_XX_PACKET2BYTES 80
+#define hydro_kx_XX_PACKET3BYTES 48
 
 typedef struct hydro_kx_keypair {
     uint8_t pk[hydro_kx_PUBLICKEYBYTES];
@@ -184,22 +184,22 @@ void hydro_kx_keygen(hydro_kx_keypair *static_kp);
 void hydro_kx_keygen_deterministic(hydro_kx_keypair *static_kp,
                                    const uint8_t     seed[hydro_kx_SEEDBYTES]);
 
-int hydro_kx_xx_1(hydro_kx_state *state, uint8_t response1[hydro_kx_RESPONSE1BYTES],
+int hydro_kx_xx_1(hydro_kx_state *state, uint8_t packet1[hydro_kx_XX_PACKET1BYTES],
                   const uint8_t psk[hydro_kx_PSKBYTES]);
 
-int hydro_kx_xx_2(hydro_kx_state *state, uint8_t response2[hydro_kx_RESPONSE2BYTES],
-                  const uint8_t response1[hydro_kx_RESPONSE1BYTES],
+int hydro_kx_xx_2(hydro_kx_state *state, uint8_t packet2[hydro_kx_XX_PACKET2BYTES],
+                  const uint8_t packet1[hydro_kx_XX_PACKET1BYTES],
                   const uint8_t psk[hydro_kx_PSKBYTES], const hydro_kx_keypair *static_kp);
 
 int hydro_kx_xx_3(hydro_kx_state *state, hydro_kx_session_keypair *kp,
-                  uint8_t       response3[hydro_kx_RESPONSE3BYTES],
+                  uint8_t       packet3[hydro_kx_XX_PACKET3BYTES],
                   uint8_t       peer_static_pk[hydro_kx_PUBLICKEYBYTES],
-                  const uint8_t response2[hydro_kx_RESPONSE2BYTES],
+                  const uint8_t packet2[hydro_kx_XX_PACKET2BYTES],
                   const uint8_t psk[hydro_kx_PSKBYTES], const hydro_kx_keypair *static_kp);
 
 int hydro_kx_xx_4(hydro_kx_state *state, hydro_kx_session_keypair *kp,
                   uint8_t       peer_static_pk[hydro_kx_PUBLICKEYBYTES],
-                  const uint8_t response3[hydro_kx_RESPONSE3BYTES],
+                  const uint8_t packet3[hydro_kx_XX_PACKET3BYTES],
                   const uint8_t psk[hydro_kx_PSKBYTES]);
 
 /* ---------------- */
