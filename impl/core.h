@@ -57,9 +57,9 @@ hydro_bin2hex(char *hex, size_t hex_maxlen, const uint8_t *bin, size_t bin_len)
     return hex;
 }
 
-int
+ssize_t
 hydro_hex2bin(uint8_t *bin, size_t bin_maxlen, const char *hex, size_t hex_len, const char *ignore,
-              size_t *bin_len, const char **hex_end)
+              const char **hex_end_p)
 {
     size_t        bin_pos = (size_t) 0U;
     size_t        hex_pos = (size_t) 0U;
@@ -106,16 +106,16 @@ hydro_hex2bin(uint8_t *bin, size_t bin_maxlen, const char *hex, size_t hex_len, 
     if (ret != 0) {
         bin_pos = (size_t) 0U;
     }
-    if (hex_end != NULL) {
-        *hex_end = &hex[hex_pos];
+    if (hex_end_p != NULL) {
+        *hex_end_p = &hex[hex_pos];
     } else if (hex_pos != hex_len) {
         errno = EINVAL;
         ret   = -1;
     }
-    if (bin_len != NULL) {
-        *bin_len = bin_pos;
+    if (ret != 0) {
+        return ret;
     }
-    return ret;
+    return (ssize_t) bin_pos;
 }
 
 bool
@@ -153,9 +153,8 @@ hydro_compare(const uint8_t *b1_, const uint8_t *b2_, size_t len)
     return (int) (gt + gt + eq) - 1;
 }
 
-int
-hydro_pad(size_t *padded_buflen_p, unsigned char *buf, size_t unpadded_buflen, size_t blocksize,
-          size_t max_buflen)
+ssize_t
+hydro_pad(unsigned char *buf, size_t unpadded_buflen, size_t blocksize, size_t max_buflen)
 {
     unsigned char *        tail;
     size_t                 i;
@@ -173,27 +172,25 @@ hydro_pad(size_t *padded_buflen_p, unsigned char *buf, size_t unpadded_buflen, s
     } else {
         xpadlen -= unpadded_buflen % blocksize;
     }
-    if ((size_t) SIZE_MAX - unpadded_buflen <= xpadlen) {
+    if (SSIZE_MAX - unpadded_buflen <= xpadlen) {
         abort();
     }
     xpadded_len = unpadded_buflen + xpadlen;
     if (xpadded_len >= max_buflen) {
         return -1;
     }
-    tail             = &buf[xpadded_len];
-    *padded_buflen_p = xpadded_len + 1U;
-    mask             = 0U;
+    tail = &buf[xpadded_len];
+    mask = 0U;
     for (i = 0; i < blocksize; i++) {
         barrier_mask = (unsigned char) (((i ^ xpadlen) - 1U) >> 8);
         tail[-i]     = (tail[-i] & mask) | (0x80 & barrier_mask);
         mask |= barrier_mask;
     }
-    return 0;
+    return (ssize_t)(xpadded_len + 1);
 }
 
-int
-hydro_unpad(size_t *unpadded_buflen_p, const unsigned char *buf, size_t padded_buflen,
-            size_t blocksize)
+ssize_t
+hydro_unpad(const unsigned char *buf, size_t padded_buflen, size_t blocksize)
 {
     const unsigned char *tail;
     unsigned char        acc = 0U;
@@ -215,7 +212,8 @@ hydro_unpad(size_t *unpadded_buflen_p, const unsigned char *buf, size_t padded_b
         pad_len |= (i & -is_barrier);
         valid |= (unsigned char) is_barrier;
     }
-    *unpadded_buflen_p = padded_buflen - 1U - pad_len;
-
-    return (int) (valid - 1U);
+    if (valid == 0) {
+        return -1;
+    }
+    return (ssize_t)(padded_buflen - 1 - pad_len);
 }

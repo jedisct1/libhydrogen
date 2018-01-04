@@ -140,12 +140,12 @@ test_core(void)
     assert(hydro_compare(b, a, sizeof a) == -1);
     randombytes_buf(x, sizeof x);
     assert(hydro_bin2hex(hex, sizeof hex, x, sizeof x) != NULL);
-    assert(hydro_hex2bin(y, 1, hex, sizeof hex, NULL, NULL, NULL) == -1);
-    assert(hydro_hex2bin(y, sizeof y, hex, sizeof hex, NULL, NULL, NULL) == -1);
-    assert(hydro_hex2bin(y, sizeof y, hex, sizeof hex - 1, NULL, NULL, NULL) == 0);
+    assert(hydro_hex2bin(y, 1, hex, sizeof hex, NULL, NULL) == -1);
+    assert(hydro_hex2bin(y, sizeof y, hex, sizeof hex, NULL, NULL) == -1);
+    assert(hydro_hex2bin(y, sizeof y, hex, sizeof hex - 1, NULL, NULL) == sizeof x);
     assert(hydro_equal(x, y, sizeof x));
-    assert(hydro_hex2bin(x, sizeof x, "452a", 4, NULL, NULL, NULL) == 0);
-    assert(hydro_hex2bin(y, sizeof y, "#452a#", 6, "#", NULL, NULL) == 0);
+    assert(hydro_hex2bin(x, sizeof x, "452a", 4, NULL, NULL) == 2);
+    assert(hydro_hex2bin(y, sizeof y, "#452a#", 6, "#", NULL) == 2);
     assert(hydro_equal(x, y, sizeof x));
 }
 
