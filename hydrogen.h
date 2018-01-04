@@ -26,20 +26,20 @@ int hydro_init(void);
 
 /* ---------------- */
 
-#define randombytes_SEEDBYTES 32
+#define hydro_random_SEEDBYTES 32
 
-uint32_t randombytes_random(void);
+uint32_t hydro_random_random(void);
 
-uint32_t randombytes_uniform(const uint32_t upper_bound);
+uint32_t hydro_random_uniform(const uint32_t upper_bound);
 
-void randombytes_buf(void *out, size_t out_len);
+void hydro_random_buf(void *out, size_t out_len);
 
-void randombytes_buf_deterministic(void *out, size_t out_len,
-                                   const uint8_t seed[randombytes_SEEDBYTES]);
+void hydro_random_buf_deterministic(void *out, size_t out_len,
+                                    const uint8_t seed[hydro_random_SEEDBYTES]);
 
-void randombytes_ratchet(void);
+void hydro_random_ratchet(void);
 
-void randombytes_reseed(void);
+void hydro_random_reseed(void);
 
 /* ---------------- */
 

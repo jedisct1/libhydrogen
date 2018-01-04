@@ -8,7 +8,7 @@
 void
 hydro_kx_keygen(hydro_kx_keypair *static_kp)
 {
-    randombytes_buf(static_kp->sk, hydro_kx_SECRETKEYBYTES);
+    hydro_random_buf(static_kp->sk, hydro_kx_SECRETKEYBYTES);
     if (hydro_x25519_scalarmult_base(static_kp->pk, static_kp->sk) != 0) {
         abort();
     }
@@ -17,8 +17,8 @@ hydro_kx_keygen(hydro_kx_keypair *static_kp)
 void
 hydro_kx_keygen_deterministic(hydro_kx_keypair *static_kp, const uint8_t seed[hydro_kx_SEEDBYTES])
 {
-    COMPILER_ASSERT(hydro_kx_SEEDBYTES >= randombytes_SEEDBYTES);
-    randombytes_buf_deterministic(static_kp->sk, hydro_kx_SECRETKEYBYTES, seed);
+    COMPILER_ASSERT(hydro_kx_SEEDBYTES >= hydro_random_SEEDBYTES);
+    hydro_random_buf_deterministic(static_kp->sk, hydro_kx_SECRETKEYBYTES, seed);
     if (hydro_x25519_scalarmult_base(static_kp->pk, static_kp->sk) != 0) {
         abort();
     }

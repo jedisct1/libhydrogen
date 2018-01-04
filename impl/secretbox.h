@@ -5,7 +5,7 @@
 void
 hydro_secretbox_keygen(uint8_t key[hydro_secretbox_KEYBYTES])
 {
-    randombytes_buf(key, hydro_secretbox_KEYBYTES);
+    hydro_random_buf(key, hydro_secretbox_KEYBYTES);
 }
 
 static void
@@ -190,7 +190,7 @@ hydro_secretbox_encrypt(uint8_t *c, const void *m_, size_t mlen, uint64_t msg_id
 {
     uint8_t iv[hydro_secretbox_IVBYTES];
 
-    randombytes_buf(iv, sizeof iv);
+    hydro_random_buf(iv, sizeof iv);
 
     return hydro_secretbox_encrypt_iv(c, m_, mlen, msg_id, ctx, key, iv);
 }

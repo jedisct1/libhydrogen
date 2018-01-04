@@ -187,13 +187,13 @@ hydro_random_check_initialized(void)
             abort();
         }
         gimli_core_u8(hydro_random_context.state, 0);
-        randombytes_ratchet();
+        hydro_random_ratchet();
         hydro_random_context.initialized = 1;
     }
 }
 
 void
-randombytes_ratchet(void)
+hydro_random_ratchet(void)
 {
     mem_zero(hydro_random_context.state, gimli_RATE);
     STORE64_LE(hydro_random_context.state, hydro_random_context.counter);
@@ -203,13 +203,13 @@ randombytes_ratchet(void)
 }
 
 uint32_t
-randombytes_random(void)
+hydro_random_random(void)
 {
     uint32_t v;
 
     hydro_random_check_initialized();
     if (hydro_random_context.available < 4) {
-        randombytes_ratchet();
+        hydro_random_ratchet();
     }
     memcpy(&v, &hydro_random_context.state[gimli_RATE - hydro_random_context.available], 4);
     hydro_random_context.available -= 4;
@@ -218,7 +218,7 @@ randombytes_random(void)
 }
 
 uint32_t
-randombytes_uniform(const uint32_t upper_bound)
+hydro_random_uniform(const uint32_t upper_bound)
 {
     uint32_t min;
     uint32_t r;
@@ -228,7 +228,7 @@ randombytes_uniform(const uint32_t upper_bound)
     }
     min = (1U + ~upper_bound) % upper_bound; /* = 2**32 mod upper_bound */
     do {
-        r = randombytes_random();
+        r = hydro_random_random();
     } while (r < min);
     /* r is now clamped to a set whose size mod upper_bound == 0
      * the worst case (2**31+1) requires 2 attempts on average */
@@ -237,7 +237,7 @@ randombytes_uniform(const uint32_t upper_bound)
 }
 
 void
-randombytes_buf(void *out, size_t out_len)
+hydro_random_buf(void *out, size_t out_len)
 {
     uint8_t *p = (uint8_t *) out;
     size_t   i;
@@ -252,11 +252,11 @@ randombytes_buf(void *out, size_t out_len)
         gimli_core_u8(hydro_random_context.state, 0);
         mem_cpy(p + i * gimli_RATE, hydro_random_context.state, leftover);
     }
-    randombytes_ratchet();
+    hydro_random_ratchet();
 }
 
 void
-randombytes_buf_deterministic(void *out, size_t out_len, const uint8_t seed[randombytes_SEEDBYTES])
+hydro_random_buf_deterministic(void *out, size_t out_len, const uint8_t seed[hydro_random_SEEDBYTES])
 {
     static const uint8_t     prefix[] = { 7, 'd', 'r', 'b', 'g', '2', '5', '6' };
     CRYPTO_ALIGN(16) uint8_t state[gimli_BLOCKBYTES];
@@ -269,7 +269,7 @@ randombytes_buf_deterministic(void *out, size_t out_len, const uint8_t seed[rand
     memcpy(state, prefix, sizeof prefix);
     STORE64_LE(state + sizeof prefix, (uint64_t) out_len);
     gimli_core_u8(state, 1);
-    COMPILER_ASSERT(randombytes_SEEDBYTES == gimli_RATE * 2);
+    COMPILER_ASSERT(hydro_random_SEEDBYTES == gimli_RATE * 2);
     mem_xor(state, seed, gimli_RATE);
     gimli_core_u8(state, 2);
     mem_xor(state, seed + gimli_RATE, gimli_RATE);
@@ -283,11 +283,11 @@ randombytes_buf_deterministic(void *out, size_t out_len, const uint8_t seed[rand
         gimli_core_u8(state, 0);
         mem_cpy(p + i * gimli_RATE, state, leftover);
     }
-    randombytes_ratchet();
+    hydro_random_ratchet();
 }
 
 void
-randombytes_reseed(void)
+hydro_random_reseed(void)
 {
     hydro_random_context.initialized = 0;
     hydro_random_check_initialized();

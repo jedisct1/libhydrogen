@@ -13,7 +13,7 @@
 #define hydro_pwhash_CONTEXT "hydro_pw"
 
 static int
-_hydro_pwhash_hash(uint8_t out[randombytes_SEEDBYTES], size_t h_len,
+_hydro_pwhash_hash(uint8_t out[hydro_random_SEEDBYTES], size_t h_len,
                    const uint8_t salt[hydro_pwhash_SALTBYTES], const char *passwd,
                    size_t passwd_len, const char ctx[hydro_pwhash_CONTEXTBYTES],
                    const uint8_t master_key[hydro_pwhash_MASTERKEYBYTES], uint64_t opslimit,
@@ -56,8 +56,8 @@ _hydro_pwhash_hash(uint8_t out[randombytes_SEEDBYTES], size_t h_len,
     }
     mem_zero(state, gimli_RATE);
 
-    COMPILER_ASSERT(randombytes_SEEDBYTES == gimli_CAPACITY);
-    memcpy(out, state + gimli_RATE, randombytes_SEEDBYTES);
+    COMPILER_ASSERT(hydro_random_SEEDBYTES == gimli_CAPACITY);
+    memcpy(out, state + gimli_RATE, hydro_random_SEEDBYTES);
     hydro_memzero(state, sizeof state);
 
     return 0;
@@ -66,7 +66,7 @@ _hydro_pwhash_hash(uint8_t out[randombytes_SEEDBYTES], size_t h_len,
 void
 hydro_pwhash_keygen(uint8_t master_key[hydro_pwhash_MASTERKEYBYTES])
 {
-    randombytes_buf(master_key, hydro_pwhash_MASTERKEYBYTES);
+    hydro_random_buf(master_key, hydro_pwhash_MASTERKEYBYTES);
 }
 
 int
@@ -75,7 +75,7 @@ hydro_pwhash_deterministic(uint8_t *h, size_t h_len, const char *passwd, size_t 
                            const uint8_t master_key[hydro_pwhash_MASTERKEYBYTES], uint64_t opslimit,
                            size_t memlimit, uint8_t threads)
 {
-    uint8_t seed[randombytes_SEEDBYTES];
+    uint8_t seed[hydro_random_SEEDBYTES];
 
     COMPILER_ASSERT(sizeof zero >= hydro_pwhash_SALTBYTES);
     COMPILER_ASSERT(sizeof zero >= hydro_pwhash_MASTERKEYBYTES);
@@ -85,7 +85,7 @@ hydro_pwhash_deterministic(uint8_t *h, size_t h_len, const char *passwd, size_t 
                            memlimit, threads) != 0) {
         return -1;
     }
-    randombytes_buf_deterministic(h, h_len, seed);
+    hydro_random_buf_deterministic(h, h_len, seed);
     hydro_memzero(seed, sizeof seed);
 
     return 0;
@@ -115,7 +115,7 @@ hydro_pwhash_create(uint8_t stored[hydro_pwhash_STOREDBYTES], const char *passwd
     *threads_u8 = threads;
     STORE64_LE(opslimit_u8, opslimit);
     STORE64_LE(memlimit_u8, (uint64_t) memlimit);
-    randombytes_buf(salt, hydro_pwhash_SALTBYTES);
+    hydro_random_buf(salt, hydro_pwhash_SALTBYTES);
 
     COMPILER_ASSERT(sizeof zero >= hydro_pwhash_MASTERKEYBYTES);
     if (_hydro_pwhash_hash(h, hydro_pwhash_HASHBYTES, salt, passwd, passwd_len,
@@ -263,15 +263,15 @@ hydro_pwhash_upgrade(uint8_t       stored[hydro_pwhash_STOREDBYTES],
         mem_zero(stored, hydro_pwhash_STOREDBYTES);
         return -1;
     }
-    COMPILER_ASSERT(randombytes_SEEDBYTES == gimli_CAPACITY);
-    memcpy(state + gimli_RATE, h, randombytes_SEEDBYTES);
+    COMPILER_ASSERT(hydro_random_SEEDBYTES == gimli_CAPACITY);
+    memcpy(state + gimli_RATE, h, hydro_random_SEEDBYTES);
     for (i = opslimit_prev; i < opslimit; i++) {
         mem_zero(state, gimli_RATE);
         STORE64_LE(state, i);
         gimli_core_u8(state, 0);
     }
     mem_zero(state, gimli_RATE);
-    memcpy(h, state + gimli_RATE, randombytes_SEEDBYTES);
+    memcpy(h, state + gimli_RATE, hydro_random_SEEDBYTES);
     *threads_u8 = threads;
     STORE64_LE(opslimit_u8, opslimit);
     STORE64_LE(memlimit_u8, (uint64_t) memlimit);

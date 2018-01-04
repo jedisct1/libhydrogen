@@ -20,7 +20,7 @@ streq(const char *expected, const char *found)
 static void
 test_randombytes(void)
 {
-    uint8_t       dk[randombytes_SEEDBYTES];
+    uint8_t       dk[hydro_random_SEEDBYTES];
     uint8_t       tmp[10000];
     unsigned long b = 0U;
     unsigned long bp;
@@ -28,7 +28,7 @@ test_randombytes(void)
     size_t        i, j;
 
     for (i = 0; i < 10000; i++) {
-        x = randombytes_random();
+        x = hydro_random_random();
         for (j = 0; j < sizeof x; j++) {
             b += (x >> j) & 1;
         }
@@ -36,7 +36,7 @@ test_randombytes(void)
     assert(b > 18000 && b < 22000);
 
     b = 0;
-    randombytes_buf(tmp, sizeof tmp);
+    hydro_random_buf(tmp, sizeof tmp);
     for (i = 0; i < 10000; i++) {
         for (j = 0; j < sizeof tmp[0]; j++) {
             b += (tmp[i] >> j) & 1;
@@ -46,7 +46,7 @@ test_randombytes(void)
 
     memcpy(dk, tmp, sizeof dk);
     b = 0;
-    randombytes_buf_deterministic(tmp, 10000, dk);
+    hydro_random_buf_deterministic(tmp, 10000, dk);
     for (i = 0; i < 10000; i++) {
         for (j = 0; j < sizeof tmp[0]; j++) {
             b += (tmp[i] >> j) & 1;
@@ -55,7 +55,7 @@ test_randombytes(void)
     assert(b > 4500 && b < 5500);
     bp = b;
     b  = 0;
-    randombytes_buf_deterministic(tmp, 10000, dk);
+    hydro_random_buf_deterministic(tmp, 10000, dk);
     for (i = 0; i < 10000; i++) {
         for (j = 0; j < sizeof tmp[0]; j++) {
             b += (tmp[i] >> j) & 1;
@@ -65,7 +65,7 @@ test_randombytes(void)
 
     for (i = 0; i < 1000; i++) {
         for (j = 1; j < 100; j++) {
-            x = randombytes_uniform((uint32_t) j);
+            x = hydro_random_uniform((uint32_t) j);
             assert(x < j);
         }
     }
@@ -75,7 +75,7 @@ static void
 test_hash(void)
 {
     hydro_hash_state st;
-    uint8_t          dk[randombytes_SEEDBYTES];
+    uint8_t          dk[hydro_random_SEEDBYTES];
     uint8_t          h[100];
     uint8_t          key[hydro_hash_KEYBYTES];
     uint8_t          msg[1000];
@@ -83,11 +83,11 @@ test_hash(void)
     size_t           i;
 
     memset(dk, 0, sizeof dk);
-    randombytes_buf_deterministic(key, sizeof key, dk);
+    hydro_random_buf_deterministic(key, sizeof key, dk);
     hydro_increment(dk, sizeof dk);
     hydro_hash_init(&st, ctx, key);
     for (i = 0; i <= sizeof msg; i++) {
-        randombytes_buf_deterministic(msg, i, dk);
+        hydro_random_buf_deterministic(msg, i, dk);
         hydro_increment(dk, sizeof dk);
         hydro_hash_update(&st, msg, i);
     }
@@ -138,7 +138,7 @@ test_core(void)
     a[0]++;
     assert(hydro_compare(a, b, sizeof a) == 1);
     assert(hydro_compare(b, a, sizeof a) == -1);
-    randombytes_buf(x, sizeof x);
+    hydro_random_buf(x, sizeof x);
     assert(hydro_bin2hex(hex, sizeof hex, x, sizeof x) != NULL);
     assert(hydro_hex2bin(y, 1, hex, sizeof hex, NULL, NULL) == -1);
     assert(hydro_hex2bin(y, sizeof y, hex, sizeof hex, NULL, NULL) == -1);
@@ -156,13 +156,13 @@ test_secretbox(void)
     uint8_t m[25];
     uint8_t m2[25];
     uint8_t c[hydro_secretbox_HEADERBYTES + 25];
-    uint8_t dk[randombytes_SEEDBYTES];
+    uint8_t dk[hydro_random_SEEDBYTES];
     uint8_t probe[hydro_secretbox_PROBEBYTES];
 
     memset(dk, 0, sizeof dk);
-    randombytes_buf_deterministic(m, sizeof m, dk);
+    hydro_random_buf_deterministic(m, sizeof m, dk);
     hydro_increment(dk, sizeof dk);
-    randombytes_buf_deterministic(key, sizeof key, dk);
+    hydro_random_buf_deterministic(key, sizeof key, dk);
     hydro_increment(dk, sizeof dk);
     hydro_secretbox_encrypt(c, m, sizeof m, 0, ctx, key);
     assert(hydro_secretbox_decrypt(m2, c, sizeof c, 0, ctx, key) == 0);
@@ -185,7 +185,7 @@ test_secretbox(void)
     key[0]++;
     assert(hydro_secretbox_decrypt(m2, c, sizeof c, 0, ctx, key) == -1);
     key[0]--;
-    c[randombytes_uniform(sizeof c)]++;
+    c[hydro_random_uniform(sizeof c)]++;
     assert(hydro_secretbox_decrypt(m2, c, sizeof c, 0, ctx, key) == -1);
 }
 
@@ -193,7 +193,7 @@ static void
 test_kdf(void)
 {
     uint8_t key[hydro_kdf_KEYBYTES];
-    uint8_t dk[randombytes_SEEDBYTES];
+    uint8_t dk[hydro_random_SEEDBYTES];
     uint8_t subkey1[16];
     uint8_t subkey2[16];
     uint8_t subkey3[32];
@@ -204,7 +204,7 @@ test_kdf(void)
     char    subkey4_hex[50 * 2 + 1];
 
     memset(dk, 0, sizeof dk);
-    randombytes_buf_deterministic(key, sizeof key, dk);
+    hydro_random_buf_deterministic(key, sizeof key, dk);
     hydro_kdf_derive_from_key(subkey1, sizeof subkey1, 1, ctx, key);
     hydro_kdf_derive_from_key(subkey2, sizeof subkey2, 2, ctx, key);
     hydro_kdf_derive_from_key(subkey3, sizeof subkey3, 0, ctx, key);
@@ -230,7 +230,7 @@ test_sign(void)
     hydro_sign_state   st;
     hydro_sign_keypair kp;
 
-    randombytes_buf(msg, sizeof msg);
+    hydro_random_buf(msg, sizeof msg);
     hydro_sign_keygen(&kp);
     hydro_sign_create(sig, msg, sizeof msg, ctx, kp.sk);
     assert(hydro_sign_verify(sig, msg, sizeof msg, ctx, kp.pk) == 0);
@@ -298,7 +298,7 @@ test_kx(void)
     assert(hydro_equal(kp_client.tx, kp_server.rx, hydro_kx_SESSIONKEYBYTES));
     assert(hydro_equal(kp_client.rx, kp_server.tx, hydro_kx_SESSIONKEYBYTES));
 
-    randombytes_buf(psk, sizeof psk);
+    hydro_random_buf(psk, sizeof psk);
     hydro_kx_xx_1(&st_client, packet1, psk);
     hydro_kx_xx_2(&st_server, packet2, packet1, psk, &server_static_kp);
     hydro_kx_xx_3(&st_client, &kp_client, packet3, client_peer_pk, packet2, psk,

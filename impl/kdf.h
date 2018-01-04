@@ -16,5 +16,5 @@ hydro_kdf_derive_from_key(uint8_t *subkey, size_t subkey_len, uint64_t subkey_id
 void
 hydro_kdf_keygen(uint8_t key[hydro_kdf_KEYBYTES])
 {
-    randombytes_buf(key, hydro_kdf_KEYBYTES);
+    hydro_random_buf(key, hydro_kdf_KEYBYTES);
 }
