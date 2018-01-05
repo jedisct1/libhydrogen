@@ -283,37 +283,37 @@ hydro_kx_kk_1(hydro_kx_state *state, uint8_t packet1[hydro_kx_KK_PACKET1BYTES],
 }
 
 int
-hydro_kx_kk_2(hydro_kx_state *state, hydro_kx_session_keypair *kp,
-              uint8_t       packet2[hydro_kx_KK_PACKET2BYTES],
+hydro_kx_kk_2(hydro_kx_session_keypair *kp, uint8_t packet2[hydro_kx_KK_PACKET2BYTES],
               const uint8_t packet1[hydro_kx_KK_PACKET1BYTES], const uint8_t psk[hydro_kx_PSKBYTES],
               const uint8_t           peer_static_pk[hydro_kx_PUBLICKEYBYTES],
               const hydro_kx_keypair *static_kp)
 {
+    hydro_kx_state state;
     uint8_t        dh_res[hydro_x25519_BYTES];
     const uint8_t *peer_eph_pk = packet1;
 
-    mem_zero(state, sizeof *state);
+    mem_zero(&state, sizeof state);
 
-    hydro_kx_keygen(&state->eph_kp);
+    hydro_kx_keygen(&state.eph_kp);
     COMPILER_ASSERT(hydro_kx_PSKBYTES >= hydro_hash_KEYBYTES);
-    hydro_hash_hash(state->h, sizeof state->h, state->eph_kp.pk, sizeof state->eph_kp.pk,
+    hydro_hash_hash(state.h, sizeof state.h, state.eph_kp.pk, sizeof state.eph_kp.pk,
                     hydro_kx_CONTEXT, psk);
-    memcpy(packet2, state->eph_kp.pk, sizeof state->eph_kp.pk);
+    memcpy(packet2, state.eph_kp.pk, sizeof state.eph_kp.pk);
 
-    if (hydro_kx_scalarmult(state, dh_res, static_kp->sk, peer_eph_pk) != 0) {
+    if (hydro_kx_scalarmult(&state, dh_res, static_kp->sk, peer_eph_pk) != 0) {
         return -1;
     }
-    if (hydro_kx_scalarmult(state, dh_res, static_kp->sk, peer_static_pk) != 0) {
+    if (hydro_kx_scalarmult(&state, dh_res, static_kp->sk, peer_static_pk) != 0) {
         return -1;
     }
 
-    if (hydro_kx_scalarmult(state, dh_res, state->eph_kp.sk, peer_eph_pk) != 0) {
+    if (hydro_kx_scalarmult(&state, dh_res, state.eph_kp.sk, peer_eph_pk) != 0) {
         return -1;
     }
-    if (hydro_kx_scalarmult(state, dh_res, static_kp->sk, peer_eph_pk) != 0) {
+    if (hydro_kx_scalarmult(&state, dh_res, static_kp->sk, peer_eph_pk) != 0) {
         return -1;
     }
-    hydro_kx_final(state, kp->rx, kp->tx);
+    hydro_kx_final(&state, kp->rx, kp->tx);
 
     return 0;
 }

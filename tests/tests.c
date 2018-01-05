@@ -294,7 +294,6 @@ static void
 test_kx_kk(void)
 {
     hydro_kx_state           st_client;
-    hydro_kx_state           st_server;
     hydro_kx_keypair         client_static_kp;
     hydro_kx_keypair         server_static_kp;
     uint8_t                  psk[hydro_kx_PSKBYTES];
@@ -309,8 +308,7 @@ test_kx_kk(void)
     hydro_kx_keygen(&server_static_kp);
 
     hydro_kx_kk_1(&st_client, packet1, psk, server_static_kp.pk, &client_static_kp);
-    hydro_kx_kk_2(&st_server, &kp_server, packet2, packet1, psk, client_static_kp.pk,
-                  &server_static_kp);
+    hydro_kx_kk_2(&kp_server, packet2, packet1, psk, client_static_kp.pk, &server_static_kp);
     hydro_kx_kk_3(&st_client, &kp_client, packet2, server_static_kp.pk);
 
     assert(hydro_equal(kp_client.tx, kp_server.rx, hydro_kx_SESSIONKEYBYTES));
