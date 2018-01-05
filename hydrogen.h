@@ -158,10 +158,6 @@ int hydro_sign_verify(const uint8_t csig[hydro_sign_BYTES], const void *m_, size
 #define hydro_kx_PSKBYTES 32
 #define hydro_kx_SEEDBYTES 32
 
-#define hydro_kx_XX_PACKET1BYTES 32
-#define hydro_kx_XX_PACKET2BYTES 80
-#define hydro_kx_XX_PACKET3BYTES 48
-
 typedef struct hydro_kx_keypair {
     uint8_t pk[hydro_kx_PUBLICKEYBYTES];
     uint8_t sk[hydro_kx_SECRETKEYBYTES];
@@ -183,6 +179,23 @@ void hydro_kx_keygen(hydro_kx_keypair *static_kp);
 
 void hydro_kx_keygen_deterministic(hydro_kx_keypair *static_kp,
                                    const uint8_t     seed[hydro_kx_SEEDBYTES]);
+
+/* NOISE_N */
+
+#define hydro_kx_N_PACKET1BYTES 32
+
+int hydro_kx_n_1(hydro_kx_session_keypair *kp, uint8_t packet1[hydro_kx_N_PACKET1BYTES],
+                 const uint8_t psk[hydro_kx_PSKBYTES],
+                 const uint8_t peer_static_pk[hydro_kx_PUBLICKEYBYTES]);
+
+int hydro_kx_n_2(hydro_kx_session_keypair *kp, const uint8_t packet1[hydro_kx_N_PACKET1BYTES],
+                 const uint8_t psk[hydro_kx_PSKBYTES], const hydro_kx_keypair *static_kp);
+
+/* NOISE_XX */
+
+#define hydro_kx_XX_PACKET1BYTES 32
+#define hydro_kx_XX_PACKET2BYTES 80
+#define hydro_kx_XX_PACKET3BYTES 48
 
 int hydro_kx_xx_1(hydro_kx_state *state, uint8_t packet1[hydro_kx_XX_PACKET1BYTES],
                   const uint8_t psk[hydro_kx_PSKBYTES]);

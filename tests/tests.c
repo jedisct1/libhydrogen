@@ -272,7 +272,7 @@ test_sign(void)
 }
 
 static void
-test_kx(void)
+test_kx_xx(void)
 {
     hydro_kx_state           st_client;
     hydro_kx_state           st_server;
@@ -301,14 +301,32 @@ test_kx(void)
     hydro_random_buf(psk, sizeof psk);
     hydro_kx_xx_1(&st_client, packet1, psk);
     hydro_kx_xx_2(&st_server, packet2, packet1, psk, &server_static_kp);
-    hydro_kx_xx_3(&st_client, &kp_client, packet3, client_peer_pk, packet2, psk,
-                  &client_static_kp);
+    hydro_kx_xx_3(&st_client, &kp_client, packet3, client_peer_pk, packet2, psk, &client_static_kp);
     hydro_kx_xx_4(&st_server, &kp_server, server_peer_pk, packet3, psk);
 
     assert(hydro_equal(kp_client.tx, kp_server.rx, hydro_kx_SESSIONKEYBYTES));
     assert(hydro_equal(kp_client.rx, kp_server.tx, hydro_kx_SESSIONKEYBYTES));
     assert(hydro_equal(client_peer_pk, server_static_kp.pk, hydro_kx_PUBLICKEYBYTES));
     assert(hydro_equal(server_peer_pk, client_static_kp.pk, hydro_kx_PUBLICKEYBYTES));
+}
+
+static void
+test_kx_n(void)
+{
+    hydro_kx_keypair         server_static_kp;
+    uint8_t                  psk[hydro_kx_PSKBYTES];
+    uint8_t                  packet1[hydro_kx_N_PACKET1BYTES];
+    hydro_kx_session_keypair kp_client;
+    hydro_kx_session_keypair kp_server;
+
+    hydro_kx_keygen(&server_static_kp);
+    hydro_random_buf(psk, sizeof psk);
+
+    hydro_kx_n_1(&kp_client, packet1, psk, server_static_kp.pk);
+    hydro_kx_n_2(&kp_server, packet1, psk, &server_static_kp);
+
+    assert(hydro_equal(kp_client.tx, kp_server.rx, hydro_kx_SESSIONKEYBYTES));
+    assert(hydro_equal(kp_client.rx, kp_server.tx, hydro_kx_SESSIONKEYBYTES));
 }
 
 static void
@@ -371,7 +389,8 @@ main(void)
     test_core();
     test_hash();
     test_kdf();
-    test_kx();
+    test_kx_xx();
+    test_kx_n();
     test_pwhash();
     test_randombytes();
     test_secretbox();

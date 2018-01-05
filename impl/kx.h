@@ -200,6 +200,62 @@ hydro_kx_final(hydro_kx_state *state, uint8_t rx[hydro_kx_SESSIONKEYBYTES],
     hydro_memzero(state, sizeof *state);
 }
 
+/* NOISE_N */
+
+int
+hydro_kx_n_1(hydro_kx_session_keypair *kp, uint8_t packet1[hydro_kx_N_PACKET1BYTES],
+             const uint8_t psk[hydro_kx_PSKBYTES],
+             const uint8_t peer_static_pk[hydro_kx_PUBLICKEYBYTES])
+{
+    hydro_kx_state state;
+    uint8_t        dh_res[hydro_x25519_BYTES];
+
+    mem_zero(&state, sizeof state);
+
+    hydro_kx_keygen(&state.eph_kp);
+    COMPILER_ASSERT(hydro_kx_PSKBYTES >= hydro_hash_KEYBYTES);
+    hydro_hash_hash(state.h, sizeof state.h, peer_static_pk, hydro_kx_PUBLICKEYBYTES,
+                    hydro_kx_CONTEXT, psk);
+    memcpy(packet1, state.eph_kp.pk, hydro_kx_PUBLICKEYBYTES);
+
+    COMPILER_ASSERT(sizeof state.h >= hydro_hash_KEYBYTES);
+    hydro_hash_hash(state.h, sizeof state.h, state.eph_kp.pk, sizeof state.eph_kp.pk,
+                    hydro_kx_CONTEXT, state.h);
+
+    if (hydro_kx_scalarmult(&state, dh_res, state.eph_kp.sk, peer_static_pk) != 0) {
+        return -1;
+    }
+    hydro_kx_final(&state, kp->rx, kp->tx);
+
+    return 0;
+}
+
+int
+hydro_kx_n_2(hydro_kx_session_keypair *kp, const uint8_t packet1[hydro_kx_N_PACKET1BYTES],
+             const uint8_t psk[hydro_kx_PSKBYTES], const hydro_kx_keypair *static_kp)
+{
+    hydro_kx_state state;
+    uint8_t        dh_res[hydro_x25519_BYTES];
+    const uint8_t *peer_eph_pk = packet1;
+
+    mem_zero(&state, sizeof state);
+
+    COMPILER_ASSERT(hydro_kx_PSKBYTES >= hydro_hash_KEYBYTES);
+    hydro_hash_hash(state.h, sizeof state.h, static_kp->pk, sizeof static_kp->pk, hydro_kx_CONTEXT,
+                    psk);
+
+    COMPILER_ASSERT(sizeof state.h >= hydro_hash_KEYBYTES);
+    hydro_hash_hash(state.h, sizeof state.h, peer_eph_pk, hydro_kx_PUBLICKEYBYTES, hydro_kx_CONTEXT,
+                    state.h);
+
+    if (hydro_kx_scalarmult(&state, dh_res, static_kp->sk, peer_eph_pk) != 0) {
+        return -1;
+    }
+    hydro_kx_final(&state, kp->tx, kp->rx);
+
+    return 0;
+}
+
 /* NOISE_XX */
 
 int
