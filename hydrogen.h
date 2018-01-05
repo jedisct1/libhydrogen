@@ -191,6 +191,27 @@ int hydro_kx_n_1(hydro_kx_session_keypair *kp, uint8_t packet1[hydro_kx_N_PACKET
 int hydro_kx_n_2(hydro_kx_session_keypair *kp, const uint8_t packet1[hydro_kx_N_PACKET1BYTES],
                  const uint8_t psk[hydro_kx_PSKBYTES], const hydro_kx_keypair *static_kp);
 
+/* NOISE_KK */
+
+#define hydro_kx_KK_PACKET1BYTES 32
+#define hydro_kx_KK_PACKET2BYTES 32
+
+int hydro_kx_kk_1(hydro_kx_state *state, uint8_t packet1[hydro_kx_KK_PACKET1BYTES],
+                  const uint8_t           psk[hydro_kx_PSKBYTES],
+                  const uint8_t           peer_static_pk[hydro_kx_PUBLICKEYBYTES],
+                  const hydro_kx_keypair *static_kp);
+
+int hydro_kx_kk_2(hydro_kx_state *state, hydro_kx_session_keypair *kp,
+                  uint8_t                 packet2[hydro_kx_KK_PACKET2BYTES],
+                  const uint8_t           packet1[hydro_kx_KK_PACKET1BYTES],
+                  const uint8_t           psk[hydro_kx_PSKBYTES],
+                  const uint8_t           peer_static_pk[hydro_kx_PUBLICKEYBYTES],
+                  const hydro_kx_keypair *static_kp);
+
+int hydro_kx_kk_3(hydro_kx_state *state, hydro_kx_session_keypair *kp,
+                  const uint8_t packet2[hydro_kx_KK_PACKET2BYTES],
+                  const uint8_t peer_static_pk[hydro_kx_PUBLICKEYBYTES]);
+
 /* NOISE_XX */
 
 #define hydro_kx_XX_PACKET1BYTES 32
