@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-#if !defined(__clang__) && !defined(__GNUC__)
+#if !defined(__clang__) && !defined(__GNUC__) && !defined(_SUNPRO_CC)
 # ifdef __attribute__
 #  undef __attribute__
 # endif
