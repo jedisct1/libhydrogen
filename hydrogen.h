@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-#ifndef __GNUC__
+#if !defined(__clang__) && !defined(__GNUC__)
 # ifdef __attribute__
 #  undef __attribute__
 # endif
@@ -296,6 +296,10 @@ int hydro_unpad(const unsigned char *buf, size_t padded_buflen, size_t blocksize
 # ifdef __AVR__
 #  define HYDRO_HWTYPE HYDRO_HWTYPE_ATMEGA328
 # endif
+#endif
+
+#ifdef __attribute__
+# undef __attribute__
 #endif
 
 #ifdef __cplusplus

@@ -8,6 +8,12 @@
 
 #include "../hydrogen.h"
 
+#if !defined(__clang__) && !defined(__GNUC__)
+# ifdef __attribute__
+#  undef __attribute__
+# endif
+# define __attribute__(a)
+#endif
 #if !defined(__unix__) && (defined(__APPLE__) || defined(__linux__))
 # define __unix__ 1
 #endif
