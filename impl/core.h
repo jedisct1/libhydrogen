@@ -186,7 +186,7 @@ hydro_pad(unsigned char *buf, size_t unpadded_buflen, size_t blocksize, size_t m
         tail[-i]     = (tail[-i] & mask) | (0x80 & barrier_mask);
         mask |= barrier_mask;
     }
-    return (int)(xpadded_len + 1);
+    return (int) (xpadded_len + 1);
 }
 
 int
@@ -215,5 +215,5 @@ hydro_unpad(const unsigned char *buf, size_t padded_buflen, size_t blocksize)
     if (valid == 0) {
         return -1;
     }
-    return (int)(padded_buflen - 1 - pad_len);
+    return (int) (padded_buflen - 1 - pad_len);
 }

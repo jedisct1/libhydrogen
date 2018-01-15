@@ -46,7 +46,7 @@ hydro_hash_init(hydro_hash_state *state, const char ctx[hydro_hash_CONTEXTBYTES]
         p = (gimli_RATE + 1 + hydro_hash_KEYBYTES + (gimli_RATE - 1)) & ~(size_t)(gimli_RATE - 1);
     } else {
         block[gimli_RATE] = (uint8_t) 0;
-        p = (gimli_RATE + 1 + 0 + (gimli_RATE - 1)) & ~(size_t)(gimli_RATE - 1);
+        p                 = (gimli_RATE + 1 + 0 + (gimli_RATE - 1)) & ~(size_t)(gimli_RATE - 1);
     }
     mem_zero(state, sizeof *state);
     hydro_hash_update(state, block, p);
@@ -74,7 +74,7 @@ hydro_hash_init_with_tweak(hydro_hash_state *state, const char ctx[hydro_hash_CO
         p = (gimli_RATE + 1 + hydro_hash_KEYBYTES + (gimli_RATE - 1)) & ~(size_t)(gimli_RATE - 1);
     } else {
         block[gimli_RATE] = (uint8_t) 0;
-        p = (gimli_RATE + 1 + 0 + (gimli_RATE - 1)) & ~(size_t)(gimli_RATE - 1);
+        p                 = (gimli_RATE + 1 + 0 + (gimli_RATE - 1)) & ~(size_t)(gimli_RATE - 1);
     }
     block[p] = (uint8_t) sizeof tweak;
     STORE64_LE(&block[p + 1], tweak);

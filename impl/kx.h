@@ -110,8 +110,8 @@ hydro_kx_encrypt(const hydro_kx_state *state, uint8_t *c, const uint8_t *m, size
                  const uint8_t psk[hydro_kx_PSKBYTES])
 {
     _hydro_attr_aligned_(16) uint8_t buf[gimli_BLOCKBYTES];
-    uint8_t *                mac = &c[0];
-    uint8_t *                ct  = &c[hydro_kx_AEAD_MACBYTES];
+    uint8_t *                        mac = &c[0];
+    uint8_t *                        ct  = &c[hydro_kx_AEAD_MACBYTES];
 
     hydro_kx_aead_setup(buf, state, psk);
     hydro_kx_aead_xor_enc(buf, ct, m, mlen);
@@ -122,20 +122,19 @@ hydro_kx_encrypt(const hydro_kx_state *state, uint8_t *c, const uint8_t *m, size
 }
 
 static int hydro_kx_decrypt(hydro_kx_state *state, uint8_t *m, const uint8_t *c, size_t clen,
-                            const uint8_t psk[hydro_kx_PSKBYTES])
-    _hydro_attr_warn_unused_result_;
+                            const uint8_t psk[hydro_kx_PSKBYTES]) _hydro_attr_warn_unused_result_;
 
 static int
 hydro_kx_decrypt(hydro_kx_state *state, uint8_t *m, const uint8_t *c, size_t clen,
                  const uint8_t psk[hydro_kx_PSKBYTES])
 {
     _hydro_attr_aligned_(16) uint32_t int_state[gimli_BLOCKBYTES / 4];
-    uint32_t                  pub_mac[hydro_kx_AEAD_MACBYTES / 4];
-    uint8_t *                 buf = (uint8_t *) (void *) int_state;
-    const uint8_t *           mac;
-    const uint8_t *           ct;
-    size_t                    mlen;
-    uint32_t                  cv;
+    uint32_t                          pub_mac[hydro_kx_AEAD_MACBYTES / 4];
+    uint8_t *                         buf = (uint8_t *) (void *) int_state;
+    const uint8_t *                   mac;
+    const uint8_t *                   ct;
+    size_t                            mlen;
+    uint32_t                          cv;
 
     if (clen < hydro_kx_AEAD_HEADERBYTES) {
         return -1;

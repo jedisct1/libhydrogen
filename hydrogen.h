@@ -160,8 +160,7 @@ int hydro_sign_create(uint8_t csig[hydro_sign_BYTES], const void *m_, size_t mle
 
 int hydro_sign_verify(const uint8_t csig[hydro_sign_BYTES], const void *m_, size_t mlen,
                       const char    ctx[hydro_sign_CONTEXTBYTES],
-                      const uint8_t pk[hydro_sign_PUBLICKEYBYTES])
-    _hydro_attr_warn_unused_result_;
+                      const uint8_t pk[hydro_sign_PUBLICKEYBYTES]) _hydro_attr_warn_unused_result_;
 
 /* ---------------- */
 

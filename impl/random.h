@@ -256,13 +256,14 @@ hydro_random_buf(void *out, size_t out_len)
 }
 
 void
-hydro_random_buf_deterministic(void *out, size_t out_len, const uint8_t seed[hydro_random_SEEDBYTES])
+hydro_random_buf_deterministic(void *out, size_t out_len,
+                               const uint8_t seed[hydro_random_SEEDBYTES])
 {
-    static const uint8_t     prefix[] = { 7, 'd', 'r', 'b', 'g', '2', '5', '6' };
+    static const uint8_t             prefix[] = { 7, 'd', 'r', 'b', 'g', '2', '5', '6' };
     _hydro_attr_aligned_(16) uint8_t state[gimli_BLOCKBYTES];
-    uint8_t *                p = (uint8_t *) out;
-    size_t                   i;
-    size_t                   leftover;
+    uint8_t *                        p = (uint8_t *) out;
+    size_t                           i;
+    size_t                           leftover;
 
     mem_zero(state, gimli_BLOCKBYTES);
     COMPILER_ASSERT(sizeof prefix + 8 <= gimli_RATE);

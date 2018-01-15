@@ -2,9 +2,9 @@ static int hydro_random_init(void);
 
 /* ---------------- */
 
-#define gimli_BLOCKBYTES  48
-#define gimli_CAPACITY    32
-#define gimli_RATE        16
+#define gimli_BLOCKBYTES 48
+#define gimli_CAPACITY   32
+#define gimli_RATE       16
 
 #define gimli_TAG_HEADER  0x01
 #define gimli_TAG_PAYLOAD 0x02
@@ -36,8 +36,8 @@ hydro_mem_ct_zero_u32(uint32_t *dst_, size_t n)
     }
 }
 
-static inline uint32_t hydro_mem_ct_cmp_u32(const uint32_t *b1_, const uint32_t *b2, size_t n)
-    _hydro_attr_warn_unused_result_;
+static inline uint32_t hydro_mem_ct_cmp_u32(const uint32_t *b1_, const uint32_t *b2,
+                                            size_t n) _hydro_attr_warn_unused_result_;
 
 static inline uint32_t
 hydro_mem_ct_cmp_u32(const uint32_t *b1_, const uint32_t *b2, size_t n)
@@ -71,8 +71,8 @@ static int hydro_hash_init_with_tweak(hydro_hash_state *state,
 
 static int hydro_x25519_scalarmult(uint8_t       out[hydro_x25519_BYTES],
                                    const uint8_t scalar[hydro_x25519_BYTES],
-                                   const uint8_t x1[hydro_x25519_BYTES], bool clamp)
-    _hydro_attr_warn_unused_result_;
+                                   const uint8_t x1[hydro_x25519_BYTES],
+                                   bool          clamp) _hydro_attr_warn_unused_result_;
 
 static inline int hydro_x25519_scalarmult_base(uint8_t       pk[hydro_x25519_PUBLICKEYBYTES],
                                                const uint8_t sk[hydro_x25519_SECRETKEYBYTES])

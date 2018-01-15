@@ -20,10 +20,10 @@ _hydro_pwhash_hash(uint8_t out[hydro_random_SEEDBYTES], size_t h_len,
                    size_t memlimit, uint8_t threads)
 {
     _hydro_attr_aligned_(16) uint8_t state[gimli_BLOCKBYTES];
-    hydro_hash_state         h_st;
-    uint8_t                  tmp64_u8[8];
-    uint64_t                 i;
-    uint8_t                  tmp8;
+    hydro_hash_state                 h_st;
+    uint8_t                          tmp64_u8[8];
+    uint64_t                         i;
+    uint8_t                          tmp8;
 
     COMPILER_ASSERT(hydro_pwhash_MASTERKEYBYTES >= hydro_hash_KEYBYTES);
     hydro_hash_init(&h_st, ctx, master_key);
@@ -246,8 +246,8 @@ hydro_pwhash_upgrade(uint8_t       stored[hydro_pwhash_STOREDBYTES],
     uint8_t *const h           = &salt[hydro_pwhash_SALTBYTES];
 
     _hydro_attr_aligned_(16) uint8_t state[gimli_BLOCKBYTES];
-    uint64_t                 i;
-    uint64_t                 opslimit_prev;
+    uint64_t                         i;
+    uint64_t                         opslimit_prev;
 
     if (*enc_alg != hydro_pwhash_ENC_ALG) {
         return -1;
