@@ -19,7 +19,7 @@ _hydro_pwhash_hash(uint8_t out[hydro_random_SEEDBYTES], size_t h_len,
                    const uint8_t master_key[hydro_pwhash_MASTERKEYBYTES], uint64_t opslimit,
                    size_t memlimit, uint8_t threads)
 {
-    CRYPTO_ALIGN(16) uint8_t state[gimli_BLOCKBYTES];
+    _hydro_attr_aligned_(16) uint8_t state[gimli_BLOCKBYTES];
     hydro_hash_state         h_st;
     uint8_t                  tmp64_u8[8];
     uint64_t                 i;
@@ -245,7 +245,7 @@ hydro_pwhash_upgrade(uint8_t       stored[hydro_pwhash_STOREDBYTES],
     uint8_t *const salt        = &memlimit_u8[hydro_pwhash_MEMLIMITBYTES];
     uint8_t *const h           = &salt[hydro_pwhash_SALTBYTES];
 
-    CRYPTO_ALIGN(16) uint8_t state[gimli_BLOCKBYTES];
+    _hydro_attr_aligned_(16) uint8_t state[gimli_BLOCKBYTES];
     uint64_t                 i;
     uint64_t                 opslimit_prev;
 

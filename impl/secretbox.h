@@ -100,7 +100,7 @@ hydro_secretbox_encrypt_iv(uint8_t *c, const void *m_, size_t mlen, uint64_t msg
                            const uint8_t key[hydro_secretbox_KEYBYTES],
                            const uint8_t iv[hydro_secretbox_IVBYTES])
 {
-    CRYPTO_ALIGN(16) uint32_t state[gimli_BLOCKBYTES / 4];
+    _hydro_attr_aligned_(16) uint32_t state[gimli_BLOCKBYTES / 4];
     uint8_t *                 buf = (uint8_t *) (void *) state;
     const uint8_t *           m   = (const uint8_t *) m_;
     uint8_t *                 siv = &c[0];
@@ -200,7 +200,7 @@ hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen, uint64_t msg_id
                         const char    ctx[hydro_secretbox_CONTEXTBYTES],
                         const uint8_t key[hydro_secretbox_KEYBYTES])
 {
-    CRYPTO_ALIGN(16) uint32_t state[gimli_BLOCKBYTES / 4];
+    _hydro_attr_aligned_(16) uint32_t state[gimli_BLOCKBYTES / 4];
     uint32_t                  pub_mac[hydro_secretbox_MACBYTES / 4];
     uint8_t *                 buf = (uint8_t *) (void *) state;
     const uint8_t *           siv;

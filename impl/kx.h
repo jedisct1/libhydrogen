@@ -109,7 +109,7 @@ static void
 hydro_kx_encrypt(const hydro_kx_state *state, uint8_t *c, const uint8_t *m, size_t mlen,
                  const uint8_t psk[hydro_kx_PSKBYTES])
 {
-    CRYPTO_ALIGN(16) uint8_t buf[gimli_BLOCKBYTES];
+    _hydro_attr_aligned_(16) uint8_t buf[gimli_BLOCKBYTES];
     uint8_t *                mac = &c[0];
     uint8_t *                ct  = &c[hydro_kx_AEAD_MACBYTES];
 
@@ -123,13 +123,13 @@ hydro_kx_encrypt(const hydro_kx_state *state, uint8_t *c, const uint8_t *m, size
 
 static int hydro_kx_decrypt(hydro_kx_state *state, uint8_t *m, const uint8_t *c, size_t clen,
                             const uint8_t psk[hydro_kx_PSKBYTES])
-    __attribute__((warn_unused_result));
+    _hydro_attr_warn_unused_result_;
 
 static int
 hydro_kx_decrypt(hydro_kx_state *state, uint8_t *m, const uint8_t *c, size_t clen,
                  const uint8_t psk[hydro_kx_PSKBYTES])
 {
-    CRYPTO_ALIGN(16) uint32_t int_state[gimli_BLOCKBYTES / 4];
+    _hydro_attr_aligned_(16) uint32_t int_state[gimli_BLOCKBYTES / 4];
     uint32_t                  pub_mac[hydro_kx_AEAD_MACBYTES / 4];
     uint8_t *                 buf = (uint8_t *) (void *) int_state;
     const uint8_t *           mac;

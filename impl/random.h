@@ -1,5 +1,5 @@
 static TLS struct {
-    CRYPTO_ALIGN(16) uint8_t state[gimli_BLOCKBYTES];
+    _hydro_attr_aligned_(16) uint8_t state[gimli_BLOCKBYTES];
     uint64_t counter;
     uint8_t  initialized;
     uint8_t  available;
@@ -259,7 +259,7 @@ void
 hydro_random_buf_deterministic(void *out, size_t out_len, const uint8_t seed[hydro_random_SEEDBYTES])
 {
     static const uint8_t     prefix[] = { 7, 'd', 'r', 'b', 'g', '2', '5', '6' };
-    CRYPTO_ALIGN(16) uint8_t state[gimli_BLOCKBYTES];
+    _hydro_attr_aligned_(16) uint8_t state[gimli_BLOCKBYTES];
     uint8_t *                p = (uint8_t *) out;
     size_t                   i;
     size_t                   leftover;

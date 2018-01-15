@@ -12,11 +12,24 @@
 extern "C" {
 #endif
 
-#if !defined(__clang__) && !defined(__GNUC__)
-# ifdef __attribute__
-#  undef __attribute__
-# endif
-# define __attribute__(a)
+#if defined(__clang__) || defined(__GNUC__)
+# define _hydro_attr_(X) __attribute__(X)
+#else
+# define _hydro_attr_(X)
+#endif
+#define _hydro_attr_deprecated_         _hydro_attr_((deprecated))
+#define _hydro_attr_malloc_             _hydro_attr_((malloc))
+#define _hydro_attr_noinline_           _hydro_attr_((noinline))
+#define _hydro_attr_noreturn_           _hydro_attr_((noreturn))
+#define _hydro_attr_warn_unused_result_ _hydro_attr_((warn_unused_result))
+#define _hydro_attr_weak_               _hydro_attr_((weak))
+
+#if defined(__INTEL_COMPILER) || defined(_MSC_VER)
+# define _hydro_attr_aligned_(X)        __declspec(align(x))
+#elif defined(__clang__) || defined(__GNUC__)
+# define _hydro_attr_aligned_(X)        _hydro_attr_((aligned(X)))
+#else
+# define _hydro_attr_aligned_(X)
 #endif
 
 #define HYDRO_VERSION_MAJOR 1
@@ -84,7 +97,7 @@ int hydro_secretbox_encrypt(uint8_t *c, const void *m_, size_t mlen, uint64_t ms
 int hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen, uint64_t msg_id,
                             const char    ctx[hydro_secretbox_CONTEXTBYTES],
                             const uint8_t key[hydro_secretbox_KEYBYTES])
-    __attribute__((warn_unused_result));
+    _hydro_attr_warn_unused_result_;
 
 void hydro_secretbox_probe_create(uint8_t probe[hydro_secretbox_PROBEBYTES], const uint8_t *c,
                                   size_t c_len, const char ctx[hydro_secretbox_CONTEXTBYTES],
@@ -93,7 +106,7 @@ void hydro_secretbox_probe_create(uint8_t probe[hydro_secretbox_PROBEBYTES], con
 int hydro_secretbox_probe_verify(const uint8_t probe[hydro_secretbox_PROBEBYTES], const uint8_t *c,
                                  size_t c_len, const char ctx[hydro_secretbox_CONTEXTBYTES],
                                  const uint8_t key[hydro_secretbox_KEYBYTES])
-    __attribute__((warn_unused_result));
+    _hydro_attr_warn_unused_result_;
 
 /* ---------------- */
 
@@ -139,7 +152,7 @@ int hydro_sign_final_create(hydro_sign_state *state, uint8_t csig[hydro_sign_BYT
 
 int hydro_sign_final_verify(hydro_sign_state *state, const uint8_t csig[hydro_sign_BYTES],
                             const uint8_t pk[hydro_sign_PUBLICKEYBYTES])
-    __attribute__((warn_unused_result));
+    _hydro_attr_warn_unused_result_;
 
 int hydro_sign_create(uint8_t csig[hydro_sign_BYTES], const void *m_, size_t mlen,
                       const char    ctx[hydro_sign_CONTEXTBYTES],
@@ -148,7 +161,7 @@ int hydro_sign_create(uint8_t csig[hydro_sign_BYTES], const void *m_, size_t mle
 int hydro_sign_verify(const uint8_t csig[hydro_sign_BYTES], const void *m_, size_t mlen,
                       const char    ctx[hydro_sign_CONTEXTBYTES],
                       const uint8_t pk[hydro_sign_PUBLICKEYBYTES])
-    __attribute__((warn_unused_result));
+    _hydro_attr_warn_unused_result_;
 
 /* ---------------- */
 
@@ -296,10 +309,6 @@ int hydro_unpad(const unsigned char *buf, size_t padded_buflen, size_t blocksize
 # ifdef __AVR__
 #  define HYDRO_HWTYPE HYDRO_HWTYPE_ATMEGA328
 # endif
-#endif
-
-#ifdef __attribute__
-# undef __attribute__
 #endif
 
 #ifdef __cplusplus
