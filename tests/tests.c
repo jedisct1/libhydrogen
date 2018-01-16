@@ -113,11 +113,12 @@ test_hash(void)
 static void
 test_core(void)
 {
-    uint8_t x[100];
-    uint8_t y[100];
-    uint8_t a[5] = { 1, 2, 3, 4, 5 };
-    uint8_t b[5] = { 1, 2, 3, 4, 5 };
-    char    hex[201];
+    uint8_t     x[100];
+    uint8_t     y[100];
+    uint8_t     a[5] = { 1, 2, 3, 4, 5 };
+    uint8_t     b[5] = { 1, 2, 3, 4, 5 };
+    char        hex[201];
+    const char *hexf;
 
     memset(x, 0xd0, sizeof x);
     hydro_memzero(x, sizeof x);
@@ -147,6 +148,13 @@ test_core(void)
     assert(hydro_hex2bin(x, sizeof x, "452a", 4, NULL, NULL) == 2);
     assert(hydro_hex2bin(y, sizeof y, "#452a#", 6, "#", NULL) == 2);
     assert(hydro_equal(x, y, sizeof x));
+    memcpy(hex, "#452a", sizeof "#452a");
+    assert(hydro_hex2bin(x, sizeof x, hex, 0, NULL, &hexf) == 0);
+    assert(hexf == hex);
+    assert(hydro_hex2bin(x, sizeof x, hex, sizeof "#452a", NULL, &hexf) == 0);
+    assert(hexf == hex);
+    assert(hydro_hex2bin(x, sizeof x, hex, sizeof "#452a", "#", &hexf) == 2);
+    assert(hexf == hex + 6);
 }
 
 static void
