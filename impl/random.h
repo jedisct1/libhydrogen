@@ -151,8 +151,9 @@ hydro_random_safe_read(const int fd, void *const buf_, size_t len)
 static int
 hydro_random_init(void)
 {
-    int fd;
-    int ret = -1;
+    uint8_t tmp[gimli_BLOCKBYTES + 8];
+    int     fd;
+    int     ret = -1;
 
 #ifdef __linux__
     if (hydro_random_block_on_dev_random() != 0) {
@@ -165,10 +166,11 @@ hydro_random_init(void)
             return -1;
         }
     } while (fd == -1);
-    if (hydro_random_safe_read(fd, hydro_random_context.state, sizeof hydro_random_context.state) ==
-        (ssize_t) sizeof hydro_random_context.state) {
-        hydro_random_context.counter = ~LOAD64_LE(hydro_random_context.state);
-        ret                          = 0;
+    if (hydro_random_safe_read(fd, tmp, sizeof tmp) == (ssize_t) sizeof tmp) {
+        memcpy(hydro_random_context.state, tmp, gimli_BLOCKBYTES);
+        memcpy(&hydro_random_context.counter, tmp + gimli_BLOCKBYTES, 8);
+        hydro_memzero(tmp, sizeof tmp);
+        ret = 0;
     }
     ret |= close(fd);
 
