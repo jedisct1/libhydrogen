@@ -66,9 +66,11 @@ hydro_random_init(void)
 }
 
 ISR(WDT_vect) {}
+
 #elif (defined(ESP32) || defined(ESP8266)) && !defined(__unix__)
 
-// Should be truely random if RF is activated on ESP board https://techtutorialsx.com/2017/12/22/esp32-arduino-random-number-generation/
+// Important: RF *must* be activated on ESP board
+// https://techtutorialsx.com/2017/12/22/esp32-arduino-random-number-generation/
 
 #include <esp_system.h>
 
@@ -80,7 +82,6 @@ hydro_random_init(void)
     uint16_t         ebits = 0;
     uint16_t         tc;
     bool             a, b;
-
 
     hydro_hash_init(&st, ctx, NULL);
 
