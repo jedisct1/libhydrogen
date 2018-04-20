@@ -211,8 +211,8 @@ hydro_random_init(void)
 
 #elif defined(TARGET_LIKE_MBED)
 
-#include "mbedtls/entropy.h"
-#include "mbedtls/ctr_drbg.h"
+#include <mbedtls/entropy.h>
+#include <mbedtls/ctr_drbg.h>
 
 #if defined(MBEDTLS_ENTROPY_C)
 
