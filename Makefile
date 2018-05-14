@@ -1,8 +1,9 @@
 PREFIX ?= /usr/local
 WFLAGS ?= -Wall -Wextra -Wmissing-prototypes -Wdiv-by-zero -Wbad-function-cast -Wcast-align -Wcast-qual -Wfloat-equal -Wmissing-declarations -Wnested-externs -Wno-unknown-pragmas -Wpointer-arith -Wredundant-decls -Wstrict-prototypes -Wswitch-enum -Wno-type-limits
 CFLAGS ?= -Os -march=native -fno-exceptions $(WFLAGS)
-CFLAGS += -I.
+CFLAGS += -I. -fPIC  -g
 OBJ = hydrogen.o
+LDFLAGS = -shared  
 AR ?= ar
 RANLIB ?= ranlib
 
@@ -22,9 +23,11 @@ SRC = \
 	impl/sign.h \
 	impl/x25519.h
 
-all: lib test
+all: lib shared_lib test
 
 lib: libhydrogen.a
+
+shared_lib: libhydrogen.so
 
 install: lib
 	mkdir -p $(PREFIX)/lib
@@ -50,10 +53,14 @@ libhydrogen.a: $(OBJ)
 	$(AR) -r $@ $^
 	$(RANLIB) $@
 
+libhydrogen.so: $(OBJ)
+	$(CC) ${LDFLAGS} -o $@ $^
+
 .PHONY: clean
 
 clean:
 	rm -f libhydrogen.a $(OBJ)
+	rm -f libhydrogen.so $(OBJ)
 	rm -f tests/tests tests/*.done
 
 check: test
