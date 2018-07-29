@@ -108,6 +108,9 @@ test_hash(void)
     hydro_hash_hash(h, hydro_hash_BYTES, msg, sizeof msg, ctx, key);
     hydro_bin2hex(hex, sizeof hex, h, hydro_hash_BYTES);
     assert_streq("7dfa45ce18210e2422fd658bf7beccb6e534e44f99ae359f4af3ba41af8ca463", hex);
+    hydro_hash_keyless(h, hydro_hash_BYTES, msg, sizeof msg, ctx);
+    hydro_bin2hex(hex, sizeof hex, h, hydro_hash_BYTES);
+    assert_streq("2ceed670db04f2653b295d7727232efbab96860c7a81d8dc4a68cd53bbaa504d", hex);
 }
 
 static void

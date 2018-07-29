@@ -81,6 +81,9 @@ int hydro_hash_hash(uint8_t *out, size_t out_len, const void *in_, size_t in_len
                     const char    ctx[hydro_hash_CONTEXTBYTES],
                     const uint8_t key[hydro_hash_KEYBYTES]);
 
+int hydro_hash_keyless(uint8_t *out, size_t out_len, const void *in_, size_t in_len,
+                    const char    ctx[hydro_hash_CONTEXTBYTES]);
+
 /* ---------------- */
 
 #define hydro_secretbox_CONTEXTBYTES 8

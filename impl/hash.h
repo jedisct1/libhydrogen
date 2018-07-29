@@ -131,6 +131,11 @@ hydro_hash_hash(uint8_t *out, size_t out_len, const void *in_, size_t in_len,
     return 0;
 }
 
+int hydro_hash_keyless(uint8_t *out, size_t out_len, const void *in_, size_t in_len, const char ctx[hydro_hash_CONTEXTBYTES])
+{
+  return hydro_hash_hash(out, out_len, in_, in_len, ctx, NULL);
+}
+
 void
 hydro_hash_keygen(uint8_t key[hydro_hash_KEYBYTES])
 {
