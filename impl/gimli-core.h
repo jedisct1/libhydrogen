@@ -1,5 +1,5 @@
-#ifdef __SSSE3__
-# include "gimli-core/ssse3.h"
+#ifdef __SSE2__
+# include "gimli-core/sse2.h"
 #else
 # include "gimli-core/portable.h"
 #endif
