@@ -182,7 +182,8 @@ hydro_pad(unsigned char *buf, size_t unpadded_buflen, size_t blocksize, size_t m
     tail = &buf[xpadded_len];
     mask = 0U;
     for (i = 0; i < blocksize; i++) {
-        barrier_mask = (unsigned char) (((i ^ xpadlen) - 1U)>> ((sizeof(size_t) - 1U) * CHAR_BIT));
+        barrier_mask = (unsigned char)
+	 (((i ^ xpadlen) - 1U) >> ((sizeof(size_t) - 1U) * CHAR_BIT));
         tail[-i]     = (tail[-i] & mask) | (0x80 & barrier_mask);
         mask |= barrier_mask;
     }
