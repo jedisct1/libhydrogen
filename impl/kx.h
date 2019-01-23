@@ -306,7 +306,7 @@ hydro_kx_kk_2(hydro_kx_session_keypair *kp, uint8_t packet2[hydro_kx_KK_PACKET2B
     if (hydro_kx_scalarmult(&state, dh_res, state.eph_kp.sk, peer_eph_pk) != 0) {
         return -1;
     }
-    if (hydro_kx_scalarmult(&state, dh_res, static_kp->sk, peer_eph_pk) != 0) {
+    if (hydro_kx_scalarmult(&state, dh_res, state.eph_kp.sk, peer_static_pk) != 0) {
         return -1;
     }
     hydro_kx_final(&state, kp->rx, kp->tx);
@@ -325,7 +325,7 @@ hydro_kx_kk_3(hydro_kx_state *state, hydro_kx_session_keypair *kp,
     if (hydro_kx_scalarmult(state, dh_res, state->eph_kp.sk, peer_eph_pk) != 0) {
         return -1;
     }
-    if (hydro_kx_scalarmult(state, dh_res, state->eph_kp.sk, peer_static_pk) != 0) {
+    if (hydro_kx_scalarmult(state, dh_res, static_kp->sk, peer_eph_pk) != 0) {
         return -1;
     }
     hydro_kx_final(state, kp->tx, kp->rx);
