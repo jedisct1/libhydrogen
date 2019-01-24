@@ -314,7 +314,7 @@ test_kx_kk(void)
 
     hydro_kx_kk_1(&st_client, packet1, server_static_kp.pk, &client_static_kp);
     hydro_kx_kk_2(&kp_server, packet2, packet1, client_static_kp.pk, &server_static_kp);
-    hydro_kx_kk_3(&st_client, &kp_client, packet2, server_static_kp.pk);
+    hydro_kx_kk_3(&st_client, &kp_client, packet2, &client_static_kp);
 
     assert(hydro_equal(kp_client.tx, kp_server.rx, hydro_kx_SESSIONKEYBYTES));
     assert(hydro_equal(kp_client.rx, kp_server.tx, hydro_kx_SESSIONKEYBYTES));

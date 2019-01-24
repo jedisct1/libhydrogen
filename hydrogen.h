@@ -219,7 +219,7 @@ int hydro_kx_kk_2(hydro_kx_session_keypair *kp, uint8_t packet2[hydro_kx_KK_PACK
 
 int hydro_kx_kk_3(hydro_kx_state *state, hydro_kx_session_keypair *kp,
                   const uint8_t packet2[hydro_kx_KK_PACKET2BYTES],
-                  const uint8_t peer_static_pk[hydro_kx_PUBLICKEYBYTES]);
+                  const hydro_kx_keypair *static_kp);
 
 /* NOISE_XX */
 
