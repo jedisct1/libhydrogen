@@ -324,6 +324,7 @@ hydro_random_buf(void *out, size_t out_len)
     size_t   i;
     size_t   leftover;
 
+    hydro_random_check_initialized();
     for (i = 0; i < out_len / gimli_RATE; i++) {
         gimli_core_u8(hydro_random_context.state, 0);
         memcpy(p + i * gimli_RATE, hydro_random_context.state, gimli_RATE);
