@@ -39,6 +39,14 @@
 # define SIZE_MAX ((size_t) -1)
 #endif
 
+#ifdef __OpenBSD__
+# define HAVE_EXPLICIT_BZERO 1
+#elif defined(__GLIBC__) && defined(__GLIBC_PREREQ) && defined(_GNU_SOURCE)
+# if __GLIBC_PREREQ(2, 25)
+#  define HAVE_EXPLICIT_BZERO 1
+# endif
+#endif
+
 #define COMPILER_ASSERT(X) (void) sizeof(char[(X) ? 1 : -1])
 
 #define ROTL32(x, b) (uint32_t)(((x) << (b)) | ((x) >> (32 - (b))))

@@ -10,12 +10,16 @@ hydro_init(void)
 void
 hydro_memzero(void *pnt, size_t len)
 {
+#ifdef HAVE_EXPLICIT_BZERO
+    explicit_bzero(pnt, len);
+#else
     volatile unsigned char *volatile pnt_ = (volatile unsigned char *volatile) pnt;
     size_t i                              = (size_t) 0U;
 
     while (i < len) {
         pnt_[i++] = 0U;
     }
+#endif
 }
 
 void
