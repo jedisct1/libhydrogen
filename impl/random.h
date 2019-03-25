@@ -143,7 +143,7 @@ hydro_random_init(void)
 #include <errno.h>
 #include <fcntl.h>
 #ifdef __linux__
-#include <poll.h>
+# include <poll.h>
 #endif
 #include <sys/types.h>
 #include <unistd.h>
@@ -270,11 +270,11 @@ hydro_random_init(void)
 }
 
 #else
-#error Need an entropy source
+# error Need an entropy source
 #endif
 
 #else
-#error Unsupported platform
+# error Unsupported platform
 #endif
 
 static void
