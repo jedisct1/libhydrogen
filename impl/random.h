@@ -80,8 +80,6 @@ hydro_random_init(void)
     const char       ctx[hydro_hash_CONTEXTBYTES] = { 'h', 'y', 'd', 'r', 'o', 'P', 'R', 'G' };
     hydro_hash_state st;
     uint16_t         ebits = 0;
-    uint16_t         tc;
-    bool             a, b;
 
     hydro_hash_init(&st, ctx, NULL);
 
