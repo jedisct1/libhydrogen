@@ -412,8 +412,10 @@ int
 main(void)
 {
 #if defined(_WIN32)
-    // On Windows, disable the "Abort - Retry - Ignore" GUI dialog that otherwise pops up on
-    // assertion failure.
+    /*
+     * On Windows, disable the "Abort - Retry - Ignore" GUI dialog that otherwise pops up on
+     * assertion failure.
+     */
     _set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
 #endif
 
