@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../hydrogen.h"
+#include "hydrogen.h"
 
 static const char *ctx = "libtests";
 
