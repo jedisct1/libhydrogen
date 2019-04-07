@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../hydrogen.h"
+#include "hydrogen.h"
 
 #if !defined(__unix__) && (defined(__APPLE__) || defined(__linux__))
 # define __unix__ 1
