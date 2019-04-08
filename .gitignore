@@ -23,8 +23,10 @@
 .deps
 .dirstamp
 .done
+.idea
 .libs
 build.options.json
+cmake-build-*
 coverage.info
 depcomp
 hydrogen-crypto.zip
