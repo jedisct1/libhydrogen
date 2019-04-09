@@ -109,15 +109,17 @@ target_compile_options("${tests_executable}" PRIVATE ${compile_options})
 target_link_libraries("${tests_executable}" "${PROJECT_NAME}")
 add_test(NAME "${tests_executable}" COMMAND "${tests_executable}")
 
-# Auto-run tests on build
+# Auto-run tests on build (unless cross-compiling)
 
-add_custom_command(OUTPUT "${tests_done_file}"
-        DEPENDS "${tests_executable}"
-        COMMAND cmake
-            ARGS -E remove "${tests_done_file}"
-        COMMAND ctest
-            ARGS -C $<CONFIGURATION> --output-on-failure
-        COMMAND cmake
-            ARGS -E touch "${tests_done_file}"
-        WORKING_DIRECTORY "${PROJECT_BINARY_DIR}")
-add_custom_target("${tests_done_target}" ALL DEPENDS "${tests_done_file}")
+if(NOT CMAKE_CROSSCOMPILING)
+    add_custom_command(OUTPUT "${tests_done_file}"
+            DEPENDS "${tests_executable}"
+            COMMAND cmake
+                ARGS -E remove "${tests_done_file}"
+            COMMAND ctest
+                ARGS -C $<CONFIGURATION> --output-on-failure
+            COMMAND cmake
+                ARGS -E touch "${tests_done_file}"
+            WORKING_DIRECTORY "${PROJECT_BINARY_DIR}")
+    add_custom_target("${tests_done_target}" ALL DEPENDS "${tests_done_file}")
+endif()
