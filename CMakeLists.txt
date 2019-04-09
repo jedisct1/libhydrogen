@@ -6,10 +6,17 @@ project(hydrogen
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
+if(NOT CMAKE_CROSSCOMPILING)
+    set(default_build_arch native)
+endif()
+
+set(BUILD_ARCH "${default_build_arch}" CACHE STRING
+        "Target system architecture (fed to the compiler's -march=...)")
+
 set(compile_options
         $<$<OR:$<C_COMPILER_ID:AppleClang>,$<C_COMPILER_ID:Clang>,$<C_COMPILER_ID:GNU>>:
             # Optimizations
-            -Os -march=native -fno-exceptions
+            -Os $<$<BOOL:${BUILD_ARCH}>:-march=${BUILD_ARCH}> -fno-exceptions
             # Warnings
             -Wall -Wextra -Wmissing-prototypes -Wdiv-by-zero -Wbad-function-cast -Wcast-align
             -Wcast-qual -Wfloat-equal -Wmissing-declarations -Wnested-externs -Wno-unknown-pragmas
