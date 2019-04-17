@@ -225,8 +225,8 @@ hydro_random_safe_read(const int fd, void *const buf_, size_t len)
     ssize_t        readnb;
 
     do {
-        while ((readnb = read(fd, buf, len)) < (ssize_t) 0 && (errno == EINTR || errno == EAGAIN))
-            ;
+        while ((readnb = read(fd, buf, len)) < (ssize_t) 0 &&
+               (errno == EINTR || errno == EAGAIN)) { }
         if (readnb < (ssize_t) 0) {
             return readnb;
         }
@@ -301,7 +301,8 @@ hydro_random_init(void)
 
         // Forces mbedTLS to fetch fresh entropy, then get some to feed libhydrogen.
         if (mbedtls_entropy_gather(&entropy) != 0 ||
-            mbedtls_entropy_func(&entropy, &hydro_random_context.state[pos], currentChunkSize) != 0) {
+            mbedtls_entropy_func(&entropy,
+                                 &hydro_random_context.state[pos], currentChunkSize) != 0) {
             return -1;
         }
         pos += MBEDTLS_ENTROPY_BLOCK_SIZE;
