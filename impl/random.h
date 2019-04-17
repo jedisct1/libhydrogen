@@ -9,15 +9,16 @@ static TLS struct {
 #include <Arduino.h>
 
 static bool
-hydro_random_rbit(unsigned int x)
+hydro_random_rbit(uint16_t x)
 {
-    size_t i;
-    bool   res = 0;
+    uint8_t x8;
 
-    for (i = 0; i < sizeof x; i++) {
-        res ^= ((x >> i) & 1);
-    }
-    return res;
+    x8 = ((uint8_t) (x >> 8)) ^ (uint8_t) x;
+    x8 = (x8 >> 4) ^ (x8 & 0xf);
+    x8 = (x8 >> 2) ^ (x8 & 0x3);
+    x8 = (x8 >> 1) ^ x8;
+
+    return (bool) (x8 & 1);
 }
 
 static int
