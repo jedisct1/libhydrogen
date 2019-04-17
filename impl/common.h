@@ -6,8 +6,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../hydrogen.h"
-
 #if !defined(__unix__) && (defined(__APPLE__) || defined(__linux__))
 # define __unix__ 1
 #endif
@@ -37,6 +35,14 @@
 
 #ifndef SIZE_MAX
 # define SIZE_MAX ((size_t) -1)
+#endif
+
+#ifdef __OpenBSD__
+# define HAVE_EXPLICIT_BZERO 1
+#elif defined(__GLIBC__) && defined(__GLIBC_PREREQ) && defined(_GNU_SOURCE)
+# if __GLIBC_PREREQ(2, 25)
+#  define HAVE_EXPLICIT_BZERO 1
+# endif
 #endif
 
 #define COMPILER_ASSERT(X) (void) sizeof(char[(X) ? 1 : -1])
