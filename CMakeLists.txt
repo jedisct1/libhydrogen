@@ -37,6 +37,9 @@ set(header_files
 set(test_files
         "tests/tests.c")
 
+set(arduino_files
+        "library.properties")
+
 # Compile options
 
 get_setting(target_arch STRING "Target system architecture (fed to the compiler's -march=...).")
@@ -77,6 +80,7 @@ endfunction()
 prefix_project_paths(source_files)
 prefix_project_paths(header_files)
 prefix_project_paths(test_files)
+prefix_project_paths(arduino_files)
 
 # Main library
 
@@ -163,3 +167,18 @@ else()
             WORKING_DIRECTORY "${PROJECT_BINARY_DIR}")
     add_custom_target("${tests_run_target}" ALL DEPENDS "${tests_run_file}")
 endif()
+
+# Generate Arduino package
+
+set(arduino_package_file "${PROJECT_BINARY_DIR}/hydrogen-crypto.zip")
+
+# Use the relative versions of the file path lists or else the full paths will
+# end up in the generated archive.
+add_custom_command(OUTPUT "${arduino_package_file}"
+        COMMAND cmake
+            ARGS -E tar cf "${arduino_package_file}" --format=zip
+                -- ${source_files} ${header_files} ${arduino_files}
+        WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
+
+add_custom_target("${PROJECT_NAME}-arduino-package"
+        DEPENDS "${arduino_package_file}")
