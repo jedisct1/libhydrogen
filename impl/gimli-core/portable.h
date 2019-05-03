@@ -8,6 +8,9 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+#include "../hydrogen_p.h"
+
 static void
 gimli_core(uint32_t state[gimli_BLOCKBYTES / 4])
 {

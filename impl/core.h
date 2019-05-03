@@ -8,6 +8,9 @@
 extern "C" {
 #endif
 
+#include "common.h"
+#include "random.h"
+
 int
 hydro_init(void)
 {

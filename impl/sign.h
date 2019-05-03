@@ -8,6 +8,10 @@
 extern "C" {
 #endif
 
+#include "common.h"
+#include "hydrogen_p.h"
+#include "x25519.h"
+
 #define hydro_sign_CHALLENGEBYTES 32
 #define hydro_sign_NONCEBYTES 32
 #define hydro_sign_PREHASHBYTES 64

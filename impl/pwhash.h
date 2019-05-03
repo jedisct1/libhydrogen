@@ -8,6 +8,9 @@
 extern "C" {
 #endif
 
+#include "common.h"
+#include "hydrogen_p.h"
+
 #define hydro_pwhash_ENC_ALGBYTES 1
 #define hydro_pwhash_HASH_ALGBYTES 1
 #define hydro_pwhash_THREADSBYTES 1

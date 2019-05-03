@@ -8,6 +8,9 @@
 extern "C" {
 #endif
 
+#include "common.h"
+#include "../hydrogen.h"
+
 static int hydro_random_init(void);
 
 /* ---------------- */

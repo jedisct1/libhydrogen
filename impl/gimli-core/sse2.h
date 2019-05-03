@@ -9,8 +9,9 @@ extern "C" {
 #endif
 
 #ifdef __SSE2__
-
+#include <stdint.h>
 #include <tmmintrin.h>
+#include "../hydrogen_p.h"
 
 #define S 9
 
@@ -107,7 +108,8 @@ gimli_core(uint32_t state[gimli_BLOCKBYTES / 4])
     _mm_storeu_si128((__m128i *) (void *) &state[4], y);
     _mm_storeu_si128((__m128i *) (void *) &state[8], z);
 }
-
+#else
+# error "This header should be included only for SSE2 capable processors"
 #endif /* __SSE2__ */
 
 #ifdef __cplusplus

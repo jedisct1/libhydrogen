@@ -14,6 +14,9 @@
 extern "C" {
 #endif
 
+#include "common.h"
+#include "hydrogen_p.h"
+
 #if defined(__GNUC__) && defined(__SIZEOF_INT128__)
 # define hydro_x25519_WBITS 64
 #else
