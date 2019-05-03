@@ -1,3 +1,13 @@
+#ifndef hydrogen_pwhash_H
+#define hydrogen_pwhash_H
+
+#ifdef __cplusplus
+# ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wlong-long"
+# endif
+extern "C" {
+#endif
+
 #define hydro_pwhash_ENC_ALGBYTES 1
 #define hydro_pwhash_HASH_ALGBYTES 1
 #define hydro_pwhash_THREADSBYTES 1
@@ -279,3 +289,9 @@ hydro_pwhash_upgrade(uint8_t       stored[hydro_pwhash_STOREDBYTES],
     return hydro_secretbox_encrypt(secretbox, params, hydro_pwhash_PARAMSBYTES, (uint64_t) *enc_alg,
                                    hydro_pwhash_CONTEXT, master_key);
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* hydrogen_pwhash_H */

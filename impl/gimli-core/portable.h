@@ -1,3 +1,13 @@
+#ifndef hydrogen_gimli_core_portable_H
+#define hydrogen_gimli_core_portable_H
+
+#ifdef __cplusplus
+# ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wlong-long"
+# endif
+extern "C" {
+#endif
+
 static void
 gimli_core(uint32_t state[gimli_BLOCKBYTES / 4])
 {
@@ -37,3 +47,9 @@ gimli_core(uint32_t state[gimli_BLOCKBYTES / 4])
         }
     }
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* hydrogen_gimli_core_portable_H */

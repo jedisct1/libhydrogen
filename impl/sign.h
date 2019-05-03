@@ -1,3 +1,13 @@
+#ifndef hydrogen_sign_H
+#define hydrogen_sign_H
+
+#ifdef __cplusplus
+# ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wlong-long"
+# endif
+extern "C" {
+#endif
+
 #define hydro_sign_CHALLENGEBYTES 32
 #define hydro_sign_NONCEBYTES 32
 #define hydro_sign_PREHASHBYTES 64
@@ -205,3 +215,9 @@ hydro_sign_verify(const uint8_t csig[hydro_sign_BYTES], const void *m_, size_t m
     }
     return 0;
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* hydrogen_sign_H */

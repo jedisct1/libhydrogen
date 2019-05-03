@@ -1,3 +1,13 @@
+#ifndef hydrogen_gimli_core_H
+#define hydrogen_gimli_core_H
+
+#ifdef __cplusplus
+# ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wlong-long"
+# endif
+extern "C" {
+#endif
+
 #ifdef __SSE2__
 # include "gimli-core/sse2.h"
 #else
@@ -23,3 +33,9 @@ gimli_core_u8(uint8_t state_u8[gimli_BLOCKBYTES], uint8_t tag)
     gimli_core((uint32_t *) (void *) state_u8); /* state_u8 must be properly aligned */
 #endif
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* hydrogen_gimli_core_H */

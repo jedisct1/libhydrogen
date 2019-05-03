@@ -1,3 +1,13 @@
+#ifndef hydrogen_secretbox_H
+#define hydrogen_secretbox_H
+
+#ifdef __cplusplus
+# ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wlong-long"
+# endif
+extern "C" {
+#endif
+
 #define hydro_secretbox_IVBYTES 20
 #define hydro_secretbox_SIVBYTES 20
 #define hydro_secretbox_MACBYTES 16
@@ -234,3 +244,9 @@ hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen, uint64_t msg_id
     }
     return 0;
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* hydrogen_secretbox_H */

@@ -1,3 +1,13 @@
+#ifndef hydrogen_common_H
+#define hydrogen_common_H
+
+#ifdef __cplusplus
+# ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wlong-long"
+# endif
+extern "C" {
+#endif
+
 #include <assert.h>
 #include <errno.h>
 #include <limits.h>
@@ -320,3 +330,9 @@ mem_xor2(void *__restrict__ dst_, const void *__restrict__ src1_, const void *__
 }
 
 static const uint8_t zero[64] = { 0 };
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* hydrogen_common_H */

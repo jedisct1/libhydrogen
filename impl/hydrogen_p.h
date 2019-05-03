@@ -1,3 +1,13 @@
+#ifndef hydrogen_hydrogen_p_H
+#define hydrogen_hydrogen_p_H
+
+#ifdef __cplusplus
+# ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wlong-long"
+# endif
+extern "C" {
+#endif
+
 static int hydro_random_init(void);
 
 /* ---------------- */
@@ -81,3 +91,9 @@ static inline int hydro_x25519_scalarmult_base(uint8_t       pk[hydro_x25519_PUB
 static inline void
 hydro_x25519_scalarmult_base_uniform(uint8_t       pk[hydro_x25519_PUBLICKEYBYTES],
                                      const uint8_t sk[hydro_x25519_SECRETKEYBYTES]);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* hydrogen_hydrogen_p_H */

@@ -1,3 +1,13 @@
+#ifndef hydrogen_hash_H
+#define hydrogen_hash_H
+
+#ifdef __cplusplus
+# ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wlong-long"
+# endif
+extern "C" {
+#endif
+
 int
 hydro_hash_update(hydro_hash_state *state, const void *in_, size_t in_len)
 {
@@ -136,3 +146,9 @@ hydro_hash_keygen(uint8_t key[hydro_hash_KEYBYTES])
 {
     hydro_random_buf(key, hydro_hash_KEYBYTES);
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* hydrogen_hash_H */

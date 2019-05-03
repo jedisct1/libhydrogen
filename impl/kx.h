@@ -1,3 +1,13 @@
+#ifndef hydrogen_kx_H
+#define hydrogen_kx_H
+
+#ifdef __cplusplus
+# ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wlong-long"
+# endif
+extern "C" {
+#endif
+
 #define hydro_kx_AEAD_KEYBYTES hydro_hash_KEYBYTES
 #define hydro_kx_AEAD_MACBYTES 16
 #define hydro_kx_AEAD_HEADERBYTES hydro_kx_AEAD_MACBYTES
@@ -439,3 +449,9 @@ hydro_kx_xx_4(hydro_kx_state *state, hydro_kx_session_keypair *kp,
 
     return 0;
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* hydrogen_kx_H */

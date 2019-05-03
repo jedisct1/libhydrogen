@@ -4,6 +4,16 @@
  * MIT License (MIT)
  */
 
+#ifndef hydrogen_x25519_H
+#define hydrogen_x25519_H
+
+#ifdef __cplusplus
+# ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wlong-long"
+# endif
+extern "C" {
+#endif
+
 #if defined(__GNUC__) && defined(__SIZEOF_INT128__)
 # define hydro_x25519_WBITS 64
 #else
@@ -381,3 +391,9 @@ hydro_x25519_sc_montmul(hydro_x25519_scalar_t out, const hydro_x25519_scalar_t a
         out[i] = hydro_x25519_umaal(&carry, out[i], need_add, hydro_x25519_sc_p[i]);
     }
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* hydrogen_x25519_H */

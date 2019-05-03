@@ -1,3 +1,13 @@
+#ifndef hydrogen_core_H
+#define hydrogen_core_H
+
+#ifdef __cplusplus
+# ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wlong-long"
+# endif
+extern "C" {
+#endif
+
 int
 hydro_init(void)
 {
@@ -222,3 +232,9 @@ hydro_unpad(const unsigned char *buf, size_t padded_buflen, size_t blocksize)
     }
     return (int) (padded_buflen - 1 - pad_len);
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* hydrogen_core_H */

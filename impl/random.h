@@ -1,3 +1,13 @@
+#ifndef hydrogen_random_H
+#define hydrogen_random_H
+
+#ifdef __cplusplus
+# ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wlong-long"
+# endif
+extern "C" {
+#endif
+
 static TLS struct {
     _hydro_attr_aligned_(16) uint8_t state[gimli_BLOCKBYTES];
     uint64_t counter;
@@ -436,3 +446,9 @@ hydro_random_reseed(void)
     hydro_random_context.initialized = 0;
     hydro_random_check_initialized();
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* hydrogen_random_H */

@@ -1,3 +1,15 @@
+#ifndef hydrogen_gimli_core_sse2_H
+#define hydrogen_gimli_core_sse2_H
+
+#ifdef __cplusplus
+# ifdef __GNUC__
+#  pragma GCC diagnostic ignored "-Wlong-long"
+# endif
+extern "C" {
+#endif
+
+#ifdef __SSE2__
+
 #include <tmmintrin.h>
 
 #define S 9
@@ -95,3 +107,11 @@ gimli_core(uint32_t state[gimli_BLOCKBYTES / 4])
     _mm_storeu_si128((__m128i *) (void *) &state[4], y);
     _mm_storeu_si128((__m128i *) (void *) &state[8], z);
 }
+
+#endif /* __SSE2__ */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* hydrogen_gimli_core_sse2_H */
