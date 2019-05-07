@@ -88,14 +88,14 @@ ISR(WDT_vect) {}
  * If RNG exists then the user is expected to configure and enable the
  * RNG peripheral before calling hydro_init or hydro_random_reseed
  *
- * If LPTIM exists then the user is expected to de-configure and disable the
- * LPTIM peripheral before calling hydro_init or hydro_random_reseed
+ * If LPTIM1 exists then the user is expected to de-configure and disable the
+ * LPTIM1 peripheral before calling hydro_init or hydro_random_reseed
  *
  * If your STM32 micro-controller supports neither of these peripherals then it
  * is currently not supported
  */
 # if !defined(RNG) && !defined(LPTIM1)
-#  error "The RNG and/or LPTIM STM32 peripherals are not found"
+#  error "The RNG and/or LPTIM1 STM32 peripherals are not found"
 # endif
 
 #define STM32_REQUIRED_BITS_FOR_SEED (256U)
@@ -149,7 +149,7 @@ hydro_random_get_lptim_c(uint16_t *c)
     unsigned int tries;
 
     /*
-     * When the LPTIM instance is running with an asynchronous clock,
+     * When the LPTIM1 instance is running with an asynchronous clock,
      * reading the CNT register may return unreliable values
      *
      * So it is necessary to perform two consecutive reads and verify
@@ -197,6 +197,7 @@ hydro_random_init(void)
     for (;;) {
         bool old_ie;
 
+        /* Check if the RNG peripheral's clock is enabled */
 #  if defined (RCC_AHBENR_RNGEN)
         if (!READ_BIT(RCC->AHBENR, RCC_AHBENR_RNGEN)) {
             break;
@@ -217,6 +218,7 @@ hydro_random_init(void)
 #   error "unsupported STM32 RNG peripheral"
 #  endif
 
+        /* Check if the RNG peripheral is enabled */
         if (!READ_BIT(RNG->CR, RNG_CR_RNGEN)) {
             break;
         }
@@ -225,7 +227,7 @@ hydro_random_init(void)
          * We will temporarily disable RNG's interrupt so that we can be sure
          * that we are the only consumer of its output
          */
-        old_ie = READ_BIT(RNG->CR, RNG_CR_RNGEN);
+        old_ie = READ_BIT(RNG->CR, RNG_CR_IE);
         if (old_ie) {
             CLEAR_BIT(RNG->CR, RNG_CR_IE);
         }
@@ -254,7 +256,7 @@ hydro_random_init(void)
     for (;;) {
         /*
          * We need the LPTIM1 to be free, if it is being used the user should
-         * restructure their program so that they don't use the LPTIM when
+         * restructure their program so that they don't use the LPTIM1 when
          * initializing or reseeding the random number generator
          */
 #  if defined(RCC_APB1ENR_LPTIM1EN)
