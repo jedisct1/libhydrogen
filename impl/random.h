@@ -380,12 +380,12 @@ hydro_random_init(void)
     }
 # endif /* defined(LPTIM1) */
 
-    hydro_hash_final(&st, hydro_random_context.state,
-                     sizeof hydro_random_context.state);
-
     if (ebits_rng + ebits_lptim < STM32_REQUIRED_BITS_FOR_SEED) {
         return -1;
     }
+
+    hydro_hash_final(&st, hydro_random_context.state,
+                     sizeof hydro_random_context.state);
 
     hydro_random_context.counter = ~LOAD64_LE(hydro_random_context.state);
 
