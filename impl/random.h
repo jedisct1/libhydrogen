@@ -68,6 +68,328 @@ hydro_random_init(void)
 
 ISR(WDT_vect) {}
 
+#elif defined(STM32) && !defined(__unix__)
+
+/*
+ * We can not easily guess what series of micro-controllers are being used so
+ * we exploit the fact that STM32CubeMX (the standard project generator from ST)
+ * generates the required includes in main.h
+ */
+#include "main.h"
+
+/*
+ * We support two types of entropy - the "True Random Number Generator" (RNG)
+ * peripheral and/or the entropy generated from the LPTIM1 timer peripheral
+ * which we asynchronously drive using the 37KHz LSI clock - the differences
+ * between the main clock and the LSI clock become our entropy
+ *
+ * We expect a working and configured 1ms SysTick timer
+ *
+ * If RNG exists then the user is expected to configure and enable the
+ * RNG peripheral before calling hydro_init or hydro_random_reseed
+ *
+ * If LPTIM exists then the user is expected to de-configure and disable the
+ * LPTIM peripheral before calling hydro_init or hydro_random_reseed
+ *
+ * If your STM32 micro-controller supports neither of these peripherals then it
+ * is currently not supported
+ */
+# if !defined(RNG) && !defined(LPTIM1)
+#  error "The RNG and/or LPTIM STM32 peripherals are not found"
+# endif
+
+#define STM32_REQUIRED_BITS_FOR_SEED (256U)
+
+#define HYDRO_STM32_DELAY_MS(ms) do {                                          \
+    uint32_t _ms = ms;                                                         \
+    __IO uint32_t tmpreg = SysTick->CTRL;                                      \
+    (void)tmpreg;                                                              \
+    while (_ms) {                                                              \
+        if (READ_BIT(SysTick->CTRL, SysTick_CTRL_COUNTFLAG_Msk)) {             \
+            _ms--;                                                             \
+        }                                                                      \
+    }                                                                          \
+} while (0)
+
+#define STM32_LSI_READY_TIMEOUT_MS       (2U)
+#define STM32_RNG_READY_TIMEOUT_MS       (2U)
+#define STM32_LPTIM_READ_TRIES_MAX       (100U)
+
+# if defined(RNG)
+static int
+hydro_random_get_rng_r(uint32_t *r)
+{
+    uint32_t timeout = STM32_RNG_READY_TIMEOUT_MS;
+
+    /* wait for DRDY ready flag */
+    while (!READ_BIT(RNG->SR, RNG_SR_DRDY)) {
+        if (READ_BIT(SysTick->CTRL, SysTick_CTRL_COUNTFLAG_Msk)) {
+            if (--timeout == 0U) {
+                return -1;
+            }
+        }
+    }
+
+    /* check for errors */
+    if (READ_BIT(RNG->SR, RNG_SR_CECS) || READ_BIT(RNG->SR, RNG_SR_SECS)) {
+        return -1;
+    }
+
+    *r = (uint32_t) READ_REG(RNG->DR);
+
+    return 0;
+}
+# endif /* defined(RNG) */
+
+# if defined(LPTIM1)
+static int
+hydro_random_get_lptim_c(uint16_t *c)
+{
+    uint16_t c1, c2;
+    unsigned int tries;
+
+    /*
+     * When the LPTIM instance is running with an asynchronous clock,
+     * reading the CNT register may return unreliable values
+     *
+     * So it is necessary to perform two consecutive reads and verify
+     * that the two returned values are identical
+     */
+    tries = STM32_LPTIM_READ_TRIES_MAX;
+    do {
+        c1 = (uint16_t) READ_BIT(LPTIM1->CNT, LPTIM_CNT_CNT);
+        c2 = (uint16_t) READ_BIT(LPTIM1->CNT, LPTIM_CNT_CNT);
+    } while (c1 != c2 || --tries == 0U);
+
+    if (tries == 0U) {
+        return -1;
+    }
+
+    *c = c1;
+
+    return 0;
+}
+
+static bool
+hydro_random_rbit(uint16_t x)
+{
+    uint8_t x8;
+
+    x8 = ((uint8_t) (x >> 8)) ^ (uint8_t) x;
+    x8 = (x8 >> 4) ^ (x8 & 0xf);
+    x8 = (x8 >> 2) ^ (x8 & 0x3);
+    x8 = (x8 >> 1) ^ x8;
+
+    return (bool) (x8 & 1);
+}
+# endif /* defined(LPTIM1) */
+
+static int
+hydro_random_init(void)
+{
+    const char       ctx[hydro_hash_CONTEXTBYTES] = { 'h', 'y', 'd', 'r', 'o', 'P', 'R', 'G' };
+    hydro_hash_state st;
+    unsigned int     ebits_rng = 0U, ebits_lptim = 0U;
+
+    hydro_hash_init(&st, ctx, NULL);
+
+# if defined(RNG)
+    for (;;) {
+        bool old_ie;
+
+#  if defined (RCC_AHBENR_RNGEN)
+        if (!READ_BIT(RCC->AHBENR, RCC_AHBENR_RNGEN)) {
+            break;
+        }
+#  elif defined(RCC_AHB1ENR_RNGEN)
+        if (!READ_BIT(RCC->AHB1ENR, RCC_AHB1ENR_RNGEN)) {
+            break;
+        }
+#  elif defined(RCC_AHB2ENR_RNGEN)
+        if (!READ_BIT(RCC->AHB2ENR, RCC_AHB2ENR_RNGEN)) {
+            break;
+        }
+#  elif defined(RCC_AHB3ENR_RNGEN)
+        if (!READ_BIT(RCC->AHB3ENR, RCC_AHB3ENR_RNGEN)) {
+            break;
+        }
+#  else
+#   error "unsupported STM32 RNG peripheral"
+#  endif
+
+        if (!READ_BIT(RNG->CR, RNG_CR_RNGEN)) {
+            break;
+        }
+
+        /*
+         * We will temporarily disable RNG's interrupt so that we can be sure
+         * that we are the only consumer of its output
+         */
+        old_ie = READ_BIT(RNG->CR, RNG_CR_RNGEN);
+        if (old_ie) {
+            CLEAR_BIT(RNG->CR, RNG_CR_IE);
+        }
+
+        while (ebits_rng < STM32_REQUIRED_BITS_FOR_SEED) {
+            uint32_t r;
+
+            if (hydro_random_get_rng_r(&r) != 0) {
+                break;
+            }
+            hydro_hash_update(&st, (const uint8_t *) &r, sizeof r);
+
+            ebits_rng += 8U * sizeof r;
+        }
+
+        /* Re-enable the RNG interrupt if it was enabled previously */
+        if (old_ie) {
+            SET_BIT(RNG->CR, RNG_CR_IE);
+        }
+
+        break;
+    }
+# endif /* defined(RNG) */
+
+# if defined(LPTIM1)
+    for (;;) {
+        /*
+         * We need the LPTIM1 to be free, if it is being used the user should
+         * restructure their program so that they don't use the LPTIM when
+         * initializing or reseeding the random number generator
+         */
+#  if defined(RCC_APB1ENR_LPTIM1EN)
+        if (READ_BIT(RCC->APB1ENR, RCC_APB1ENR_LPTIM1EN) &&
+                READ_BIT(LPTIM1->CR, LPTIM_CR_ENABLE)) {
+            break;
+        }
+#  elif defined(RCC_APB1ENR1_LPTIM1EN)
+        if (READ_BIT(RCC->APB1ENR1, RCC_APB1ENR1_LPTIM1EN) &&
+                READ_BIT(LPTIM1->CR, LPTIM_CR_ENABLE)) {
+            break;
+        }
+#  else
+#   error "Unsupported STM32 LPTIM1 peripheral"
+#  endif
+
+        /* We need the SysTick enabled */
+        if (!READ_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk)) {
+            break;
+        }
+
+        /* Enable the low-precision LSI clock if it is disabled */
+        if (READ_BIT(RCC->CSR, RCC_CSR_LSIRDY) != RCC_CSR_LSIRDY) {
+            uint32_t timeout = STM32_LSI_READY_TIMEOUT_MS;
+
+            SET_BIT(RCC->CSR, RCC_CSR_LSION);
+
+            /* Wait for LSI to be ready, with timeout */
+            while (READ_BIT(RCC->CSR, RCC_CSR_LSIRDY) != RCC_CSR_LSIRDY) {
+                if (READ_BIT(SysTick->CTRL, SysTick_CTRL_COUNTFLAG_Msk)) {
+                    if (--timeout == 0U) {
+                        break;
+                    }
+                }
+            }
+            if (timeout == 0U) {
+                break;
+            }
+        }
+
+        /* Enable LPTIM1's peripheral clock if it is disabled */
+#  if defined(RCC_APB1ENR_LPTIM1EN)
+        if (!READ_BIT(RCC->APB1ENR, RCC_APB1ENR_LPTIM1EN)) {
+            __IO uint32_t tmpreg;
+
+            SET_BIT(RCC->APB1ENR, RCC_APB1ENR_LPTIM1EN);
+
+            /* a tiny delay is needed after an RCC peripheral clock enabling */
+            tmpreg = READ_BIT(RCC->APB1ENR, RCC_APB1ENR_LPTIM1EN);
+            (void)tmpreg;
+        }
+#  elif defined(RCC_APB1ENR1_LPTIM1EN)
+        if (!READ_BIT(RCC->APB1ENR1, RCC_APB1ENR1_LPTIM1EN)) {
+            __IO uint32_t tmpreg;
+
+            SET_BIT(RCC->APB1ENR1, RCC_APB1ENR1_LPTIM1EN);
+
+            /* A tiny delay is needed after an RCC peripheral clock enabling */
+            tmpreg = READ_BIT(RCC->APB1ENR1, RCC_APB1ENR1_LPTIM1EN);
+            (void)tmpreg;
+        }
+#  else
+#   error "unsupported STM32 LPTIM1 peripheral"
+#  endif
+
+        /* Make sure we have the desired configuration of LPTIM1 */
+        CLEAR_BIT(LPTIM1->CFGR,
+                  LPTIM_CFGR_CKSEL     | /* don't use an external clock */
+                  LPTIM_CFGR_PRESC     | /* don't use a clock pre-scaler */
+                  LPTIM_CFGR_WAVPOL    | /* don't use an inverted polarity */
+                  LPTIM_CFGR_PRELOAD   | /* don't preload the registers */
+                  LPTIM_CFGR_COUNTMODE | /* don't use an external counter */
+                  LPTIM_CFGR_TRIGEN    | /* use software trigger */
+                  0U);
+
+        /* Use the LSI's clock as LPTIM1's clock source */
+        MODIFY_REG(RCC->CCIPR, RCC_CCIPR_LPTIM1SEL,
+                   (uint32_t)RCC_CCIPR_LPTIM1SEL_0);
+
+        /* Enable LPTIM1 */
+        SET_BIT(LPTIM1->CR, LPTIM_CR_ENABLE);
+
+        /* Set autoreload value to the maximum */
+        LPTIM1->ARR = UINT16_MAX;
+
+        /* Start LPTIM1's counter */
+        MODIFY_REG(LPTIM1->CR,
+                   LPTIM_CR_CNTSTRT | LPTIM_CR_SNGSTRT, LPTIM_CR_CNTSTRT);
+
+        while (ebits_lptim < STM32_REQUIRED_BITS_FOR_SEED) {
+            uint16_t c;
+            bool     a, b;
+
+            HYDRO_STM32_DELAY_MS(1U);
+            if (hydro_random_get_lptim_c(&c) != 0) {
+                break;
+            }
+            hydro_hash_update(&st, (const uint8_t *) &c, sizeof c);
+            a = hydro_random_rbit(c);
+
+            HYDRO_STM32_DELAY_MS(1U);
+            if (hydro_random_get_lptim_c(&c) != 0) {
+                break;
+            }
+            hydro_hash_update(&st, (const uint8_t *) &c, sizeof c);
+            b = hydro_random_rbit(c);
+
+            if (a == b) {
+                continue;
+            }
+
+            hydro_hash_update(&st, (const uint8_t *) &b, sizeof b);
+
+            ebits_lptim++;
+        }
+
+        /* Disable LPTIM1 */
+        CLEAR_BIT(LPTIM1->CR, LPTIM_CR_ENABLE);
+
+        break;
+    }
+# endif /* defined(LPTIM1) */
+
+    hydro_hash_final(&st, hydro_random_context.state,
+                     sizeof hydro_random_context.state);
+
+    if (ebits_rng + ebits_lptim < STM32_REQUIRED_BITS_FOR_SEED) {
+        return -1;
+    }
+
+    hydro_random_context.counter = ~LOAD64_LE(hydro_random_context.state);
+
+    return 0;
+}
+
 #elif (defined(ESP32) || defined(ESP8266)) && !defined(__unix__)
 
 // Important: RF *must* be activated on ESP board
