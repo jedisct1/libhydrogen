@@ -1,19 +1,13 @@
 # Cross-compilation file for the Arduino/AVR toolchain.
 
-# To use, pass -DCMAKE_TOOLCHAIN_FILE=cmake/arduino-avr-toolchain.cmake in your
-# CMake command line.
+# To use, pass -DCMAKE_TOOLCHAIN_FILE=cmake/arduino-avr-toolchain.cmake in your CMake command line.
 
 cmake_minimum_required(VERSION 3.12)
 
 set(setting_prefix ARDUINO_AVR)
-function(get_setting
-         setting_name
-         setting_type
-         setting_description)
+function(get_setting setting_name setting_type setting_description)
   string(TOUPPER "${setting_prefix}_${setting_name}" setting_external_name)
-  set("${setting_external_name}"
-      ""
-      CACHE "${setting_type}" "${setting_description}")
+  set("${setting_external_name}" "" CACHE "${setting_type}" "${setting_description}")
   set("${setting_name}" "${${setting_external_name}}" PARENT_SCOPE)
 endfunction()
 
@@ -27,9 +21,7 @@ endif()
 if("${target_device}" STREQUAL atmega328p)
   set(hw_type ATMEGA328)
 else()
-  message(
-    FATAL_ERROR
-      "Unrecognized ${setting_prefix}_TARGET_DEVICE value ${target_device}")
+  message(FATAL_ERROR "Unrecognized ${setting_prefix}_TARGET_DEVICE value ${target_device}")
 endif()
 
 # Find Arduino SDK home
@@ -48,26 +40,21 @@ if(NOT sdk_dir)
   # Windows
   if(WIN32)
     list(APPEND arduino_home_dir_guesses "C:/Program Files (x86)/Arduino"
-                "C:/Program Files/Arduino")
+                                         "C:/Program Files/Arduino")
   endif()
 
   # macOS
   if(APPLE)
-    list(APPEND arduino_home_dir_guesses
-                "/Applications/Arduino.app/Contents/Java")
+    list(APPEND arduino_home_dir_guesses "/Applications/Arduino.app/Contents/Java")
   endif()
 
   # Linux/Unix
   if(UNIX AND NOT APPLE)
-    list(APPEND arduino_home_dir_guesses "/usr/share/arduino"
-                "/usr/local/share/arduino")
+    list(APPEND arduino_home_dir_guesses "/usr/share/arduino" "/usr/local/share/arduino")
   endif()
 
   if(DEFINED arduino_home_dir_guesses)
-    foreach(arduino_home_dir_guess
-            IN
-            LISTS
-            arduino_home_dir_guesses)
+    foreach(arduino_home_dir_guess IN LISTS arduino_home_dir_guesses)
       if(IS_DIRECTORY "${arduino_home_dir_guess}")
         set(sdk_dir "${arduino_home_dir_guess}")
         break()
@@ -77,11 +64,9 @@ if(NOT sdk_dir)
 endif()
 
 if(NOT sdk_dir)
-  message(
-    FATAL_ERROR
-      "Couldn't determine Arduino SDK home directory. "
-      "Try passing -D${setting_prefix}_SDK_DIR=... to the CMake command line, or "
-      "set the ARDUINO_SDK_PATH environment variable.")
+  message(FATAL_ERROR "Couldn't determine Arduino SDK home directory. "
+                      "Try passing -D${setting_prefix}_SDK_DIR=... to the CMake command line, or "
+                      "set the ARDUINO_SDK_PATH environment variable.")
 endif()
 
 # Locate toolchain programs
@@ -90,10 +75,7 @@ set(arduino_tools_dir "${sdk_dir}/hardware/tools/avr/bin")
 set(program_prefix "${setting_prefix}_PROGRAM")
 function(find_in_toolchain program_name)
   string(TOUPPER "${program_prefix}_${program_name}" program_external_name)
-  string(REPLACE "_"
-                 "-"
-                 program_file_name
-                 "${program_name}")
+  string(REPLACE "_" "-" program_file_name "${program_name}")
 
   find_program("${program_external_name}" "${program_file_name}"
                PATHS "${arduino_tools_dir}"
@@ -124,16 +106,13 @@ set(CMAKE_ASM_OUTPUT_EXTENSION .o)
 
 # Add compile flags
 
-string(APPEND
-       CMAKE_C_FLAGS
-       " -mmcu=${target_device} -Os -mcall-prologues -fno-exceptions"
-       " -ffunction-sections -fdata-sections -flto"
-       " -DHYDRO_TARGET_DEVICE_${hw_type}")
+string(APPEND CMAKE_C_FLAGS " -mmcu=${target_device} -Os -mcall-prologues -fno-exceptions"
+                            " -ffunction-sections -fdata-sections -flto"
+                            " -DHYDRO_TARGET_DEVICE_${hw_type}")
 
 # Add include directories
 
-include_directories(SYSTEM
-                    "${sdk_dir}/hardware/arduino/avr/cores/arduino"
-                    "${sdk_dir}/hardware/arduino/avr/variants/standard"
-                    "${sdk_dir}/hardware/arduino/cores/arduino"
-                    "${sdk_dir}/hardware/arduino/variants/standard")
+include_directories(SYSTEM "${sdk_dir}/hardware/arduino/avr/cores/arduino"
+                           "${sdk_dir}/hardware/arduino/avr/variants/standard"
+                           "${sdk_dir}/hardware/arduino/cores/arduino"
+                           "${sdk_dir}/hardware/arduino/variants/standard")
