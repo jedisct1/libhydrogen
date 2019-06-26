@@ -11,6 +11,11 @@ function(get_setting setting_name setting_type setting_description)
   set("${setting_name}" "${${setting_external_name}}" PARENT_SCOPE)
 endfunction()
 
+set(project_setting_prefix HYDROGEN)
+function(set_project_setting setting_name setting_value)
+  set("${project_setting_prefix}_${setting_name}" "${setting_value}" CACHE INTERNAL "")
+endfunction()
+
 # Target device setting
 
 get_setting(target_device STRING "Target Arduino device MCU identifier.")
@@ -19,7 +24,7 @@ if(NOT target_device)
 endif()
 
 if("${target_device}" STREQUAL atmega328p)
-  set(hw_type ATMEGA328)
+  set_project_setting(TARGET_DEVICE ATMEGA328)
 else()
   message(FATAL_ERROR "Unrecognized ${setting_prefix}_TARGET_DEVICE value ${target_device}")
 endif()
@@ -107,8 +112,7 @@ set(CMAKE_ASM_OUTPUT_EXTENSION .o)
 # Add compile flags
 
 string(APPEND CMAKE_C_FLAGS " -mmcu=${target_device} -Os -mcall-prologues -fno-exceptions"
-                            " -ffunction-sections -fdata-sections -flto"
-                            " -DHYDRO_TARGET_DEVICE_${hw_type}")
+                            " -ffunction-sections -fdata-sections -flto")
 
 # Add include directories
 

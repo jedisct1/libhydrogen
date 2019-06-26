@@ -39,14 +39,18 @@ set(arduino_files "library.properties")
 
 # Compile options
 
-get_setting(target_arch STRING "Target system architecture (fed to the compiler's -march=...).")
+get_setting(target_arch STRING "Target system architecture (fed to the compiler's -march=XXX).")
 if(NOT target_arch AND NOT CMAKE_CROSSCOMPILING)
   set(target_arch native)
 endif()
 
+get_setting(target_device STRING "Target device identifier (defines HYDRO_TARGET_DEVICE_XXX).")
+
 set(compile_options
     # --- GNU, Clang ---
     $<$<OR:$<C_COMPILER_ID:AppleClang>,$<C_COMPILER_ID:Clang>,$<C_COMPILER_ID:GNU>>:
+    # ---- Definitions ----
+    $<$<BOOL:${target_device}>:-DHYDRO_TARGET_DEVICE_${target_device}>
     # ---- Optimizations ----
     -Os $<$<BOOL:${target_arch}>:-march=${target_arch}> -fno-exceptions
     # ---- Warnings ----
@@ -69,6 +73,8 @@ set(compile_options
     >
     # --- MSVC ---
     $<$<C_COMPILER_ID:MSVC>:
+    # ---- Definitions ----
+    $<$<BOOL:${target_device}>:/DHYDRO_TARGET_DEVICE_${target_device}>
     # ---- Optimizations ----
     /Os /EHsc
     # ---- Warnings ----
