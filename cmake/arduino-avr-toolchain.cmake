@@ -4,16 +4,16 @@
 
 cmake_minimum_required(VERSION 3.12)
 
-set(setting_prefix ARDUINO_AVR)
+set(project_setting_prefix HYDROGEN)
+function(set_project_setting setting_name setting_value)
+  set("${project_setting_prefix}_${setting_name}" "${setting_value}" CACHE INTERNAL "")
+endfunction()
+
+set(setting_prefix "${project_setting_prefix}_ARDUINO_AVR")
 function(get_setting setting_name setting_type setting_description)
   string(TOUPPER "${setting_prefix}_${setting_name}" setting_external_name)
   set("${setting_external_name}" "" CACHE "${setting_type}" "${setting_description}")
   set("${setting_name}" "${${setting_external_name}}" PARENT_SCOPE)
-endfunction()
-
-set(project_setting_prefix HYDROGEN)
-function(set_project_setting setting_name setting_value)
-  set("${project_setting_prefix}_${setting_name}" "${setting_value}" CACHE INTERNAL "")
 endfunction()
 
 # Target device setting
