@@ -1,6 +1,7 @@
 # Cross-compilation file for the Arduino/AVR toolchain.
 
 # To use, pass -DCMAKE_TOOLCHAIN_FILE=cmake/arduino-avr-toolchain.cmake in your CMake command line.
+# You can specify the target device MCU identifier with -DHYDROGEN_ARDUINO_AVR_TARGET_DEVICE=XXX.
 
 cmake_minimum_required(VERSION 3.12)
 
@@ -97,6 +98,8 @@ endfunction()
 find_in_toolchain(avr_gcc)
 find_in_toolchain(avr_gcc_ranlib)
 find_in_toolchain(avr_gcc_ar)
+find_in_toolchain(avr_gcc_nm)
+find_in_toolchain(avr_strip)
 
 # Configure CMake toolchain settings
 
@@ -105,13 +108,15 @@ set(CMAKE_C_COMPILER "${avr_gcc}")
 set(CMAKE_ASM_COMPILER "${avr_gcc}")
 set(CMAKE_RANLIB "${avr_gcc_ranlib}")
 set(CMAKE_AR "${avr_gcc_ar}")
+set(CMAKE_NM "${avr_gcc_nm}")
+set(CMAKE_STRIP "${avr_strip}")
 
 set(CMAKE_C_OUTPUT_EXTENSION .o)
 set(CMAKE_ASM_OUTPUT_EXTENSION .o)
 
-# Add compile flags
+# Set compile flags
 
-string(APPEND CMAKE_C_FLAGS " -mmcu=${target_device} -Os -mcall-prologues -fno-exceptions"
+string(CONCAT CMAKE_C_FLAGS " -mmcu=${target_device} -mcall-prologues -fno-exceptions"
                             " -ffunction-sections -fdata-sections -flto")
 
 # Add include directories

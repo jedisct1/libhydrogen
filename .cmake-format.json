@@ -35,7 +35,8 @@
     },
     "string": {
       "kwargs": {
-        "APPEND": 1
+        "APPEND": 1,
+        "CONCAT": 1
       }
     }
   },
