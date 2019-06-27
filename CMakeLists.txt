@@ -6,14 +6,9 @@ include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
 string(TOUPPER "${PROJECT_NAME}" setting_prefix)
-function(get_setting
-         setting_name
-         setting_type
-         setting_description)
+function(get_setting setting_name setting_type setting_description)
   string(TOUPPER "${setting_prefix}_${setting_name}" setting_external_name)
-  set("${setting_external_name}"
-      ""
-      CACHE "${setting_type}" "${setting_description}")
+  set("${setting_external_name}" "" CACHE "${setting_type}" "${setting_description}")
   set("${setting_name}" "${${setting_external_name}}" PARENT_SCOPE)
 endfunction()
 
@@ -44,57 +39,57 @@ set(arduino_files "library.properties")
 
 # Compile options
 
-get_setting(target_arch STRING
-            "Target system architecture (fed to the compiler's -march=...).")
+get_setting(target_arch STRING "Target system architecture (fed to the compiler's -march=XXX).")
 if(NOT target_arch AND NOT CMAKE_CROSSCOMPILING)
   set(target_arch native)
 endif()
 
-set(
-  compile_options
-  # GNU, Clang
-  $<$<OR:$<C_COMPILER_ID:AppleClang>,$<C_COMPILER_ID:Clang>,$<C_COMPILER_ID:GNU>>:
-  # Optimizations
-  -Os $<$<BOOL:${target_arch}>:-march=${target_arch}> -fno-exceptions
-  # Warnings
-  -Wall
-  -Wextra
-  -Wmissing-prototypes
-  -Wdiv-by-zero
-  -Wbad-function-cast
-  -Wcast-align
-  -Wcast-qual
-  -Wfloat-equal
-  -Wmissing-declarations
-  -Wnested-externs
-  -Wno-unknown-pragmas
-  -Wpointer-arith
-  -Wredundant-decls
-  -Wstrict-prototypes
-  -Wswitch-enum
-  -Wno-type-limits>
-  # MSVC
-  $<$<C_COMPILER_ID:MSVC>:
-  # Optimizations
-  /Os /EHsc
-  # Warnings
-  /WX
-  /W4
-  /wd4197 # suppress warning "top-level volatile in cast is ignored"
-  /wd4146 # suppress warning "unary minus operator applied to unsigned type,
-          # result still unsigned"
-  /wd4310 # suppress warning "cast truncates constant value"
-  >)
+get_setting(target_device STRING "Target device identifier (defines HYDRO_TARGET_DEVICE_XXX).")
+
+set(compile_options
+    # --- GNU, Clang ---
+    $<$<OR:$<C_COMPILER_ID:AppleClang>,$<C_COMPILER_ID:Clang>,$<C_COMPILER_ID:GNU>>:
+    # ---- Definitions ----
+    $<$<BOOL:${target_device}>:-DHYDRO_TARGET_DEVICE_${target_device}>
+    # ---- Optimizations ----
+    -Os $<$<BOOL:${target_arch}>:-march=${target_arch}> -fno-exceptions
+    # ---- Warnings ----
+    -Wall
+    -Wextra
+    -Wmissing-prototypes
+    -Wdiv-by-zero
+    -Wbad-function-cast
+    -Wcast-align
+    -Wcast-qual
+    -Wfloat-equal
+    -Wmissing-declarations
+    -Wnested-externs
+    -Wno-unknown-pragmas
+    -Wpointer-arith
+    -Wredundant-decls
+    -Wstrict-prototypes
+    -Wswitch-enum
+    -Wno-type-limits
+    >
+    # --- MSVC ---
+    $<$<C_COMPILER_ID:MSVC>:
+    # ---- Definitions ----
+    $<$<BOOL:${target_device}>:/DHYDRO_TARGET_DEVICE_${target_device}>
+    # ---- Optimizations ----
+    /Os /EHsc
+    # ---- Warnings ----
+    /WX
+    /W4
+    /wd4197 # * suppress warning "top-level volatile in cast is ignored"
+    /wd4146 # * suppress warning "unary minus operator applied to unsigned type, result still
+            #   unsigned"
+    /wd4310 # * suppress warning "cast truncates constant value"
+    >)
 
 # Prefix project files with the project root
 
 function(prefix_project_paths list_name)
-  list(TRANSFORM
-       "${list_name}"
-       PREPEND
-       "${PROJECT_SOURCE_DIR}/"
-       OUTPUT_VARIABLE
-       prefixed_list)
+  list(TRANSFORM "${list_name}" PREPEND "${PROJECT_SOURCE_DIR}/" OUTPUT_VARIABLE prefixed_list)
   set("project_${list_name}" ${prefixed_list} PARENT_SCOPE)
 endfunction()
 
@@ -110,10 +105,9 @@ add_library("${PROJECT_NAME}::${PROJECT_NAME}" ALIAS "${PROJECT_NAME}")
 
 target_sources("${PROJECT_NAME}" PRIVATE ${project_source_files})
 
-target_include_directories(
-  "${PROJECT_NAME}"
-  PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
-         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+target_include_directories("${PROJECT_NAME}"
+                           PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
+                                  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 target_compile_options("${PROJECT_NAME}" PRIVATE ${compile_options})
 
@@ -144,16 +138,12 @@ set(config_file_name "${PROJECT_NAME}-config.cmake")
 set(config_template_file "${PROJECT_SOURCE_DIR}/cmake/${config_file_name}.in")
 set(config_file "${PROJECT_BINARY_DIR}/${config_file_name}")
 
-configure_package_config_file("${config_template_file}"
-                              "${config_file}"
-                              INSTALL_DESTINATION
-                              "${install_config_dir}")
+configure_package_config_file("${config_template_file}" "${config_file}"
+                              INSTALL_DESTINATION "${install_config_dir}")
 
 install(FILES "${config_file}" DESTINATION "${install_config_dir}")
 
-export(EXPORT "${targets_export_name}"
-       FILE "${targets_export_file}"
-       NAMESPACE "${PROJECT_NAME}::")
+export(EXPORT "${targets_export_name}" FILE "${targets_export_file}" NAMESPACE "${PROJECT_NAME}::")
 
 export(PACKAGE "${PROJECT_NAME}")
 
@@ -170,23 +160,22 @@ target_link_libraries("${tests_executable}" "${PROJECT_NAME}")
 add_test(NAME "${tests_executable}" COMMAND "${tests_executable}")
 
 if(CMAKE_CROSSCOMPILING)
-  # Disable tests executable by default when cross-compiling (as it will fail to
-  # build when, e.g., cross-compiling for Arduino/AVR).
+  # Disable tests executable by default when cross-compiling (as it will fail to build when, e.g.,
+  # cross-compiling for Arduino/AVR).
   set_target_properties("${tests_executable}"
-                        PROPERTIES EXCLUDE_FROM_ALL
-                                   1
-                                   EXCLUDE_FROM_DEFAULT_BUILD
-                                   1)
+                        PROPERTIES
+                        EXCLUDE_FROM_ALL 1
+                        EXCLUDE_FROM_DEFAULT_BUILD 1)
 else()
   # Otherwise, auto-run the tests on build.
   add_custom_command(OUTPUT "${tests_run_file}"
                      DEPENDS "${tests_executable}"
-                     COMMAND cmake ARGS -E remove "${tests_run_file}"
-                     COMMAND ctest ARGS
-                             -C
-                             $<CONFIGURATION>
-                             --output-on-failure
-                     COMMAND cmake ARGS -E touch "${tests_run_file}"
+                     COMMAND cmake
+                     ARGS -E remove "${tests_run_file}"
+                     COMMAND ctest
+                     ARGS -C $<CONFIGURATION> --output-on-failure
+                     COMMAND cmake
+                     ARGS -E touch "${tests_run_file}"
                      WORKING_DIRECTORY "${PROJECT_BINARY_DIR}")
   add_custom_target("${tests_run_target}" ALL DEPENDS "${tests_run_file}")
 endif()
@@ -195,18 +184,19 @@ endif()
 
 set(arduino_package_file "${PROJECT_BINARY_DIR}/hydrogen-crypto.zip")
 
-# Use the relative versions of the file path lists or else the full paths will
-# end up in the generated archive.
+# Use the relative versions of the file path lists or else the full paths will end up in the
+# generated archive.
 add_custom_command(OUTPUT "${arduino_package_file}"
-                   COMMAND cmake ARGS
-                           -E
-                           tar cf "${arduino_package_file}"
-                           --format=zip
-                           --
-                           ${source_files}
-                           ${header_files}
-                           ${arduino_files}
+                   COMMAND cmake
+                   ARGS -E
+                        tar
+                        cf
+                        "${arduino_package_file}"
+                        --format=zip
+                        --
+                        ${source_files}
+                        ${header_files}
+                        ${arduino_files}
                    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
 
-add_custom_target("${PROJECT_NAME}-arduino-package"
-                  DEPENDS "${arduino_package_file}")
+add_custom_target("${PROJECT_NAME}-arduino-package" DEPENDS "${arduino_package_file}")
