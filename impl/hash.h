@@ -8,20 +8,20 @@ hydro_hash_update(hydro_hash_state *state, const void *in_, size_t in_len)
     size_t         i;
 
     while (in_len > 0) {
-        if ((left = gimli_RATE - state->buf_off) == 0) {
-            gimli_core_u8(buf, 0);
-            state->buf_off = 0;
-            left           = gimli_RATE;
-        }
+        left = gimli_RATE - state->buf_off;
         if ((ps = in_len) > left) {
             ps = left;
         }
         for (i = 0; i < ps; i++) {
             buf[state->buf_off + i] ^= in[i];
         }
-        state->buf_off += (uint8_t) ps;
         in += ps;
         in_len -= ps;
+        state->buf_off += (uint8_t) ps;
+        if (state->buf_off == gimli_RATE) {
+            gimli_core_u8(buf, 0);
+            state->buf_off = 0;
+        }
     }
     return 0;
 }
