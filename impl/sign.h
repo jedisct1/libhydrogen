@@ -48,7 +48,7 @@ hydro_sign_prehash(uint8_t csig[hydro_sign_BYTES], const uint8_t prehash[hydro_s
     COMPILER_ASSERT(hydro_x25519_SECRETKEYBYTES == hydro_hash_KEYBYTES);
     hydro_hash_init(&st, (const char *) zero, sk);
     hydro_hash_update(&st, eph_sk, hydro_x25519_SECRETKEYBYTES);
-    hydro_hash_update(&st, prehash, hydro_sign_CHALLENGEBYTES);
+    hydro_hash_update(&st, prehash, hydro_sign_PREHASHBYTES);
     hydro_hash_final(&st, eph_sk, hydro_x25519_SECRETKEYBYTES);
 
     hydro_x25519_scalarmult_base_uniform(nonce, eph_sk);
