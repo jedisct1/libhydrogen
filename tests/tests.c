@@ -108,6 +108,10 @@ test_hash(void)
     hydro_hash_hash(h, hydro_hash_BYTES, msg, sizeof msg, ctx, key);
     hydro_bin2hex(hex, sizeof hex, h, hydro_hash_BYTES);
     assert_streq("7dfa45ce18210e2422fd658bf7beccb6e534e44f99ae359f4af3ba41af8ca463", hex);
+    /* total input length is a multiple of the rate */
+    hydro_hash_hash(h, hydro_hash_BYTES, msg, 13, ctx, key);
+    hydro_bin2hex(hex, sizeof hex, h, hydro_hash_BYTES);
+    assert_streq("d57a9800549bb4bab6a06fa6e16e08aad68d7d4313fb69a81b9f5d5af375dbe7", hex);
 }
 
 static void
