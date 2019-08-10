@@ -78,7 +78,6 @@ set(compile_options
     # ---- Optimizations ----
     /Os /EHsc
     # ---- Warnings ----
-    /WX
     /W4
     /wd4197 # * suppress warning "top-level volatile in cast is ignored"
     /wd4146 # * suppress warning "unary minus operator applied to unsigned type, result still
