@@ -169,14 +169,15 @@ else()
   # Otherwise, auto-run the tests on build.
   add_custom_command(OUTPUT "${tests_run_file}"
                      DEPENDS "${tests_executable}"
-                     COMMAND ${CMAKE_COMMAND}
+                     COMMAND "${CMAKE_COMMAND}"
                      ARGS -E remove "${tests_run_file}"
-                     COMMAND ${CMAKE_CTEST_COMMAND}
+                     COMMAND "${CMAKE_CTEST_COMMAND}"
                      ARGS -C $<CONFIGURATION> --output-on-failure
-                     COMMAND ${CMAKE_COMMAND}
+                     COMMAND "${CMAKE_COMMAND}"
                      ARGS -E touch "${tests_run_file}"
-                     WORKING_DIRECTORY "${PROJECT_BINARY_DIR}")
-  add_custom_target("${tests_run_target}" ALL DEPENDS "${tests_run_file}")
+                     WORKING_DIRECTORY "${PROJECT_BINARY_DIR}"
+                     VERBATIM)
+  add_custom_target("${tests_run_target}" ALL DEPENDS "${tests_run_file}" VERBATIM)
 endif()
 
 # Generate Arduino package
@@ -186,7 +187,7 @@ set(arduino_package_file "${PROJECT_BINARY_DIR}/hydrogen-crypto.zip")
 # Use the relative versions of the file path lists or else the full paths will end up in the
 # generated archive.
 add_custom_command(OUTPUT "${arduino_package_file}"
-                   COMMAND ${CMAKE_COMMAND}
+                   COMMAND "${CMAKE_COMMAND}"
                    ARGS -E
                         tar
                         cf
@@ -196,6 +197,7 @@ add_custom_command(OUTPUT "${arduino_package_file}"
                         ${source_files}
                         ${header_files}
                         ${arduino_files}
-                   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
+                   WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}"
+                   VERBATIM)
 
-add_custom_target("${PROJECT_NAME}-arduino-package" DEPENDS "${arduino_package_file}")
+add_custom_target("${PROJECT_NAME}-arduino-package" DEPENDS "${arduino_package_file}" VERBATIM)
