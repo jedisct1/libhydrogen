@@ -68,6 +68,20 @@ hydro_random_init(void)
 
 ISR(WDT_vect) {}
 
+#elif  defined(__PX4_NUTTX)
+
+static int
+hydro_random_init(void)
+{
+    int fd = open("/dev/random", O_RDONLY);
+
+    read(fd, hydro_random_context.state, gimli_BLOCKBYTES);
+
+    hydro_random_context.counter = ~LOAD64_LE(hydro_random_context.state);
+
+    return 0;
+}
+
 #elif (defined(ESP32) || defined(ESP8266)) && !defined(__unix__)
 
 // Important: RF *must* be activated on ESP board
