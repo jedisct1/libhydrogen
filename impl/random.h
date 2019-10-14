@@ -195,7 +195,11 @@ hydro_random_init(void)
 static int
 hydro_random_block_on_dev_random(void)
 {
+    #ifdef __PX4_NUTTX
     pollfd pfd;
+    #else
+    struct pollfd pfd;
+    #endif
     int           fd;
     int           pret;
 
