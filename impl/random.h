@@ -68,20 +68,6 @@ hydro_random_init(void)
 
 ISR(WDT_vect) {}
 
-#elif  defined(__PX4_NUTTX)
-
-static int
-hydro_random_init(void)
-{
-    int fd = open("/dev/random", O_RDONLY);
-
-    read(fd, hydro_random_context.state, gimli_BLOCKBYTES);
-
-    hydro_random_context.counter = ~LOAD64_LE(hydro_random_context.state);
-
-    return 0;
-}
-
 #elif (defined(ESP32) || defined(ESP8266)) && !defined(__unix__)
 
 // Important: RF *must* be activated on ESP board
@@ -195,21 +181,21 @@ hydro_random_init(void)
     return 0;
 }
 
-#elif defined(__unix__)
+#elif (defined(__unix__) || defined(__PX4_NUTTX))
 
 #include <errno.h>
 #include <fcntl.h>
-#ifdef __linux__
+#if (defined(__linux__) || defined(__PX4_NUTTX))
 # include <poll.h>
 #endif
 #include <sys/types.h>
 #include <unistd.h>
 
-#ifdef __linux__
+#if (defined(__linux__) || defined(__PX4_NUTTX))
 static int
 hydro_random_block_on_dev_random(void)
 {
-    struct pollfd pfd;
+    pollfd pfd;
     int           fd;
     int           pret;
 
@@ -261,7 +247,7 @@ hydro_random_init(void)
     int     fd;
     int     ret = -1;
 
-#ifdef __linux__
+#if (defined(__linux__) || defined(__PX4_NUTTX))
     if (hydro_random_block_on_dev_random() != 0) {
         return -1;
     }
