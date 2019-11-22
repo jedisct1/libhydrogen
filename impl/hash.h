@@ -114,6 +114,8 @@ hydro_hash_final(hydro_hash_state *state, uint8_t *out, size_t out_len)
         gimli_core_u8(buf, 0);
         mem_cpy(out + i * gimli_RATE, buf, leftover);
     }
+    state->buf_off = gimli_RATE;
+
     return 0;
 }
 
