@@ -5,25 +5,25 @@
  */
 
 #if defined(__GNUC__) && defined(__SIZEOF_INT128__)
-# define hydro_x25519_WBITS 64
+#define hydro_x25519_WBITS 64
 #else
-# define hydro_x25519_WBITS 32
+#define hydro_x25519_WBITS 32
 #endif
 
 #if hydro_x25519_WBITS == 64
 typedef uint64_t    hydro_x25519_limb_t;
 typedef __uint128_t hydro_x25519_dlimb_t;
 typedef __int128_t  hydro_x25519_sdlimb_t;
-# define hydro_x25519_eswap_limb(X) LOAD64_LE((const uint8_t *) &(X))
-# define hydro_x25519_LIMB(x) x##ull
+#define hydro_x25519_eswap_limb(X) LOAD64_LE((const uint8_t *) &(X))
+#define hydro_x25519_LIMB(x) x##ull
 #elif hydro_x25519_WBITS == 32
 typedef uint32_t hydro_x25519_limb_t;
 typedef uint64_t hydro_x25519_dlimb_t;
 typedef int64_t  hydro_x25519_sdlimb_t;
-# define hydro_x25519_eswap_limb(X) LOAD32_LE((const uint8_t *) &(X))
-# define hydro_x25519_LIMB(x) (uint32_t)(x##ull), (uint32_t)((x##ull) >> 32)
+#define hydro_x25519_eswap_limb(X) LOAD32_LE((const uint8_t *) &(X))
+#define hydro_x25519_LIMB(x) (uint32_t)(x##ull), (uint32_t)((x##ull) >> 32)
 #else
-# error "Need to know hydro_x25519_WBITS"
+#error "Need to know hydro_x25519_WBITS"
 #endif
 
 #define hydro_x25519_NLIMBS (256 / hydro_x25519_WBITS)
@@ -109,10 +109,10 @@ hydro_x25519_sub(hydro_x25519_fe out, const hydro_x25519_fe a, const hydro_x2551
     int                   i;
 
     for (i = 0; i < hydro_x25519_NLIMBS; i++) {
-        out[i] = (hydro_x25519_limb_t) (carry = carry + a[i] - b[i]);
+        out[i] = (hydro_x25519_limb_t)(carry = carry + a[i] - b[i]);
         carry >>= hydro_x25519_WBITS;
     }
-    hydro_x25519_propagate(out, (hydro_x25519_limb_t) (1 + carry));
+    hydro_x25519_propagate(out, (hydro_x25519_limb_t)(1 + carry));
 }
 
 static void
@@ -207,7 +207,7 @@ hydro_x25519_canon(hydro_x25519_fe x)
     carry = -19;
     res   = 0;
     for (i = 0; i < hydro_x25519_NLIMBS; i++) {
-        res |= x[i] = (hydro_x25519_limb_t) (carry += x[i]);
+        res |= x[i] = (hydro_x25519_limb_t)(carry += x[i]);
         carry >>= hydro_x25519_WBITS;
     }
     return ((hydro_x25519_dlimb_t) res - 1) >> hydro_x25519_WBITS;
@@ -286,8 +286,9 @@ hydro_x25519_core(hydro_x25519_fe xs[5], const uint8_t scalar[hydro_x25519_BYTES
 }
 
 static int
-hydro_x25519_scalarmult(uint8_t out[hydro_x25519_BYTES], const uint8_t scalar[hydro_x25519_BYTES],
-                        const uint8_t x1[hydro_x25519_BYTES], bool clamp)
+hydro_x25519_scalarmult(uint8_t       out[hydro_x25519_BYTES],
+                        const uint8_t scalar[hydro_x25519_SECRETKEYBYTES],
+                        const uint8_t x1[hydro_x25519_PUBLICKEYBYTES], bool clamp)
 {
     hydro_x25519_fe      xs[5];
     hydro_x25519_limb_t *x2, *z2, *z3;
@@ -371,10 +372,10 @@ hydro_x25519_sc_montmul(hydro_x25519_scalar_t out, const hydro_x25519_scalar_t a
     /* Reduce */
     hydro_x25519_sdlimb_t scarry = 0;
     for (i = 0; i < hydro_x25519_NLIMBS; i++) {
-        out[i] = (hydro_x25519_limb_t) (scarry = scarry + out[i] - hydro_x25519_sc_p[i]);
+        out[i] = (hydro_x25519_limb_t)(scarry = scarry + out[i] - hydro_x25519_sc_p[i]);
         scarry >>= hydro_x25519_WBITS;
     }
-    hydro_x25519_limb_t need_add = (hydro_x25519_limb_t) -(scarry + hic);
+    hydro_x25519_limb_t need_add = (hydro_x25519_limb_t) - (scarry + hic);
 
     hydro_x25519_limb_t carry = 0;
     for (i = 0; i < hydro_x25519_NLIMBS; i++) {

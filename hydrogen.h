@@ -6,30 +6,30 @@
 #include <stdlib.h>
 
 #ifdef __cplusplus
-# ifdef __GNUC__
-#  pragma GCC diagnostic ignored "-Wlong-long"
-# endif
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wlong-long"
+#endif
 extern "C" {
 #endif
 
 #if defined(__clang__) || defined(__GNUC__)
-# define _hydro_attr_(X) __attribute__(X)
+#define _hydro_attr_(X) __attribute__(X)
 #else
-# define _hydro_attr_(X)
+#define _hydro_attr_(X)
 #endif
-#define _hydro_attr_deprecated_         _hydro_attr_((deprecated))
-#define _hydro_attr_malloc_             _hydro_attr_((malloc))
-#define _hydro_attr_noinline_           _hydro_attr_((noinline))
-#define _hydro_attr_noreturn_           _hydro_attr_((noreturn))
+#define _hydro_attr_deprecated_ _hydro_attr_((deprecated))
+#define _hydro_attr_malloc_ _hydro_attr_((malloc))
+#define _hydro_attr_noinline_ _hydro_attr_((noinline))
+#define _hydro_attr_noreturn_ _hydro_attr_((noreturn))
 #define _hydro_attr_warn_unused_result_ _hydro_attr_((warn_unused_result))
-#define _hydro_attr_weak_               _hydro_attr_((weak))
+#define _hydro_attr_weak_ _hydro_attr_((weak))
 
 #if defined(__INTEL_COMPILER) || defined(_MSC_VER)
-# define _hydro_attr_aligned_(X)        __declspec(align(X))
+#define _hydro_attr_aligned_(X) __declspec(align(X))
 #elif defined(__clang__) || defined(__GNUC__)
-# define _hydro_attr_aligned_(X)        _hydro_attr_((aligned(X)))
+#define _hydro_attr_aligned_(X) _hydro_attr_((aligned(X)))
 #else
-# define _hydro_attr_aligned_(X)
+#define _hydro_attr_aligned_(X)
 #endif
 
 #define HYDRO_VERSION_MAJOR 1
@@ -180,11 +180,19 @@ typedef struct hydro_kx_session_keypair {
     uint8_t tx[hydro_kx_SESSIONKEYBYTES];
 } hydro_kx_session_keypair;
 
-typedef struct hydro_kx_state {
+typedef struct hydro_kx_cipher_state {
+    uint8_t  k[hydro_secretbox_KEYBYTES];
+    uint64_t msg_id;
+} hydro_kx_cipher_state;
+
+typedef struct hydro_kx_handshake_state {
+    hydro_kx_keypair kp;
     hydro_kx_keypair eph_kp;
-    uint8_t          h[32];
-    uint8_t          ck[32];
-    uint8_t          k[32];
+} hydro_kx_handshake_state;
+
+typedef struct hydro_kx_state {
+    hydro_kx_handshake_state hs;
+    hydro_hash_state         h_st;
 } hydro_kx_state;
 
 void hydro_kx_keygen(hydro_kx_keypair *static_kp);
@@ -194,7 +202,7 @@ void hydro_kx_keygen_deterministic(hydro_kx_keypair *static_kp,
 
 /* NOISE_N */
 
-#define hydro_kx_N_PACKET1BYTES 32
+#define hydro_kx_N_PACKET1BYTES (32 + 16)
 
 int hydro_kx_n_1(hydro_kx_session_keypair *kp, uint8_t packet1[hydro_kx_N_PACKET1BYTES],
                  const uint8_t psk[hydro_kx_PSKBYTES],
@@ -205,8 +213,8 @@ int hydro_kx_n_2(hydro_kx_session_keypair *kp, const uint8_t packet1[hydro_kx_N_
 
 /* NOISE_KK */
 
-#define hydro_kx_KK_PACKET1BYTES 32
-#define hydro_kx_KK_PACKET2BYTES 32
+#define hydro_kx_KK_PACKET1BYTES (32 + 16)
+#define hydro_kx_KK_PACKET2BYTES (32 + 16)
 
 int hydro_kx_kk_1(hydro_kx_state *state, uint8_t packet1[hydro_kx_KK_PACKET1BYTES],
                   const uint8_t           peer_static_pk[hydro_kx_PUBLICKEYBYTES],
@@ -218,14 +226,14 @@ int hydro_kx_kk_2(hydro_kx_session_keypair *kp, uint8_t packet2[hydro_kx_KK_PACK
                   const hydro_kx_keypair *static_kp);
 
 int hydro_kx_kk_3(hydro_kx_state *state, hydro_kx_session_keypair *kp,
-                  const uint8_t packet2[hydro_kx_KK_PACKET2BYTES],
+                  const uint8_t           packet2[hydro_kx_KK_PACKET2BYTES],
                   const hydro_kx_keypair *static_kp);
 
 /* NOISE_XX */
 
-#define hydro_kx_XX_PACKET1BYTES 32
-#define hydro_kx_XX_PACKET2BYTES 80
-#define hydro_kx_XX_PACKET3BYTES 48
+#define hydro_kx_XX_PACKET1BYTES (32 + 16)
+#define hydro_kx_XX_PACKET2BYTES (32 + 32 + 16 + 16)
+#define hydro_kx_XX_PACKET3BYTES (32 + 16 + 16)
 
 int hydro_kx_xx_1(hydro_kx_state *state, uint8_t packet1[hydro_kx_XX_PACKET1BYTES],
                   const uint8_t psk[hydro_kx_PSKBYTES]);
@@ -305,9 +313,9 @@ int hydro_unpad(const unsigned char *buf, size_t padded_buflen, size_t blocksize
 #define HYDRO_HWTYPE_ATMEGA328 1
 
 #ifndef HYDRO_HWTYPE
-# ifdef __AVR__
-#  define HYDRO_HWTYPE HYDRO_HWTYPE_ATMEGA328
-# endif
+#ifdef __AVR__
+#define HYDRO_HWTYPE HYDRO_HWTYPE_ATMEGA328
+#endif
 #endif
 
 #ifdef __cplusplus

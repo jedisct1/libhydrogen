@@ -13,7 +13,7 @@ hydro_random_rbit(uint16_t x)
 {
     uint8_t x8;
 
-    x8 = ((uint8_t) (x >> 8)) ^ (uint8_t) x;
+    x8 = ((uint8_t)(x >> 8)) ^ (uint8_t) x;
     x8 = (x8 >> 4) ^ (x8 & 0xf);
     x8 = (x8 >> 2) ^ (x8 & 0x3);
     x8 = (x8 >> 1) ^ x8;
@@ -100,8 +100,9 @@ hydro_random_init(void)
 
 #elif defined(PARTICLE) && defined(PLATFORM_ID) && PLATFORM_ID > 2 && !defined(__unix__)
 
-// Note: All particle platforms except for the Spark Core have a HW RNG.  Only allow building on supported platforms for now.
-// PLATFORM_ID definitions: https://github.com/particle-iot/device-os/blob/mesh-develop/hal/shared/platforms.h
+// Note: All particle platforms except for the Spark Core have a HW RNG.  Only allow building on
+// supported platforms for now. PLATFORM_ID definitions:
+// https://github.com/particle-iot/device-os/blob/mesh-develop/hal/shared/platforms.h
 
 #include "Particle.h"
 
@@ -138,7 +139,7 @@ hydro_random_init(void)
 {
     const char       ctx[hydro_hash_CONTEXTBYTES] = { 'h', 'y', 'd', 'r', 'o', 'P', 'R', 'G' };
     hydro_hash_state st;
-    const uint8_t    total_bytes = 32;
+    const uint8_t    total_bytes     = 32;
     uint8_t          remaining_bytes = total_bytes;
     uint8_t          available_bytes;
     uint8_t          rand_buffer[32];
@@ -178,7 +179,7 @@ hydro_random_init(void)
 extern "C"
 #endif
     BOOLEAN NTAPI
-            RtlGenRandom(PVOID RandomBuffer, ULONG RandomBufferLength);
+    RtlGenRandom(PVOID RandomBuffer, ULONG RandomBufferLength);
 #pragma comment(lib, "advapi32.lib")
 
 static int
@@ -200,8 +201,7 @@ hydro_random_init(void)
 static int
 hydro_random_init(void)
 {
-    if (getentropy(hydro_random_context.state,
-                   sizeof hydro_random_context.state) != 0) {
+    if (getentropy(hydro_random_context.state, sizeof hydro_random_context.state) != 0) {
         return -1;
     }
     hydro_random_context.counter = ~LOAD64_LE(hydro_random_context.state);
@@ -214,7 +214,7 @@ hydro_random_init(void)
 #include <errno.h>
 #include <fcntl.h>
 #ifdef __linux__
-# include <poll.h>
+#include <poll.h>
 #endif
 #include <sys/types.h>
 #include <unistd.h>
@@ -253,8 +253,8 @@ hydro_random_safe_read(const int fd, void *const buf_, size_t len)
     ssize_t        readnb;
 
     do {
-        while ((readnb = read(fd, buf, len)) < (ssize_t) 0 &&
-               (errno == EINTR || errno == EAGAIN)) { }
+        while ((readnb = read(fd, buf, len)) < (ssize_t) 0 && (errno == EINTR || errno == EAGAIN)) {
+        }
         if (readnb < (ssize_t) 0) {
             return readnb;
         }
@@ -329,8 +329,8 @@ hydro_random_init(void)
 
         // Forces mbedTLS to fetch fresh entropy, then get some to feed libhydrogen.
         if (mbedtls_entropy_gather(&entropy) != 0 ||
-            mbedtls_entropy_func(&entropy,
-                                 &hydro_random_context.state[pos], currentChunkSize) != 0) {
+            mbedtls_entropy_func(&entropy, &hydro_random_context.state[pos], currentChunkSize) !=
+                0) {
             return -1;
         }
         pos += MBEDTLS_ENTROPY_BLOCK_SIZE;
@@ -342,11 +342,11 @@ hydro_random_init(void)
 }
 
 #else
-# error Need an entropy source
+#error Need an entropy source
 #endif
 
 #else
-# error Unsupported platform
+#error Unsupported platform
 #endif
 
 static void
