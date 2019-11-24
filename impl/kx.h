@@ -235,10 +235,8 @@ hydro_kx_n_2(hydro_kx_session_keypair *kp, const uint8_t packet1[hydro_kx_N_PACK
 
     hydro_hash_update(&state.h_st, psk, hydro_kx_PSKBYTES);
     hydro_hash_update(&state.h_st, peer_eph_pk, hydro_x25519_PUBLICKEYBYTES);
-    if (hydro_kx_dh(&state, static_kp->sk, peer_eph_pk) != 0) {
-        return -1;
-    }
-    if (hydro_kx_aead_decrypt(&state, NULL, packet1_mac, hydro_kx_AEAD_MACBYTES) != 0) {
+    if (hydro_kx_dh(&state, static_kp->sk, peer_eph_pk) != 0 ||
+        hydro_kx_aead_decrypt(&state, NULL, packet1_mac, hydro_kx_AEAD_MACBYTES) != 0) {
         return -1;
     }
     hydro_kx_final(&state, kp->tx, kp->rx);
@@ -261,10 +259,8 @@ hydro_kx_kk_1(hydro_kx_state *state, uint8_t packet1[hydro_kx_KK_PACKET1BYTES],
     hydro_hash_update(&state->h_st, peer_static_pk, hydro_kx_PUBLICKEYBYTES);
 
     hydro_kx_eph_keygen(state, &state->eph_kp);
-    if (hydro_kx_dh(state, state->eph_kp.sk, peer_static_pk) != 0) {
-        return -1;
-    }
-    if (hydro_kx_dh(state, static_kp->sk, peer_static_pk) != 0) {
+    if (hydro_kx_dh(state, state->eph_kp.sk, peer_static_pk) != 0 ||
+        hydro_kx_dh(state, static_kp->sk, peer_static_pk) != 0) {
         return -1;
     }
     hydro_kx_aead_encrypt(state, packet1_mac, NULL, 0);
@@ -290,21 +286,15 @@ hydro_kx_kk_2(hydro_kx_session_keypair *kp, uint8_t packet2[hydro_kx_KK_PACKET2B
     hydro_hash_update(&state.h_st, static_kp->pk, hydro_kx_PUBLICKEYBYTES);
 
     hydro_hash_update(&state.h_st, peer_eph_pk, hydro_kx_PUBLICKEYBYTES);
-    if (hydro_kx_dh(&state, static_kp->sk, peer_eph_pk) != 0) {
-        return -1;
-    }
-    if (hydro_kx_dh(&state, static_kp->sk, peer_static_pk) != 0) {
-        return -1;
-    }
-    if (hydro_kx_aead_decrypt(&state, NULL, packet1_mac, hydro_kx_AEAD_MACBYTES) != 0) {
+    if (hydro_kx_dh(&state, static_kp->sk, peer_eph_pk) != 0 ||
+        hydro_kx_dh(&state, static_kp->sk, peer_static_pk) != 0 ||
+        hydro_kx_aead_decrypt(&state, NULL, packet1_mac, hydro_kx_AEAD_MACBYTES) != 0) {
         return -1;
     }
 
     hydro_kx_eph_keygen(&state, &state.eph_kp);
-    if (hydro_kx_dh(&state, state.eph_kp.sk, peer_eph_pk) != 0) {
-        return -1;
-    }
-    if (hydro_kx_dh(&state, state.eph_kp.sk, peer_static_pk) != 0) {
+    if (hydro_kx_dh(&state, state.eph_kp.sk, peer_eph_pk) != 0 ||
+        hydro_kx_dh(&state, state.eph_kp.sk, peer_static_pk) != 0) {
         return -1;
     }
     hydro_kx_aead_encrypt(&state, packet2_mac, NULL, 0);
@@ -322,10 +312,8 @@ hydro_kx_kk_3(hydro_kx_state *state, hydro_kx_session_keypair *kp,
     const uint8_t *packet2_mac = &packet2[hydro_kx_PUBLICKEYBYTES];
 
     hydro_hash_update(&state->h_st, peer_eph_pk, hydro_kx_PUBLICKEYBYTES);
-    if (hydro_kx_dh(state, state->eph_kp.sk, peer_eph_pk) != 0) {
-        return -1;
-    }
-    if (hydro_kx_dh(state, static_kp->sk, peer_eph_pk) != 0) {
+    if (hydro_kx_dh(state, state->eph_kp.sk, peer_eph_pk) != 0 ||
+        hydro_kx_dh(state, static_kp->sk, peer_eph_pk) != 0) {
         return -1;
     }
 
@@ -419,17 +407,11 @@ hydro_kx_xx_3(hydro_kx_state *state, hydro_kx_session_keypair *kp,
         peer_static_pk = peer_static_pk_;
     }
     hydro_hash_update(&state->h_st, peer_eph_pk, hydro_kx_PUBLICKEYBYTES);
-    if (hydro_kx_dh(state, state->eph_kp.sk, peer_eph_pk) != 0) {
-        return -1;
-    }
-    if (hydro_kx_aead_decrypt(state, peer_static_pk, peer_enc_static_pk,
-                              hydro_kx_PUBLICKEYBYTES + hydro_kx_AEAD_MACBYTES) != 0) {
-        return -1;
-    }
-    if (hydro_kx_dh(state, state->eph_kp.sk, peer_static_pk) != 0) {
-        return -1;
-    }
-    if (hydro_kx_aead_decrypt(state, NULL, packet2_mac, hydro_kx_AEAD_MACBYTES) != 0) {
+    if (hydro_kx_dh(state, state->eph_kp.sk, peer_eph_pk) != 0 ||
+        hydro_kx_aead_decrypt(state, peer_static_pk, peer_enc_static_pk,
+                              hydro_kx_PUBLICKEYBYTES + hydro_kx_AEAD_MACBYTES) != 0 ||
+        hydro_kx_dh(state, state->eph_kp.sk, peer_static_pk) != 0 ||
+        hydro_kx_aead_decrypt(state, NULL, packet2_mac, hydro_kx_AEAD_MACBYTES) != 0) {
         return -1;
     }
 
@@ -460,10 +442,8 @@ hydro_kx_xx_4(hydro_kx_state *state, hydro_kx_session_keypair *kp,
         peer_static_pk = peer_static_pk_;
     }
     if (hydro_kx_aead_decrypt(state, peer_static_pk, peer_enc_static_pk,
-                              hydro_kx_PUBLICKEYBYTES + hydro_kx_AEAD_MACBYTES) != 0) {
-        return -1;
-    }
-    if (hydro_kx_dh(state, state->eph_kp.sk, peer_static_pk) != 0) {
+                              hydro_kx_PUBLICKEYBYTES + hydro_kx_AEAD_MACBYTES) != 0 ||
+        hydro_kx_dh(state, state->eph_kp.sk, peer_static_pk) != 0) {
         return -1;
     }
     hydro_hash_update(&state->h_st, psk, hydro_kx_PSKBYTES);
