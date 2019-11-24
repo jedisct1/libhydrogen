@@ -180,19 +180,9 @@ typedef struct hydro_kx_session_keypair {
     uint8_t tx[hydro_kx_SESSIONKEYBYTES];
 } hydro_kx_session_keypair;
 
-typedef struct hydro_kx_cipher_state {
-    uint8_t  k[hydro_secretbox_KEYBYTES];
-    uint64_t msg_id;
-} hydro_kx_cipher_state;
-
-typedef struct hydro_kx_handshake_state {
-    hydro_kx_keypair kp;
-    hydro_kx_keypair eph_kp;
-} hydro_kx_handshake_state;
-
 typedef struct hydro_kx_state {
-    hydro_kx_handshake_state hs;
-    hydro_hash_state         h_st;
+    hydro_kx_keypair eph_kp;
+    hydro_hash_state h_st;
 } hydro_kx_state;
 
 void hydro_kx_keygen(hydro_kx_keypair *static_kp);
