@@ -1,14 +1,17 @@
-sudo: false
-
 language: c
+sudo: false
+dist: xenial
+
+env:
+  - CFLAGS="-Wall -W -O"
 
 os:
- - linux
+  - linux
 
 compiler:
- - clang
- - gcc
- - g++
+  - clang
+  - gcc
+  - g++
 
 arch:
   - arm64
@@ -28,7 +31,7 @@ addons:
       - p7zip-full
 
 script:
- - make
- - make test
- - make clean
- - make -f Makefile.arduino package
+  - make
+  - make test
+  - make clean
+  - make -f Makefile.arduino package
