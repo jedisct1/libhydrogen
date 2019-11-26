@@ -19,12 +19,6 @@ arch:
   - s390x
   - ppc64le
 
-matrix:
-  include:
-    - os: osx
-      arch: amd64
-      compiler: clang
-
 addons:
   apt:
     packages:
