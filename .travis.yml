@@ -1,6 +1,6 @@
 language: c
 sudo: false
-dist: xenial
+dist: bionic
 
 env:
   - CFLAGS="-Wall -W -O"
