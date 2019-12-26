@@ -1,6 +1,6 @@
 language: c
 sudo: false
-dist: xenial
+dist: bionic
 
 env:
   - CFLAGS="-Wall -W -O"
@@ -18,12 +18,6 @@ arch:
   - amd64
   - s390x
   - ppc64le
-
-matrix:
-  include:
-    - os: osx
-      arch: amd64
-      compiler: clang
 
 addons:
   apt:
