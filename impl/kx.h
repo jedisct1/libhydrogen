@@ -454,3 +454,82 @@ hydro_kx_xx_4(hydro_kx_state *state, hydro_kx_session_keypair *kp,
 
     return 0;
 }
+
+/* NOISE_NK */
+
+int
+hydro_kx_nk_1(hydro_kx_state *state, uint8_t packet1[hydro_kx_NK_PACKET1BYTES],
+              const uint8_t psk[hydro_kx_PSKBYTES],
+              const uint8_t peer_static_pk[hydro_kx_PUBLICKEYBYTES])
+{
+    uint8_t *packet1_eph_pk = &packet1[0];
+    uint8_t *packet1_mac    = &packet1[hydro_kx_PUBLICKEYBYTES];
+
+    if (psk == NULL) {
+        psk = zero;
+    }
+    hydro_kx_init_state(state, "Noise_NKpsk0_hydro1");
+    hydro_hash_update(&state->h_st, peer_static_pk, hydro_x25519_PUBLICKEYBYTES);
+
+    hydro_hash_update(&state->h_st, psk, hydro_kx_PSKBYTES);
+    hydro_kx_eph_keygen(state, &state->eph_kp);
+    if (hydro_kx_dh(state, state->eph_kp.sk, peer_static_pk) != 0) {
+        return -1;
+    }
+    hydro_kx_aead_encrypt(state, packet1_mac, NULL, 0);
+    memcpy(packet1_eph_pk, state->eph_kp.pk, sizeof state->eph_kp.pk);
+
+    return 0;
+}
+
+int
+hydro_kx_nk_2(hydro_kx_session_keypair *kp, uint8_t packet2[hydro_kx_NK_PACKET2BYTES],
+              const uint8_t packet1[hydro_kx_NK_PACKET1BYTES], const uint8_t psk[hydro_kx_PSKBYTES],
+              const hydro_kx_keypair *static_kp)
+{
+    hydro_kx_state state;
+    const uint8_t *peer_eph_pk    = &packet1[0];
+    const uint8_t *packet1_mac    = &packet1[hydro_kx_PUBLICKEYBYTES];
+    uint8_t *      packet2_eph_pk = &packet2[0];
+    uint8_t *      packet2_mac    = &packet2[hydro_kx_PUBLICKEYBYTES];
+
+    if (psk == NULL) {
+        psk = zero;
+    }
+    hydro_kx_init_state(&state, "Noise_NKpsk0_hydro1");
+    hydro_hash_update(&state.h_st, static_kp->pk, hydro_kx_PUBLICKEYBYTES);
+
+    hydro_hash_update(&state.h_st, psk, hydro_kx_PSKBYTES);
+    hydro_hash_update(&state.h_st, peer_eph_pk, hydro_x25519_PUBLICKEYBYTES);
+    if (hydro_kx_dh(&state, static_kp->sk, peer_eph_pk) != 0 ||
+        hydro_kx_aead_decrypt(&state, NULL, packet1_mac, hydro_kx_AEAD_MACBYTES) != 0) {
+        return -1;
+    }
+
+    hydro_kx_eph_keygen(&state, &state.eph_kp);
+    if (hydro_kx_dh(&state, state.eph_kp.sk, peer_eph_pk) != 0) {
+        return -1;
+    }
+    hydro_kx_aead_encrypt(&state, packet2_mac, NULL, 0);
+    hydro_kx_final(&state, kp->tx, kp->rx);
+    memcpy(packet2_eph_pk, state.eph_kp.pk, sizeof state.eph_kp.pk);
+
+    return 0;
+}
+
+int
+hydro_kx_nk_3(hydro_kx_state *state, hydro_kx_session_keypair *kp,
+              const uint8_t packet2[hydro_kx_NK_PACKET2BYTES])
+{
+    const uint8_t *peer_eph_pk = &packet2[0];
+    const uint8_t *packet2_mac = &packet2[hydro_kx_PUBLICKEYBYTES];
+
+    hydro_hash_update(&state->h_st, peer_eph_pk, hydro_x25519_PUBLICKEYBYTES);
+    if (hydro_kx_dh(state, state->eph_kp.sk, peer_eph_pk) != 0 ||
+        hydro_kx_aead_decrypt(state, NULL, packet2_mac, hydro_kx_AEAD_MACBYTES) != 0) {
+        return -1;
+    }
+    hydro_kx_final(state, kp->rx, kp->tx);
+
+    return 0;
+}
