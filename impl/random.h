@@ -455,7 +455,6 @@ hydro_random_buf_deterministic(void *out, size_t out_len,
         gimli_core_u8(state, 0);
         mem_cpy(p + i * gimli_RATE, state, leftover);
     }
-    hydro_random_ratchet();
 }
 
 void
