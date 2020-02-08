@@ -243,6 +243,22 @@ int hydro_kx_xx_4(hydro_kx_state *state, hydro_kx_session_keypair *kp,
                   const uint8_t packet3[hydro_kx_XX_PACKET3BYTES],
                   const uint8_t psk[hydro_kx_PSKBYTES]);
 
+/* NOISE_NK */
+
+#define hydro_kx_NK_PACKET1BYTES (32 + 16)
+#define hydro_kx_NK_PACKET2BYTES (32 + 16)
+
+int hydro_kx_nk_1(hydro_kx_state *state, uint8_t packet1[hydro_kx_NK_PACKET1BYTES],
+                  const uint8_t psk[hydro_kx_PSKBYTES],
+                  const uint8_t peer_static_pk[hydro_kx_PUBLICKEYBYTES]);
+
+int hydro_kx_nk_2(hydro_kx_session_keypair *kp, uint8_t packet2[hydro_kx_NK_PACKET2BYTES],
+                  const uint8_t packet1[hydro_kx_NK_PACKET1BYTES],
+                  const uint8_t psk[hydro_kx_PSKBYTES], const hydro_kx_keypair *static_kp);
+
+int hydro_kx_nk_3(hydro_kx_state *state, hydro_kx_session_keypair *kp,
+                  const uint8_t packet2[hydro_kx_NK_PACKET2BYTES]);
+
 /* ---------------- */
 
 #define hydro_pwhash_CONTEXTBYTES 8
