@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.1)
 
 project(hydrogen LANGUAGES C)
 
@@ -87,22 +87,12 @@ set(compile_options
 
 # Prefix project files with the project root
 
-function(prefix_project_paths list_name)
-  list(TRANSFORM "${list_name}" PREPEND "${PROJECT_SOURCE_DIR}/" OUTPUT_VARIABLE prefixed_list)
-  set("project_${list_name}" ${prefixed_list} PARENT_SCOPE)
-endfunction()
-
-prefix_project_paths(source_files)
-prefix_project_paths(header_files)
-prefix_project_paths(test_files)
-prefix_project_paths(arduino_files)
-
 # Main library
 
 add_library("${PROJECT_NAME}")
 add_library("${PROJECT_NAME}::${PROJECT_NAME}" ALIAS "${PROJECT_NAME}")
 
-target_sources("${PROJECT_NAME}" PRIVATE ${project_source_files})
+target_sources("${PROJECT_NAME}" PRIVATE ${source_files})
 
 target_include_directories("${PROJECT_NAME}"
                            PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}>
@@ -119,7 +109,7 @@ install(TARGETS "${PROJECT_NAME}"
         LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
         ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 
-install(FILES ${project_header_files} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+install(FILES ${header_files} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 
 # CMake find_package() support
 
@@ -153,7 +143,7 @@ set(tests_run_target "${PROJECT_NAME}-run-tests")
 set(tests_run_file "${PROJECT_BINARY_DIR}/${tests_run_target}.done")
 
 enable_testing()
-add_executable("${tests_executable}" ${project_test_files})
+add_executable("${tests_executable}" ${test_files})
 target_compile_options("${tests_executable}" PRIVATE ${compile_options})
 target_link_libraries("${tests_executable}" "${PROJECT_NAME}")
 add_test(NAME "${tests_executable}" COMMAND "${tests_executable}")
