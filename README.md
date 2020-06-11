@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/jedisct1/libhydrogen.svg?branch=master)](https://travis-ci.org/jedisct1/libhydrogen?branch=master)
+[![Build status](https://travis-ci.org/jedisct1/libhydrogen.svg?branch=master)](https://travis-ci.org/jedisct1/libhydrogen?branch=master)
+![CodeQL scan](https://github.com/jedisct1/libhydrogen/workflows/Code%20scanning%20-%20action/badge.svg)
 [![Financial Contributors on Open Collective](https://opencollective.com/libhydrogen/all/badge.svg?label=financial+contributors)](https://opencollective.com/libhydrogen) [![Coverity Scan Build Status](https://scan.coverity.com/projects/13315/badge.svg)](https://scan.coverity.com/projects/13315)
 
 ![libhydrogen](https://raw.github.com/jedisct1/libhydrogen/master/logo.png)
