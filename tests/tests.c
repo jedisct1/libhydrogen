@@ -448,7 +448,7 @@ test_pwhash(void)
 int
 main(void)
 {
-#if defined(_WIN32)
+#ifdef _MSC_VER
     /*
      * On Windows, disable the "Abort - Retry - Ignore" GUI dialog that otherwise pops up on
      * assertion failure.
