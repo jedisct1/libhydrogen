@@ -55,4 +55,4 @@ set(CMAKE_ASM_OUTPUT_EXTENSION .o)
 # Set compile flags
 
 string(CONCAT CMAKE_C_FLAGS " -DED25519_NONDETERMINISTIC=1 --target=wasm32-wasi"
-                            " --sysroot=${sysroot_dir}")
+                            " --sysroot=${sysroot_dir} -Wl,--stack-first")
