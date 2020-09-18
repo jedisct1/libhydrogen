@@ -93,7 +93,7 @@ store64_le(uint8_t dst[8], uint64_t w)
     w >>= 8;
     dst[6] = (uint8_t) w;
     w >>= 8;
-    dst[7]     = (uint8_t) w;
+    dst[7] = (uint8_t) w;
 #endif
 }
 
@@ -127,7 +127,7 @@ store32_le(uint8_t dst[4], uint32_t w)
     w >>= 8;
     dst[2] = (uint8_t) w;
     w >>= 8;
-    dst[3]     = (uint8_t) w;
+    dst[3] = (uint8_t) w;
 #endif
 }
 
@@ -155,7 +155,7 @@ store16_le(uint8_t dst[2], uint16_t w)
 #else
     dst[0] = (uint8_t) w;
     w >>= 8;
-    dst[1]     = (uint8_t) w;
+    dst[1] = (uint8_t) w;
 #endif
 }
 
@@ -203,7 +203,7 @@ store64_be(uint8_t dst[8], uint64_t w)
     w >>= 8;
     dst[1] = (uint8_t) w;
     w >>= 8;
-    dst[0]     = (uint8_t) w;
+    dst[0] = (uint8_t) w;
 #endif
 }
 
@@ -237,7 +237,7 @@ store32_be(uint8_t dst[4], uint32_t w)
     w >>= 8;
     dst[1] = (uint8_t) w;
     w >>= 8;
-    dst[0]     = (uint8_t) w;
+    dst[0] = (uint8_t) w;
 #endif
 }
 
