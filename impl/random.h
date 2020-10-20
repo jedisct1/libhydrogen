@@ -21,6 +21,8 @@ static TLS struct {
 # include "random/unix.h"
 #elif defined(TARGET_LIKE_MBED)
 # include "random/mbed.h"
+#elif defined(RIOT_VERSION)
+# include "random/riot.h"
 #else
 #error Unsupported platform
 #endif
