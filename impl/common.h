@@ -155,7 +155,7 @@ store16_le(uint8_t dst[2], uint16_t w)
 #else
     dst[0] = (uint8_t) w;
     w >>= 8;
-    dst[1] = (uint8_t) w;
+    dst[1]     = (uint8_t) w;
 #endif
 }
 
@@ -237,7 +237,7 @@ store32_be(uint8_t dst[4], uint32_t w)
     w >>= 8;
     dst[1] = (uint8_t) w;
     w >>= 8;
-    dst[0] = (uint8_t) w;
+    dst[0]     = (uint8_t) w;
 #endif
 }
 

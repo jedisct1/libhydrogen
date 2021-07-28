@@ -15,13 +15,13 @@ typedef uint64_t    hydro_x25519_limb_t;
 typedef __uint128_t hydro_x25519_dlimb_t;
 typedef __int128_t  hydro_x25519_sdlimb_t;
 #define hydro_x25519_eswap_limb(X) LOAD64_LE((const uint8_t *) &(X))
-#define hydro_x25519_LIMB(x) x##ull
+#define hydro_x25519_LIMB(x)       x##ull
 #elif hydro_x25519_WBITS == 32
 typedef uint32_t hydro_x25519_limb_t;
 typedef uint64_t hydro_x25519_dlimb_t;
 typedef int64_t  hydro_x25519_sdlimb_t;
 #define hydro_x25519_eswap_limb(X) LOAD32_LE((const uint8_t *) &(X))
-#define hydro_x25519_LIMB(x) (uint32_t)(x##ull), (uint32_t)((x##ull) >> 32)
+#define hydro_x25519_LIMB(x)       (uint32_t)(x##ull), (uint32_t) ((x##ull) >> 32)
 #else
 #error "Need to know hydro_x25519_WBITS"
 #endif
@@ -109,10 +109,10 @@ hydro_x25519_sub(hydro_x25519_fe out, const hydro_x25519_fe a, const hydro_x2551
     int                   i;
 
     for (i = 0; i < hydro_x25519_NLIMBS; i++) {
-        out[i] = (hydro_x25519_limb_t)(carry = carry + a[i] - b[i]);
+        out[i] = (hydro_x25519_limb_t) (carry = carry + a[i] - b[i]);
         carry >>= hydro_x25519_WBITS;
     }
-    hydro_x25519_propagate(out, (hydro_x25519_limb_t)(1 + carry));
+    hydro_x25519_propagate(out, (hydro_x25519_limb_t) (1 + carry));
 }
 
 static void
@@ -207,7 +207,7 @@ hydro_x25519_canon(hydro_x25519_fe x)
     carry = -19;
     res   = 0;
     for (i = 0; i < hydro_x25519_NLIMBS; i++) {
-        res |= x[i] = (hydro_x25519_limb_t)(carry += x[i]);
+        res |= x[i] = (hydro_x25519_limb_t) (carry += x[i]);
         carry >>= hydro_x25519_WBITS;
     }
     return ((hydro_x25519_dlimb_t) res - 1) >> hydro_x25519_WBITS;
@@ -218,17 +218,17 @@ hydro_x25519_ladder_part1(hydro_x25519_fe xs[5])
 {
     hydro_x25519_limb_t *x2 = xs[0], *z2 = xs[1], *x3 = xs[2], *z3 = xs[3], *t1 = xs[4];
 
-    hydro_x25519_add(t1, x2, z2);              // t1 = A
-    hydro_x25519_sub(z2, x2, z2);              // z2 = B
-    hydro_x25519_add(x2, x3, z3);              // x2 = C
-    hydro_x25519_sub(z3, x3, z3);              // z3 = D
-    hydro_x25519_mul1(z3, t1);                 // z3 = DA
-    hydro_x25519_mul1(x2, z2);                 // x3 = BC
-    hydro_x25519_add(x3, z3, x2);              // x3 = DA+CB
-    hydro_x25519_sub(z3, z3, x2);              // z3 = DA-CB
-    hydro_x25519_sqr1(t1);                     // t1 = AA
-    hydro_x25519_sqr1(z2);                     // z2 = BB
-    hydro_x25519_sub(x2, t1, z2);              // x2 = E = AA-BB
+    hydro_x25519_add(t1, x2, z2); // t1 = A
+    hydro_x25519_sub(z2, x2, z2); // z2 = B
+    hydro_x25519_add(x2, x3, z3); // x2 = C
+    hydro_x25519_sub(z3, x3, z3); // z3 = D
+    hydro_x25519_mul1(z3, t1);    // z3 = DA
+    hydro_x25519_mul1(x2, z2);    // x3 = BC
+    hydro_x25519_add(x3, z3, x2); // x3 = DA+CB
+    hydro_x25519_sub(z3, z3, x2); // z3 = DA-CB
+    hydro_x25519_sqr1(t1);        // t1 = AA
+    hydro_x25519_sqr1(z2);        // z2 = BB
+    hydro_x25519_sub(x2, t1, z2); // x2 = E = AA-BB
     hydro_x25519_mul(z2, x2, hydro_x25519_a24, // z2 = E*a24
                      sizeof(hydro_x25519_a24) / sizeof(hydro_x25519_a24[0]));
     hydro_x25519_add(z2, z2, t1); // z2 = E*a24 + AA
@@ -275,7 +275,7 @@ hydro_x25519_core(hydro_x25519_fe xs[5], const uint8_t scalar[hydro_x25519_BYTES
                 bytei |= 0x40;
             }
         }
-        doswap = 1U + ~(hydro_x25519_limb_t)((bytei >> (i % 8)) & 1);
+        doswap = 1U + ~(hydro_x25519_limb_t) ((bytei >> (i % 8)) & 1);
         hydro_x25519_condswap(x2, x3, swap ^ doswap);
         swap = doswap;
         hydro_x25519_ladder_part1(xs);
@@ -372,7 +372,7 @@ hydro_x25519_sc_montmul(hydro_x25519_scalar_t out, const hydro_x25519_scalar_t a
     /* Reduce */
     hydro_x25519_sdlimb_t scarry = 0;
     for (i = 0; i < hydro_x25519_NLIMBS; i++) {
-        out[i] = (hydro_x25519_limb_t)(scarry = scarry + out[i] - hydro_x25519_sc_p[i]);
+        out[i] = (hydro_x25519_limb_t) (scarry = scarry + out[i] - hydro_x25519_sc_p[i]);
         scarry >>= hydro_x25519_WBITS;
     }
     hydro_x25519_limb_t need_add = (hydro_x25519_limb_t) - (scarry + hic);

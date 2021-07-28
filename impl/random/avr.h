@@ -5,7 +5,7 @@ hydro_random_rbit(uint16_t x)
 {
     uint8_t x8;
 
-    x8 = ((uint8_t)(x >> 8)) ^ (uint8_t) x;
+    x8 = ((uint8_t) (x >> 8)) ^ (uint8_t) x;
     x8 = (x8 >> 4) ^ (x8 & 0xf);
     x8 = (x8 >> 2) ^ (x8 & 0x3);
     x8 = (x8 >> 1) ^ x8;
@@ -58,4 +58,4 @@ hydro_random_init(void)
     return 0;
 }
 
-ISR(WDT_vect) {}
+ISR(WDT_vect) { }

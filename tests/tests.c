@@ -81,7 +81,7 @@ test_hash(void)
     uint8_t          dk[hydro_random_SEEDBYTES];
     uint8_t          h[100];
     uint8_t          key[hydro_hash_KEYBYTES];
-#ifdef  __TRUSTINSOFT_ANALYZER__
+#ifdef __TRUSTINSOFT_ANALYZER__
     uint8_t          msg[32];
 #else
     uint8_t          msg[1000];
@@ -100,7 +100,7 @@ test_hash(void)
     }
     hydro_hash_final(&st, h, sizeof h);
     hydro_bin2hex(hex, sizeof hex, h, sizeof h);
-#ifndef  __TRUSTINSOFT_ANALYZER__
+#ifndef __TRUSTINSOFT_ANALYZER__
     assert_streq(
         "e5d2beb77a039965850ee76327e06b2fa6cb5121db8038b11bce4641a9c4bd843658104bdf07342570bb5fd1d7"
         "2c0d31a8981b47c718fddaffbd4171605c873cbaf921bb57988dd814f3a3fbef9799ff7c762705c4bf37ab2981"
@@ -109,7 +109,7 @@ test_hash(void)
 #endif
     hydro_hash_hash(h, sizeof h, msg, sizeof msg, ctx, key);
     hydro_bin2hex(hex, sizeof hex, h, sizeof h);
-#ifndef  __TRUSTINSOFT_ANALYZER__
+#ifndef __TRUSTINSOFT_ANALYZER__
     assert_streq(
         "724bd8883df73320ffd70923cb997f9a99bc670c4d78887be4975add0099fbf489b266a85d1f56743062d60a05"
         "590cbce47e45108367879bf4641cbaefe584e8618cbeb8c230ae956da22c7c5c4f11a8804ca576ec20fa5da239"
@@ -118,13 +118,13 @@ test_hash(void)
 #endif
     hydro_hash_hash(h, hydro_hash_BYTES, msg, sizeof msg, ctx, key);
     hydro_bin2hex(hex, sizeof hex, h, hydro_hash_BYTES);
-#ifndef  __TRUSTINSOFT_ANALYZER__
+#ifndef __TRUSTINSOFT_ANALYZER__
     assert_streq("7dfa45ce18210e2422fd658bf7beccb6e534e44f99ae359f4af3ba41af8ca463", hex);
 #endif
     /* total input length is a multiple of the rate */
     hydro_hash_hash(h, hydro_hash_BYTES, msg, 13, ctx, key);
     hydro_bin2hex(hex, sizeof hex, h, hydro_hash_BYTES);
-#ifndef  __TRUSTINSOFT_ANALYZER__
+#ifndef __TRUSTINSOFT_ANALYZER__
     assert_streq("d57a9800549bb4bab6a06fa6e16e08aad68d7d4313fb69a81b9f5d5af375dbe7", hex);
 #endif
 }
@@ -252,10 +252,10 @@ test_kdf(void)
 static void
 test_sign(void)
 {
-#ifdef  __TRUSTINSOFT_ANALYZER__
-    uint8_t            msg[32];
+#ifdef __TRUSTINSOFT_ANALYZER__
+    uint8_t msg[32];
 #else
-    uint8_t            msg[500];
+    uint8_t msg[500];
 #endif
     uint8_t            sig[hydro_sign_BYTES];
     hydro_sign_state   st;

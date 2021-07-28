@@ -23,8 +23,8 @@ hydro_random_init(void)
     do {
         const uint8_t dataLeftToConsume = gimli_BLOCKBYTES - pos;
         const uint8_t currentChunkSize  = (dataLeftToConsume > MBEDTLS_ENTROPY_BLOCK_SIZE)
-                                             ? MBEDTLS_ENTROPY_BLOCK_SIZE
-                                             : dataLeftToConsume;
+                                              ? MBEDTLS_ENTROPY_BLOCK_SIZE
+                                              : dataLeftToConsume;
 
         // Forces mbedTLS to fetch fresh entropy, then get some to feed libhydrogen.
         if (mbedtls_entropy_gather(&entropy) != 0 ||
@@ -40,5 +40,5 @@ hydro_random_init(void)
     return 0;
 }
 #else
-# error Need an entropy source
+#error Need an entropy source
 #endif

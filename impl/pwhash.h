@@ -1,16 +1,16 @@
-#define hydro_pwhash_ENC_ALGBYTES 1
+#define hydro_pwhash_ENC_ALGBYTES  1
 #define hydro_pwhash_HASH_ALGBYTES 1
-#define hydro_pwhash_THREADSBYTES 1
+#define hydro_pwhash_THREADSBYTES  1
 #define hydro_pwhash_OPSLIMITBYTES 8
 #define hydro_pwhash_MEMLIMITBYTES 8
-#define hydro_pwhash_HASHBYTES 32
-#define hydro_pwhash_SALTBYTES 16
+#define hydro_pwhash_HASHBYTES     32
+#define hydro_pwhash_SALTBYTES     16
 #define hydro_pwhash_PARAMSBYTES                                                           \
     (hydro_pwhash_HASH_ALGBYTES + hydro_pwhash_THREADSBYTES + hydro_pwhash_OPSLIMITBYTES + \
      hydro_pwhash_MEMLIMITBYTES + hydro_pwhash_SALTBYTES + hydro_pwhash_HASHBYTES)
-#define hydro_pwhash_ENC_ALG 0x01
+#define hydro_pwhash_ENC_ALG  0x01
 #define hydro_pwhash_HASH_ALG 0x01
-#define hydro_pwhash_CONTEXT "hydro_pw"
+#define hydro_pwhash_CONTEXT  "hydro_pw"
 
 static int
 _hydro_pwhash_hash(uint8_t out[hydro_random_SEEDBYTES], size_t h_len,

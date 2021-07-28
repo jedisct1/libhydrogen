@@ -1,6 +1,6 @@
 #define hydro_sign_CHALLENGEBYTES 32
-#define hydro_sign_NONCEBYTES 32
-#define hydro_sign_PREHASHBYTES 64
+#define hydro_sign_NONCEBYTES     32
+#define hydro_sign_PREHASHBYTES   64
 
 static void
 hydro_sign_p2(uint8_t sig[hydro_x25519_BYTES], const uint8_t challenge[hydro_sign_CHALLENGEBYTES],

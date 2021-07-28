@@ -52,7 +52,7 @@ hydro_random_safe_read(const int fd, void *const buf_, size_t len)
         buf += readnb;
     } while (len > (ssize_t) 0);
 
-    return (ssize_t)(buf - (unsigned char *) buf_);
+    return (ssize_t) (buf - (unsigned char *) buf_);
 }
 
 static int
