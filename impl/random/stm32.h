@@ -43,5 +43,5 @@ hydro_random_init(void)
 }
 
 #else
-#error SMT32 implementaiton missing!
+# error SMT32 implementation missing!
 #endif
