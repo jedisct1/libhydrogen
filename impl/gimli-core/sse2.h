@@ -40,7 +40,7 @@ rotate24(__m128i x)
 }
 #endif
 
-static const uint32_t coeffs[24] _hydro_attr_aligned_(16) = {
+static const uint32_t _hydro_attr_aligned_(16) coeffs[24] = {
     0x9e377904, 0, 0, 0, 0x9e377908, 0, 0, 0, 0x9e37790c, 0, 0, 0,
     0x9e377910, 0, 0, 0, 0x9e377914, 0, 0, 0, 0x9e377918, 0, 0, 0,
 };
