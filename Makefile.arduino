@@ -26,7 +26,8 @@ SRC = \
 	impl/secretbox.h \
 	impl/sign.h \
 	impl/x25519.h \
-	impl/gimli-core/portable.h
+	impl/gimli-core/portable.h \
+	impl/random/*.h
 
 all: lib package
 

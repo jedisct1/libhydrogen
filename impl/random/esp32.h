@@ -4,6 +4,10 @@
 #include <esp_system.h>
 #endif
 
+#ifdef ARDUINO
+#include <Arduino.h>
+#endif
+
 static int
 hydro_random_init(void)
 {
