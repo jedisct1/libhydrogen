@@ -138,15 +138,17 @@ hydro_x25519_swapout(uint8_t *out, hydro_x25519_limb_t *x)
 }
 
 static void
-hydro_x25519_mul(hydro_x25519_fe out, const hydro_x25519_fe a, const hydro_x25519_fe b, int nb)
+hydro_x25519_mul(hydro_x25519_fe out, const hydro_x25519_fe a, const hydro_x25519_limb_t b[],
+                 const int nb)
 {
     hydro_x25519_limb_t accum[2 * hydro_x25519_NLIMBS] = { 0 };
     hydro_x25519_limb_t carry2;
     int                 i, j;
 
     for (i = 0; i < nb; i++) {
-        carry2                   = 0;
         hydro_x25519_limb_t mand = b[i];
+        carry2                   = 0;
+
         for (j = 0; j < hydro_x25519_NLIMBS; j++) {
             accum[i + j] = hydro_x25519_umaal(&carry2, accum[i + j], mand, a[j]);
         }
