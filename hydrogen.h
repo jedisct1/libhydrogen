@@ -54,6 +54,21 @@ void hydro_random_ratchet(void);
 
 void hydro_random_reseed(void);
 
+#if defined(HYDRO_RNG_USER_WDT_CALLBACK)
+
+extern volatile uint8_t hydro_rng_avr_tim1_sample;
+extern volatile uint8_t hydro_rng_avr_tim1_sample_ready;
+extern volatile bool    hydro_rng_avr_wdt_active;
+
+#define HYDRO_RANDOM_WDTISR()                         \
+    do {                                              \
+        if (hydro_rng_avr_wdt_active) {               \
+            hydro_rng_avr_tim1_sample       = TCNT1L; \
+            hydro_rng_avr_tim1_sample_ready = true;   \
+        }                                             \
+    } while (0);
+
+#endif
 /* ---------------- */
 
 #define hydro_hash_BYTES        32
