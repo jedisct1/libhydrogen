@@ -99,7 +99,6 @@ hydro_random_init(void)
             if (current_bit > 7) {
                 current_bit = 0;
                 ebytes++;
-                USART_send(r);
                 hydro_hash_update(&st, (const uint8_t *) &r, sizeof r);
             }
         }
