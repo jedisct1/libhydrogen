@@ -29,7 +29,6 @@ ISR(WDT_vect)
 #else
 #define TIMER1_RESOLUTION 65536UL // Timer1 is 16 bit
 #endif
-void USART_send(unsigned char data);
 
 static int
 hydro_random_init(void)
