@@ -25,6 +25,8 @@ static TLS struct {
 # include "random/riot.h"
 #elif defined(STM32F4)
 # include "random/stm32.h"
+#elif defined(__RTTHREAD__)
+# include "random/rtthread.h"
 #else
 # error Unsupported platform
 #endif
