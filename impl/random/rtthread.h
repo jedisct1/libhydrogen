@@ -6,6 +6,16 @@
 #include <rtdbg.h>
 
 static int
+hydrogen_init(void) {
+    if (hydro_init() != 0) {
+        abort();
+    }
+    LOG_I("libhydrogen initialized");
+    return 0;
+}
+INIT_APP_EXPORT(hydrogen_init);
+
+static int
 hydro_random_init(void)
 {
     const char       ctx[hydro_hash_CONTEXTBYTES] = { 'h', 'y', 'd', 'r', 'o', 'P', 'R', 'G' };
