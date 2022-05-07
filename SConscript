@@ -1,13 +1,18 @@
-Import('RTT_ROOT')
-Import('rtconfig')
 from building import *
 
-objs = []
-cwd     = GetCurrentDir()
+if GetDepend('PKG_USING_LIBHYDROGEN'):
+    Import('RTT_ROOT')
+    Import('rtconfig')
 
-src     = 'hydrogen.c'
-path   =  [cwd]
+    objs    = []
+    cwd     = GetCurrentDir()
 
-group = DefineGroup('libhydrogen', src, depend = ['PKG_USING_LIBHYDROGEN'], CPPPATH = path)
+    src     = 'hydrogen.c'
+    path    = [cwd]
 
-Return('group')
+    group   = DefineGroup('libhydrogen', src, depend = ['PKG_USING_LIBHYDROGEN'], CPPPATH = path)
+
+    Return('group')
+
+else:
+    print('The scons script only supports RT-Thread, please use Makefiles/zig/cmake.')
