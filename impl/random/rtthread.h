@@ -8,7 +8,7 @@
 static int
 hydrogen_init(void) {
     if (hydro_init() != 0) {
-        abort();
+        LOG_E("libhydrogen failed to initialize");
     }
     LOG_I("libhydrogen initialized");
     return 0;
