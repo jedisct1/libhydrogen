@@ -105,14 +105,14 @@ hydro_x25519_add(hydro_x25519_fe out, const hydro_x25519_fe a, const hydro_x2551
 static void
 hydro_x25519_sub(hydro_x25519_fe out, const hydro_x25519_fe a, const hydro_x25519_fe b)
 {
-    hydro_x25519_sdlimb_t carry = -38;
+    hydro_x25519_sdlimb_t carry = -76;
     int                   i;
 
     for (i = 0; i < hydro_x25519_NLIMBS; i++) {
         out[i] = (hydro_x25519_limb_t) (carry = carry + a[i] - b[i]);
         carry >>= hydro_x25519_WBITS;
     }
-    hydro_x25519_propagate(out, (hydro_x25519_limb_t) (1 + carry));
+    hydro_x25519_propagate(out, (hydro_x25519_limb_t) (2 + carry));
 }
 
 static void
