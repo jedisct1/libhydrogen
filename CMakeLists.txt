@@ -39,11 +39,6 @@ set(arduino_files "library.properties")
 
 # Compile options
 
-get_setting(target_arch STRING "Target system architecture (fed to the compiler's -march=XXX).")
-if(NOT target_arch AND NOT CMAKE_CROSSCOMPILING)
-  set(target_arch native)
-endif()
-
 get_setting(target_device STRING "Target device identifier (defines HYDRO_TARGET_DEVICE_XXX).")
 
 set(compile_options
@@ -52,7 +47,7 @@ set(compile_options
     # ---- Definitions ----
     $<$<BOOL:${target_device}>:-DHYDRO_TARGET_DEVICE_${target_device}>
     # ---- Optimizations ----
-    -Os $<$<BOOL:${target_arch}>:-march=${target_arch}> -fno-exceptions
+    -Os -fno-exceptions
     # ---- Warnings ----
     -Wall
     -Wextra
