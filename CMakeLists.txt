@@ -5,6 +5,8 @@ project(hydrogen LANGUAGES C)
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
+option(BUILD_TESTING "Build the tests" ON)
+
 string(TOUPPER "${PROJECT_NAME}" setting_prefix)
 function(get_setting setting_name setting_type setting_description)
   string(TOUPPER "${setting_prefix}_${setting_name}" setting_external_name)
@@ -137,37 +139,38 @@ export(EXPORT "${targets_export_name}" FILE "${targets_export_file}" NAMESPACE "
 export(PACKAGE "${PROJECT_NAME}")
 
 # Tests
+if (BUILD_TESTING)
+  set(tests_executable "${PROJECT_NAME}-tests")
+  set(tests_run_target "${PROJECT_NAME}-run-tests")
+  set(tests_run_file "${PROJECT_BINARY_DIR}/${tests_run_target}.done")
 
-set(tests_executable "${PROJECT_NAME}-tests")
-set(tests_run_target "${PROJECT_NAME}-run-tests")
-set(tests_run_file "${PROJECT_BINARY_DIR}/${tests_run_target}.done")
+  enable_testing()
+  add_executable("${tests_executable}" ${test_files})
+  target_compile_options("${tests_executable}" PRIVATE ${compile_options})
+  target_link_libraries("${tests_executable}" "${PROJECT_NAME}")
+  add_test(NAME "${tests_executable}" COMMAND "${tests_executable}")
 
-enable_testing()
-add_executable("${tests_executable}" ${test_files})
-target_compile_options("${tests_executable}" PRIVATE ${compile_options})
-target_link_libraries("${tests_executable}" "${PROJECT_NAME}")
-add_test(NAME "${tests_executable}" COMMAND "${tests_executable}")
-
-if(CMAKE_CROSSCOMPILING)
-  # Disable tests executable by default when cross-compiling (as it will fail to build when, e.g.,
-  # cross-compiling for Arduino/AVR).
-  set_target_properties("${tests_executable}"
-                        PROPERTIES
-                        EXCLUDE_FROM_ALL 1
-                        EXCLUDE_FROM_DEFAULT_BUILD 1)
-else()
-  # Otherwise, auto-run the tests on build.
-  add_custom_command(OUTPUT "${tests_run_file}"
-                     DEPENDS "${tests_executable}"
-                     COMMAND "${CMAKE_COMMAND}"
-                     ARGS -E remove "${tests_run_file}"
-                     COMMAND "${CMAKE_CTEST_COMMAND}"
-                     ARGS -C $<CONFIGURATION> --output-on-failure
-                     COMMAND "${CMAKE_COMMAND}"
-                     ARGS -E touch "${tests_run_file}"
-                     WORKING_DIRECTORY "${PROJECT_BINARY_DIR}"
-                     VERBATIM)
-  add_custom_target("${tests_run_target}" ALL DEPENDS "${tests_run_file}" VERBATIM)
+  if(CMAKE_CROSSCOMPILING)
+    # Disable tests executable by default when cross-compiling (as it will fail to build when, e.g.,
+    # cross-compiling for Arduino/AVR).
+    set_target_properties("${tests_executable}"
+                          PROPERTIES
+                          EXCLUDE_FROM_ALL 1
+                          EXCLUDE_FROM_DEFAULT_BUILD 1)
+  else()
+    # Otherwise, auto-run the tests on build.
+    add_custom_command(OUTPUT "${tests_run_file}"
+                      DEPENDS "${tests_executable}"
+                      COMMAND "${CMAKE_COMMAND}"
+                      ARGS -E remove "${tests_run_file}"
+                      COMMAND "${CMAKE_CTEST_COMMAND}"
+                      ARGS -C $<CONFIGURATION> --output-on-failure
+                      COMMAND "${CMAKE_COMMAND}"
+                      ARGS -E touch "${tests_run_file}"
+                      WORKING_DIRECTORY "${PROJECT_BINARY_DIR}"
+                      VERBATIM)
+    add_custom_target("${tests_run_target}" ALL DEPENDS "${tests_run_file}" VERBATIM)
+  endif()
 endif()
 
 # Generate Arduino package
