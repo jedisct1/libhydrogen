@@ -25,7 +25,7 @@
 #ifndef TLS
 #if defined(_WIN32) && !defined(__GNUC__)
 #define TLS __declspec(thread)
-#elif (defined(__clang__) || defined(__GNUC__)) && defined(__unix__)
+#elif (defined(__clang__) || defined(__GNUC__)) && defined(__unix__) && !defined(__TINYC__)
 #define TLS __thread
 #else
 #define TLS
