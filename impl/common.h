@@ -1,9 +1,18 @@
+#if defined(__linux__) && defined(__KERNEL__)
+#define TLS /* Danger: at most one call into hydro_*() at a time */
+#define CHAR_BIT 8
+#define abort BUG
+#define uint_fast16_t uint16_t
+#define errno hydro_errno
+static int errno;
+#else
 #include <errno.h>
 #include <limits.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#endif
 
 #if !defined(__unix__) && (defined(__APPLE__) || defined(__linux__))
 #define __unix__ 1

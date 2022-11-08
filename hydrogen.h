@@ -1,9 +1,15 @@
 #ifndef hydrogen_H
 #define hydrogen_H
 
+#if !(defined(__linux__) && defined(__KERNEL__))
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#endif
+
+#ifdef __GNUC__
+#pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+#endif
 
 #ifdef __cplusplus
 #ifdef __GNUC__
