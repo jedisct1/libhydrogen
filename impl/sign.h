@@ -100,10 +100,10 @@ hydro_sign_verify_p2(const uint8_t sig[hydro_x25519_BYTES],
 {
     hydro_x25519_fe xs[7];
 
-    hydro_x25519_core(&xs[0], challenge, pk, 0);
-    hydro_x25519_core(&xs[2], sig, hydro_x25519_BASE_POINT, 0);
+    hydro_x25519_core(xs, challenge, pk, 0);
+    hydro_x25519_core(xs + 2, sig, hydro_x25519_BASE_POINT, 0);
 
-    return hydro_sign_verify_core(&xs[2], xs[0], nonce);
+    return hydro_sign_verify_core(xs + 2, xs[0], nonce);
 }
 
 static int
