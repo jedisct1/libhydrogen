@@ -1,5 +1,5 @@
 #if defined(CH32V30x_D8) || defined(CH32V30x_D8C)
-#include <ch32v30x_rng.h>
+# include <ch32v30x_rng.h>
 #else
 # error CH32 implementation missing!
 #endif
@@ -7,15 +7,15 @@
 static int
 hydro_random_init(void)
 {
+    const char       ctx[hydro_hash_CONTEXTBYTES] = { 'h', 'y', 'd', 'r', 'o', 'P', 'R', 'G' };
+    hydro_hash_state st;
+    uint16_t         ebits = 0;
+
     // Enable RNG clock source
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_RNG, ENABLE);
 
     // RNG Peripheral enable
     RNG_Cmd(ENABLE);
-
-    const char       ctx[hydro_hash_CONTEXTBYTES] = { 'h', 'y', 'd', 'r', 'o', 'P', 'R', 'G' };
-    hydro_hash_state st;
-    uint16_t         ebits = 0;
 
     hydro_hash_init(&st, ctx, NULL);
 
