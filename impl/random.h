@@ -31,6 +31,8 @@ static TLS struct {
 # include "random/rtthread.h"
 #elif defined(CH32V30x_D8) || defined(CH32V30x_D8C)
 # include "random/ch32.h"
+#elif defined(CHIBIOS)
+# include "random/chibios.h"
 #else
 # error Unsupported platform
 #endif
