@@ -2,10 +2,14 @@ const std = @import("std");
 
 pub fn build(b: *std.build.Builder) void {
     const target = b.standardTargetOptions(.{});
-    const lib = b.addStaticLibrary("hydrogen", "hydrogen.c");
+    const optimize = b.standardOptimizeOption(.{ .preferred_optimize_mode = .ReleaseSmall });
+    const lib = b.addStaticLibrary(.{
+        .name = "hydrogen",
+        .root_source_file = .{ .path = "hydrogen.c" },
+        .target = target,
+        .optimize = optimize,
+    });
     lib.linkLibC();
-    lib.setBuildMode(.ReleaseSmall);
-    lib.setTarget(target);
     lib.strip = true;
-    lib.install();
+    b.installArtifact(lib);
 }
