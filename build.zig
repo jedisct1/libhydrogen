@@ -1,15 +1,17 @@
 const std = @import("std");
 
-pub fn build(b: *std.build.Builder) void {
+pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{ .preferred_optimize_mode = .ReleaseSmall });
     const lib = b.addStaticLibrary(.{
         .name = "hydrogen",
-        .root_source_file = .{ .path = "hydrogen.c" },
         .target = target,
         .optimize = optimize,
+        .strip = true,
+    });
+    lib.addCSourceFile(.{
+        .file = .{ .path = "hydrogen.c" },
     });
     lib.linkLibC();
-    lib.strip = true;
     b.installArtifact(lib);
 }
