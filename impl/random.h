@@ -11,6 +11,8 @@ static TLS struct {
 # include "random/esp32.h"
 #elif defined(PARTICLE) && defined(PLATFORM_ID) && PLATFORM_ID > 2 && !defined(__unix__)
 # include "random/particle.h"
+#elif defined(__ZEPHYR__)
+# include "random/zephyr.h"
 #elif (defined(NRF52832_XXAA) || defined(NRF52832_XXAB)) && !defined(__unix__)
 # include "random/nrf52832.h"
 #elif defined(_WIN32)
