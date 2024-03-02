@@ -53,6 +53,14 @@ test('tests', tests)
 
 install_headers(files('hydrogen.h'))
 
+pkgconfig = import('pkgconfig')
+pkgconfig.generate(
+  libhydrogen,
+  name: 'libhydrogen',
+  description: 'Lightweight, secure, easy-to-use crypto library suitable for constrained environments.',
+  url: 'https://libhydrogen.org/',
+)
+
 libhydrogen_dep = declare_dependency(
   include_directories: include_dirs,
   link_with: libhydrogen,
