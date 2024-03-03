@@ -1,0 +1,12 @@
+.{
+    .name = "libhydrogen",
+    .version = "1.0.0",
+
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "hydrogen.c",
+        "hydrogen.h",
+        "impl",
+    },
+}

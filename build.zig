@@ -8,10 +8,14 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
         .strip = true,
+        .link_libc = true,
+    });
+    _ = b.addModule("libhydrogen", .{
+        .root_source_file = .{ .path = "hydrogen.c" },
+        .link_libc = true,
     });
     lib.addCSourceFile(.{
         .file = .{ .path = "hydrogen.c" },
     });
-    lib.linkLibC();
     b.installArtifact(lib);
 }
