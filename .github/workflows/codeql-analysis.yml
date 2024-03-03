@@ -23,7 +23,7 @@ jobs:
       fail-fast: false
       matrix:
         language: [ 'c-cpp' ]
-        autobuild_force_build_system: ['cmake', 'meson']
+        autobuild_force_build_system: ['cmake', 'make', 'meson']
 
     steps:
     - name: Checkout repository
@@ -33,6 +33,11 @@ jobs:
       if: matrix.autobuild_force_build_system == 'cmake'
       run: |
         rm -vrf Makefile* meson.build
+
+    - name: Maybe remove non-Make build systems
+      if: matrix.autobuild_force_build_system == 'make'
+      run: |
+        rm -vrf CMakeLists.txt cmake/ meson.build
 
     - name: Maybe remove non-Meson build systems
       if: matrix.autobuild_force_build_system == 'meson'
