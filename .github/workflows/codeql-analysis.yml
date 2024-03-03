@@ -23,10 +23,21 @@ jobs:
       fail-fast: false
       matrix:
         language: [ 'c-cpp' ]
+        autobuild_force_build_system: ['cmake', 'meson']
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+
+    - name: Maybe remove non-CMake build systems
+      if: matrix.autobuild_force_build_system == 'cmake'
+      run: |
+        rm -vrf Makefile* meson.build
+
+    - name: Maybe remove non-Meson build systems
+      if: matrix.autobuild_force_build_system == 'meson'
+      run: |
+        rm -vrf Makefile* CMakeLists.txt cmake/
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
