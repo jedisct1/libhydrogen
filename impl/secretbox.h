@@ -101,11 +101,11 @@ hydro_secretbox_encrypt_iv(uint8_t *c, const void *m_, size_t mlen, uint64_t msg
                            const uint8_t iv[hydro_secretbox_IVBYTES])
 {
     _hydro_attr_aligned_(16) uint32_t state[gimli_BLOCKBYTES / 4];
-    uint8_t *                         buf = (uint8_t *) (void *) state;
-    const uint8_t *                   m   = (const uint8_t *) m_;
-    uint8_t *                         siv = &c[0];
-    uint8_t *                         mac = &c[hydro_secretbox_SIVBYTES];
-    uint8_t *                         ct  = &c[hydro_secretbox_SIVBYTES + hydro_secretbox_MACBYTES];
+    uint8_t                          *buf = (uint8_t *) (void *) state;
+    const uint8_t                    *m   = (const uint8_t *) m_;
+    uint8_t                          *siv = &c[0];
+    uint8_t                          *mac = &c[hydro_secretbox_SIVBYTES];
+    uint8_t                          *ct  = &c[hydro_secretbox_SIVBYTES + hydro_secretbox_MACBYTES];
     size_t                            i;
     size_t                            leftover;
 
@@ -202,11 +202,11 @@ hydro_secretbox_decrypt(void *m_, const uint8_t *c, size_t clen, uint64_t msg_id
 {
     _hydro_attr_aligned_(16) uint32_t state[gimli_BLOCKBYTES / 4];
     uint32_t                          pub_mac[hydro_secretbox_MACBYTES / 4];
-    uint8_t *                         buf = (uint8_t *) (void *) state;
-    const uint8_t *                   siv;
-    const uint8_t *                   mac;
-    const uint8_t *                   ct;
-    uint8_t *                         m = (uint8_t *) m_;
+    uint8_t                          *buf = (uint8_t *) (void *) state;
+    const uint8_t                    *siv;
+    const uint8_t                    *mac;
+    const uint8_t                    *ct;
+    uint8_t                          *m = (uint8_t *) m_;
     size_t                            mlen;
     uint32_t                          cv;
 

@@ -1,56 +1,56 @@
 #if defined(__linux__) && defined(__KERNEL__)
-#define TLS /* Danger: at most one call into hydro_*() at a time */
-#define CHAR_BIT 8
-#define abort BUG
-#define uint_fast16_t uint16_t
-#define errno hydro_errno
+#    define TLS           /* Danger: at most one call into hydro_*() at a time */
+#    define CHAR_BIT      8
+#    define abort         BUG
+#    define uint_fast16_t uint16_t
+#    define errno         hydro_errno
 static int errno;
 #else
-#include <errno.h>
-#include <limits.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
+#    include <errno.h>
+#    include <limits.h>
+#    include <stdbool.h>
+#    include <stdint.h>
+#    include <stdlib.h>
+#    include <string.h>
 #endif
 
 #if !defined(__unix__) && (defined(__APPLE__) || defined(__linux__))
-#define __unix__ 1
+#    define __unix__ 1
 #endif
 #ifndef __GNUC__
-#define __restrict__
+#    define __restrict__
 #endif
 
 #if defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && \
     __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-#define NATIVE_BIG_ENDIAN
+#    define NATIVE_BIG_ENDIAN
 #endif
 #ifndef NATIVE_BIG_ENDIAN
-#ifndef NATIVE_LITTLE_ENDIAN
-#define NATIVE_LITTLE_ENDIAN
-#endif
+#    ifndef NATIVE_LITTLE_ENDIAN
+#        define NATIVE_LITTLE_ENDIAN
+#    endif
 #endif
 
 #ifndef TLS
-#if defined(_WIN32) && !defined(__GNUC__)
-#define TLS __declspec(thread)
-#elif (defined(__clang__) || defined(__GNUC__)) && defined(__unix__) && !defined(__TINYC__)
-#define TLS __thread
-#else
-#define TLS
-#endif
+#    if defined(_WIN32) && !defined(__GNUC__)
+#        define TLS __declspec(thread)
+#    elif (defined(__clang__) || defined(__GNUC__)) && defined(__unix__) && !defined(__TINYC__)
+#        define TLS __thread
+#    else
+#        define TLS
+#    endif
 #endif
 
 #ifndef SIZE_MAX
-#define SIZE_MAX ((size_t) -1)
+#    define SIZE_MAX ((size_t) -1)
 #endif
 
 #ifdef __OpenBSD__
-#define HAVE_EXPLICIT_BZERO 1
+#    define HAVE_EXPLICIT_BZERO 1
 #elif defined(__GLIBC__) && defined(__GLIBC_PREREQ) && defined(_GNU_SOURCE)
-#if __GLIBC_PREREQ(2, 25)
-#define HAVE_EXPLICIT_BZERO 1
-#endif
+#    if __GLIBC_PREREQ(2, 25)
+#        define HAVE_EXPLICIT_BZERO 1
+#    endif
 #endif
 
 #define COMPILER_ASSERT(X) (void) sizeof(char[(X) ? 1 : -1])
@@ -164,7 +164,7 @@ store16_le(uint8_t dst[2], uint16_t w)
 #else
     dst[0] = (uint8_t) w;
     w >>= 8;
-    dst[1]     = (uint8_t) w;
+    dst[1] = (uint8_t) w;
 #endif
 }
 
@@ -246,7 +246,7 @@ store32_be(uint8_t dst[4], uint32_t w)
     w >>= 8;
     dst[1] = (uint8_t) w;
     w >>= 8;
-    dst[0]     = (uint8_t) w;
+    dst[0] = (uint8_t) w;
 #endif
 }
 
@@ -281,7 +281,7 @@ store16_be(uint8_t dst[2], uint16_t w)
 static inline void
 mem_cpy(void *__restrict__ dst_, const void *__restrict__ src_, size_t n)
 {
-    unsigned char *      dst = (unsigned char *) dst_;
+    unsigned char       *dst = (unsigned char *) dst_;
     const unsigned char *src = (const unsigned char *) src_;
     size_t               i;
 
@@ -304,7 +304,7 @@ mem_zero(void *dst_, size_t n)
 static inline void
 mem_xor(void *__restrict__ dst_, const void *__restrict__ src_, size_t n)
 {
-    unsigned char *      dst = (unsigned char *) dst_;
+    unsigned char       *dst = (unsigned char *) dst_;
     const unsigned char *src = (const unsigned char *) src_;
     size_t               i;
 
@@ -317,7 +317,7 @@ static inline void
 mem_xor2(void *__restrict__ dst_, const void *__restrict__ src1_, const void *__restrict__ src2_,
          size_t n)
 {
-    unsigned char *      dst  = (unsigned char *) dst_;
+    unsigned char       *dst  = (unsigned char *) dst_;
     const unsigned char *src1 = (const unsigned char *) src1_;
     const unsigned char *src2 = (const unsigned char *) src2_;
     size_t               i;

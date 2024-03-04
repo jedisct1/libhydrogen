@@ -1,5 +1,5 @@
 #ifdef NDEBUG
-#undef NDEBUG
+#    undef NDEBUG
 #endif
 #include <assert.h>
 #include <stdio.h>
@@ -82,12 +82,12 @@ test_hash(void)
     uint8_t          h[100];
     uint8_t          key[hydro_hash_KEYBYTES];
 #ifdef __TRUSTINSOFT_ANALYZER__
-    uint8_t          msg[32];
+    uint8_t msg[32];
 #else
-    uint8_t          msg[1000];
+    uint8_t msg[1000];
 #endif
-    char             hex[100 * 2 + 1];
-    size_t           i;
+    char   hex[100 * 2 + 1];
+    size_t i;
 
     memset(dk, 0, sizeof dk);
     hydro_random_buf_deterministic(key, sizeof key, dk);

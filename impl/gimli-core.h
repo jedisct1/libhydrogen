@@ -1,7 +1,7 @@
 #ifdef __SSE2__
-#include "gimli-core/sse2.h"
+#    include "gimli-core/sse2.h"
 #else
-#include "gimli-core/portable.h"
+#    include "gimli-core/portable.h"
 #endif
 
 static void

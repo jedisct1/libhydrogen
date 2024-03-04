@@ -79,8 +79,8 @@ hydro_kx_aead_encrypt(hydro_kx_state *state, uint8_t *c, const uint8_t *m, size_
 {
     _hydro_attr_aligned_(16) uint8_t aead_state[gimli_BLOCKBYTES];
     uint8_t                          k[hydro_kx_AEAD_KEYBYTES];
-    uint8_t *                        mac = &c[0];
-    uint8_t *                        ct  = &c[hydro_kx_AEAD_MACBYTES];
+    uint8_t                         *mac = &c[0];
+    uint8_t                         *ct  = &c[hydro_kx_AEAD_MACBYTES];
 
     hydro_kx_aead_init(aead_state, k, state);
     hydro_kx_aead_xor_enc(aead_state, ct, m, mlen);
@@ -99,9 +99,9 @@ hydro_kx_aead_decrypt(hydro_kx_state *state, uint8_t *m, const uint8_t *c, size_
     _hydro_attr_aligned_(16) uint32_t int_state[gimli_BLOCKBYTES / 4];
     uint32_t                          pub_mac[hydro_kx_AEAD_MACBYTES / 4];
     uint8_t                           k[hydro_kx_AEAD_KEYBYTES];
-    uint8_t *                         aead_state = (uint8_t *) (void *) int_state;
-    const uint8_t *                   mac;
-    const uint8_t *                   ct;
+    uint8_t                          *aead_state = (uint8_t *) (void *) int_state;
+    const uint8_t                    *mac;
+    const uint8_t                    *ct;
     size_t                            mlen;
     uint32_t                          cv;
 
@@ -197,8 +197,8 @@ hydro_kx_n_1(hydro_kx_session_keypair *kp, uint8_t packet1[hydro_kx_N_PACKET1BYT
              const uint8_t peer_static_pk[hydro_kx_PUBLICKEYBYTES])
 {
     hydro_kx_state state;
-    uint8_t *      packet1_eph_pk = &packet1[0];
-    uint8_t *      packet1_mac    = &packet1[hydro_kx_PUBLICKEYBYTES];
+    uint8_t       *packet1_eph_pk = &packet1[0];
+    uint8_t       *packet1_mac    = &packet1[hydro_kx_PUBLICKEYBYTES];
 
     if (psk == NULL) {
         psk = zero;
@@ -278,8 +278,8 @@ hydro_kx_kk_2(hydro_kx_session_keypair *kp, uint8_t packet2[hydro_kx_KK_PACKET2B
     hydro_kx_state state;
     const uint8_t *peer_eph_pk    = &packet1[0];
     const uint8_t *packet1_mac    = &packet1[hydro_kx_PUBLICKEYBYTES];
-    uint8_t *      packet2_eph_pk = &packet2[0];
-    uint8_t *      packet2_mac    = &packet2[hydro_kx_PUBLICKEYBYTES];
+    uint8_t       *packet2_eph_pk = &packet2[0];
+    uint8_t       *packet2_mac    = &packet2[hydro_kx_PUBLICKEYBYTES];
 
     hydro_kx_init_state(&state, "Noise_KK_hydro1");
     hydro_hash_update(&state.h_st, peer_static_pk, hydro_kx_PUBLICKEYBYTES);
@@ -354,9 +354,9 @@ hydro_kx_xx_2(hydro_kx_state *state, uint8_t packet2[hydro_kx_XX_PACKET2BYTES],
 {
     const uint8_t *peer_eph_pk           = &packet1[0];
     const uint8_t *packet1_mac           = &packet1[hydro_kx_PUBLICKEYBYTES];
-    uint8_t *      packet2_eph_pk        = &packet2[0];
-    uint8_t *      packet2_enc_static_pk = &packet2[hydro_kx_PUBLICKEYBYTES];
-    uint8_t *      packet2_mac =
+    uint8_t       *packet2_eph_pk        = &packet2[0];
+    uint8_t       *packet2_enc_static_pk = &packet2[hydro_kx_PUBLICKEYBYTES];
+    uint8_t       *packet2_mac =
         &packet2[hydro_kx_PUBLICKEYBYTES + hydro_kx_PUBLICKEYBYTES + hydro_kx_AEAD_MACBYTES];
 
     if (psk == NULL) {
@@ -490,8 +490,8 @@ hydro_kx_nk_2(hydro_kx_session_keypair *kp, uint8_t packet2[hydro_kx_NK_PACKET2B
     hydro_kx_state state;
     const uint8_t *peer_eph_pk    = &packet1[0];
     const uint8_t *packet1_mac    = &packet1[hydro_kx_PUBLICKEYBYTES];
-    uint8_t *      packet2_eph_pk = &packet2[0];
-    uint8_t *      packet2_mac    = &packet2[hydro_kx_PUBLICKEYBYTES];
+    uint8_t       *packet2_eph_pk = &packet2[0];
+    uint8_t       *packet2_mac    = &packet2[hydro_kx_PUBLICKEYBYTES];
 
     if (psk == NULL) {
         psk = zero;

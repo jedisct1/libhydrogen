@@ -6,37 +6,37 @@ static TLS struct {
 } hydro_random_context;
 
 #if defined(AVR) && !defined(__unix__)
-# include "random/avr.h"
+#    include "random/avr.h"
 #elif (defined(ESP32) || defined(ESP8266)) && !defined(__unix__)
-# include "random/esp32.h"
+#    include "random/esp32.h"
 #elif defined(PARTICLE) && defined(PLATFORM_ID) && PLATFORM_ID > 2 && !defined(__unix__)
-# include "random/particle.h"
+#    include "random/particle.h"
 #elif defined(__ZEPHYR__)
-# include "random/zephyr.h"
+#    include "random/zephyr.h"
 #elif (defined(NRF52832_XXAA) || defined(NRF52832_XXAB)) && !defined(__unix__)
-# include "random/nrf52832.h"
+#    include "random/nrf52832.h"
 #elif defined(_WIN32)
-# include "random/windows.h"
+#    include "random/windows.h"
 #elif defined(__wasi__)
-# include "random/wasi.h"
+#    include "random/wasi.h"
 #elif defined(__linux__) && defined(__KERNEL__)
-# include "random/linux_kernel.h"
+#    include "random/linux_kernel.h"
 #elif defined(__unix__)
-# include "random/unix.h"
+#    include "random/unix.h"
 #elif defined(TARGET_LIKE_MBED)
-# include "random/mbed.h"
+#    include "random/mbed.h"
 #elif defined(RIOT_VERSION)
-# include "random/riot.h"
+#    include "random/riot.h"
 #elif defined(STM32F4) || defined(STM32L4)
-# include "random/stm32.h"
+#    include "random/stm32.h"
 #elif defined(__RTTHREAD__)
-# include "random/rtthread.h"
+#    include "random/rtthread.h"
 #elif defined(CH32V30x_D8) || defined(CH32V30x_D8C)
-# include "random/ch32.h"
+#    include "random/ch32.h"
 #elif defined(CHIBIOS)
-# include "random/chibios.h"
+#    include "random/chibios.h"
 #else
-# error Unsupported platform
+#    error Unsupported platform
 #endif
 
 static void
@@ -122,7 +122,7 @@ hydro_random_buf_deterministic(void *out, size_t out_len,
 {
     static const uint8_t             prefix[] = { 7, 'd', 'r', 'b', 'g', '2', '5', '6' };
     _hydro_attr_aligned_(16) uint8_t state[gimli_BLOCKBYTES];
-    uint8_t *                        p = (uint8_t *) out;
+    uint8_t                         *p = (uint8_t *) out;
     size_t                           i;
     size_t                           leftover;
 

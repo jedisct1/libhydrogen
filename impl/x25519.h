@@ -5,25 +5,25 @@
  */
 
 #if defined(__GNUC__) && defined(__SIZEOF_INT128__)
-#define hydro_x25519_WBITS 64
+#    define hydro_x25519_WBITS 64
 #else
-#define hydro_x25519_WBITS 32
+#    define hydro_x25519_WBITS 32
 #endif
 
 #if hydro_x25519_WBITS == 64
 typedef uint64_t    hydro_x25519_limb_t;
 typedef __uint128_t hydro_x25519_dlimb_t;
 typedef __int128_t  hydro_x25519_sdlimb_t;
-#define hydro_x25519_eswap_limb(X) LOAD64_LE((const uint8_t *) &(X))
-#define hydro_x25519_LIMB(x)       x##ull
+#    define hydro_x25519_eswap_limb(X) LOAD64_LE((const uint8_t *) &(X))
+#    define hydro_x25519_LIMB(x)       x##ull
 #elif hydro_x25519_WBITS == 32
 typedef uint32_t hydro_x25519_limb_t;
 typedef uint64_t hydro_x25519_dlimb_t;
 typedef int64_t  hydro_x25519_sdlimb_t;
-#define hydro_x25519_eswap_limb(X) LOAD32_LE((const uint8_t *) &(X))
-#define hydro_x25519_LIMB(x)       (uint32_t)(x##ull), (uint32_t) ((x##ull) >> 32)
+#    define hydro_x25519_eswap_limb(X) LOAD32_LE((const uint8_t *) &(X))
+#    define hydro_x25519_LIMB(x)       (uint32_t)(x##ull), (uint32_t) ((x##ull) >> 32)
 #else
-#error "Need to know hydro_x25519_WBITS"
+#    error "Need to know hydro_x25519_WBITS"
 #endif
 
 #define hydro_x25519_NLIMBS (256 / hydro_x25519_WBITS)
@@ -224,12 +224,12 @@ hydro_x25519_ladder_part1(hydro_x25519_fe xs[5])
     hydro_x25519_sub(z2, x2, z2); // z2 = B
     hydro_x25519_add(x2, x3, z3); // x2 = C
     hydro_x25519_sub(z3, x3, z3); // z3 = D
-    hydro_x25519_mul1(z3, t1);    // z3 = DA
-    hydro_x25519_mul1(x2, z2);    // x3 = BC
+    hydro_x25519_mul1(z3, t1); // z3 = DA
+    hydro_x25519_mul1(x2, z2); // x3 = BC
     hydro_x25519_add(x3, z3, x2); // x3 = DA+CB
     hydro_x25519_sub(z3, z3, x2); // z3 = DA-CB
-    hydro_x25519_sqr1(t1);        // t1 = AA
-    hydro_x25519_sqr1(z2);        // z2 = BB
+    hydro_x25519_sqr1(t1); // t1 = AA
+    hydro_x25519_sqr1(z2); // z2 = BB
     hydro_x25519_sub(x2, t1, z2); // x2 = E = AA-BB
     hydro_x25519_mul(z2, x2, hydro_x25519_a24, // z2 = E*a24
                      sizeof(hydro_x25519_a24) / sizeof(hydro_x25519_a24[0]));
@@ -241,12 +241,12 @@ hydro_x25519_ladder_part2(hydro_x25519_fe xs[5], const hydro_x25519_fe x1)
 {
     hydro_x25519_limb_t *x2 = xs[0], *z2 = xs[1], *x3 = xs[2], *z3 = xs[3], *t1 = xs[4];
 
-    hydro_x25519_sqr1(z3);        // z3 = (DA-CB)^2
-    hydro_x25519_mul1(z3, x1);    // z3 = x1 * (DA-CB)^2
-    hydro_x25519_sqr1(x3);        // x3 = (DA+CB)^2
-    hydro_x25519_mul1(z2, x2);    // z2 = AA*(E*a24+AA)
+    hydro_x25519_sqr1(z3); // z3 = (DA-CB)^2
+    hydro_x25519_mul1(z3, x1); // z3 = x1 * (DA-CB)^2
+    hydro_x25519_sqr1(x3); // x3 = (DA+CB)^2
+    hydro_x25519_mul1(z2, x2); // z2 = AA*(E*a24+AA)
     hydro_x25519_sub(x2, t1, x2); // x2 = BB again
-    hydro_x25519_mul1(x2, t1);    // x2 = AA*BB
+    hydro_x25519_mul1(x2, t1); // x2 = AA*BB
 }
 
 static void
