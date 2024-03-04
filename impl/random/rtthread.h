@@ -1,12 +1,13 @@
-#include <rtthread.h>
 #include <hw_rng.h>
+#include <rtthread.h>
 
 #define DBG_TAG "libhydrogen"
 #define DBG_LVL DBG_LOG
 #include <rtdbg.h>
 
 static int
-hydrogen_init(void) {
+hydrogen_init(void)
+{
     if (hydro_init() != 0) {
         abort();
     }

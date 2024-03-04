@@ -58,4 +58,6 @@ hydro_random_init(void)
     return 0;
 }
 
-ISR(WDT_vect) { }
+ISR(WDT_vect)
+{
+}

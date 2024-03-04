@@ -14,8 +14,7 @@ hydro_random_init(void)
 {
     trngStart(&TRNGD1, NULL);
 
-    if (trngGenerate(&TRNGD1, sizeof hydro_random_context.state,
-                     hydro_random_context.state)) {
+    if (trngGenerate(&TRNGD1, sizeof hydro_random_context.state, hydro_random_context.state)) {
         return -1;
     }
     hydro_random_context.counter = ~LOAD64_LE(hydro_random_context.state);

@@ -1,11 +1,11 @@
 // Important: RF *must* be activated on ESP board
 // https://techtutorialsx.com/2017/12/22/esp32-arduino-random-number-generation/
 #ifdef ESP32
-#include <esp_system.h>
+#    include <esp_system.h>
 #endif
 
 #ifdef ARDUINO
-#include <Arduino.h>
+#    include <Arduino.h>
 #endif
 
 static int

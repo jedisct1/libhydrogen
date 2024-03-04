@@ -1,7 +1,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #ifdef __linux__
-#include <poll.h>
+#    include <poll.h>
 #endif
 #include <sys/types.h>
 #include <unistd.h>

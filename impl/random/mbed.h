@@ -40,5 +40,5 @@ hydro_random_init(void)
     return 0;
 }
 #else
-#error Need an entropy source
+#    error Need an entropy source
 #endif
