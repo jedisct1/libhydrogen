@@ -7,8 +7,10 @@
 #include <stdlib.h>
 #endif
 
+#ifndef __cplusplus
 #ifdef __GNUC__
 #pragma GCC diagnostic ignored "-Wdeclaration-after-statement"
+#endif
 #endif
 
 #ifdef __cplusplus
