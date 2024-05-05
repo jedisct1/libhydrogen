@@ -33,6 +33,8 @@ static TLS struct {
 #    include "random/rtthread.h"
 #elif defined(CH32V30x_D8) || defined(CH32V30x_D8C)
 #    include "random/ch32.h"
+#elif defined(CH32V0XX)
+#    include "random/ch32v0xx.h"
 #elif defined(CHIBIOS)
 #    include "random/chibios.h"
 #else
