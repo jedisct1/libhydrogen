@@ -1,7 +1,7 @@
 /**********************************************************************************
  * File Name          : ch32v0xx.h (Tentative)
  * Author             : Charles Lee Scoville
- * Version            : V0.0.1 (PoC)
+ * Version            : V0.0.2 (Pull request #153 modifications)
  * Start Date         : 2024/01/02
  * Description        : TRNG initialization shim
  *
@@ -23,9 +23,60 @@
 
 #include <ch32v00x.h>
 
-/* The following external function will be defined in end user code, and should
- * be everything this shim needs beyond itself to work properly. */
-extern uint32_t RNG_GetCondensedEntropy(void);
+/* This must be defined in your CH32V003 project, and must be filled with raw /
+ * unfiltered samples from the internal reference voltage, as the name implies*/
+extern uint16_t ADC_Channel_Vrefint_value;
+
+
+uint32_t entropy_condenser_extractor(void) {
+
+	volatile uint64_t entropy_buffer = 0;
+	volatile uint8_t entropy_buffer_count = 0;
+
+	volatile uint32_t extract = 0;
+	volatile uint8_t extract_count = 0;
+	volatile FlagStatus extract_RDY = RESET;
+
+	if ( !((ADC1->CTLR2 & 1) != 0) )
+		while(1); /* ADC1 OFF!!! PANIK! */
+
+    while (extract_RDY == RESET) {
+
+    	volatile uint32_t compare = ADC_Channel_Vrefint_value;
+
+		/* Wait for new ADC data */
+		while (compare == ADC_Channel_Vrefint_value)
+			__NOP();
+
+
+		entropy_buffer = entropy_buffer << 1;
+
+		entropy_buffer = entropy_buffer + ((ADC_Channel_Vrefint_value & 0x40) == 0x40);
+
+		entropy_buffer_count++;
+		if (entropy_buffer_count > 63) {
+			entropy_buffer_count = 0;
+
+			for (uint8_t j = 0; (j < 31); j++) {
+
+				/* 64->32 bit Von Neuman extractor */
+				if ((entropy_buffer & 1) ^ ((entropy_buffer >> 1) & 1)) {
+					extract = (extract << 1)+((entropy_buffer >> 1) & 1);
+					extract_count++;
+				}
+
+				entropy_buffer = entropy_buffer >> 2;
+
+				if (extract_count > 31) {
+					extract_count = 0;
+					extract_RDY = SET;
+				}
+			}
+		}
+    }
+	return extract;
+}
+
 
 extern int hydro_random_init(void) {
     const char       ctx[hydro_hash_CONTEXTBYTES] = {'h','y','d','r','o','P','R','G'};
@@ -36,14 +87,14 @@ extern int hydro_random_init(void) {
 
     while (ebits < 512) {
 
-        uint32_t r = RNG_GetCondensedEntropy();
+        uint32_t r = entropy_condenser_extractor();
 
         hydro_hash_update(&st, (const uint32_t *) &r, sizeof r);
         ebits += 32;
     }
 
-    hydro_hash_final(&st, hydro_random_context.state, sizeof hydro_random_context.state); // @suppress("Field cannot be resolved")
-    hydro_random_context.counter = ~LOAD64_LE(hydro_random_context.state); // @suppress("Field cannot be resolved")
+    hydro_hash_final(&st, hydro_random_context.state, sizeof hydro_random_context.state);
+    hydro_random_context.counter = ~LOAD64_LE(hydro_random_context.state);
 
     return 0;
 }
