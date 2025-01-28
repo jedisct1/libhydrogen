@@ -11,8 +11,6 @@ hydro_random_init(void)
 
     while (ebits < 256) {
         uint32_t r = rand_32();
-        
-        //delay(10);
         hydro_hash_update(&st, (const uint32_t *) &r, sizeof r);
         ebits += 32;
     }
