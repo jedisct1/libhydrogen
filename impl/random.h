@@ -35,6 +35,8 @@ static TLS struct {
 #    include "random/ch32.h"
 #elif defined(CHIBIOS)
 #    include "random/chibios.h"
+#elif defined(__CHERIOT__)
+#    include "random/cheriot.h"
 #else
 #    error Unsupported platform
 #endif
