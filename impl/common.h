@@ -14,6 +14,10 @@ static int errno;
 #    include <string.h>
 #endif
 
+#if defined (__CHERIOT__)
+static int errno;
+#endif
+
 #if !defined(__unix__) && (defined(__APPLE__) || defined(__linux__))
 #    define __unix__ 1
 #endif
