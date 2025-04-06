@@ -1,6 +1,7 @@
 .{
-    .name = "libhydrogen",
+    .name = .libhydrogen,
     .version = "1.0.0",
+    .fingerprint = 0x98fa0ad39dcdc390,
 
     .paths = .{
         "build.zig",
