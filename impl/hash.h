@@ -94,7 +94,9 @@ hydro_hash_final(hydro_hash_state *state, uint8_t *out, size_t out_len)
     size_t   lc_len;
     size_t   leftover;
 
-    if (out_len < hydro_hash_BYTES_MIN || out_len > hydro_hash_BYTES_MAX) {
+    if (out_len == 0) {
+        /* allow callers to finalize without producing output */
+    } else if (out_len < hydro_hash_BYTES_MIN || out_len > hydro_hash_BYTES_MAX || out == NULL) {
         return -1;
     }
     COMPILER_ASSERT(hydro_hash_BYTES_MAX <= 0xffff);
