@@ -37,6 +37,11 @@ static TLS struct {
 #    include "random/chibios.h"
 #elif defined(__CHERIOT__)
 #    include "random/cheriot.h"
+#elif defined(PICO_BUILD)
+#    ifndef LIB_PICO_RAND
+#        error pico-sdk detected but pico_rand not configured
+#    endif
+#    include "random/pico-sdk.h"
 #else
 #    error Unsupported platform
 #endif
