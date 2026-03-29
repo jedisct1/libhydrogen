@@ -26,7 +26,7 @@ hydro_random_init(void)
             if (sd_rand_application_vector_get(rand_buffer, available_bytes) != NRF_SUCCESS) {
                 return -1;
             }
-            hydro_hash_update(&st, rand_buffer, total_bytes);
+            hydro_hash_update(&st, rand_buffer, available_bytes);
             remaining_bytes -= available_bytes;
         }
         if (remaining_bytes <= 0) {
