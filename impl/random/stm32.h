@@ -32,7 +32,9 @@ hydro_random_init(void)
     SET_BIT(RNG->CR, RNG_CR_RNGEN);
 #    elif defined(STM32L4)
     RngHandle.Instance = RNG;
-    HAL_RNG_Init(&RngHandle);
+    if (HAL_RNG_Init(&RngHandle) != HAL_OK) {
+        return -1;
+    }
 #    endif
 
     hydro_hash_init(&st, ctx, NULL);
