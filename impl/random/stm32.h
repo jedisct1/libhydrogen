@@ -53,7 +53,7 @@ hydro_random_init(void)
         r = RNG->DR;
 #    elif defined(STM32L4)
         if (HAL_RNG_GenerateRandomNumber(&RngHandle, &r) != HAL_OK) {
-            continue;
+            return -1;
         }
 #    endif
         hydro_hash_update(&st, (const uint32_t *) &r, sizeof r);
