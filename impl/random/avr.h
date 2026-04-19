@@ -20,8 +20,12 @@ hydro_random_init(void)
     hydro_hash_state st;
     uint16_t         ebits = 0;
     uint16_t         tc;
+    uint8_t          mcusr;
+    uint8_t          wdtcsr;
     bool             a, b;
 
+    mcusr  = MCUSR;
+    wdtcsr = WDTCSR;
     cli();
     MCUSR = 0;
     WDTCSR |= _BV(WDCE) | _BV(WDE);
@@ -47,9 +51,9 @@ hydro_random_init(void)
     }
 
     cli();
-    MCUSR = 0;
+    MCUSR = mcusr;
     WDTCSR |= _BV(WDCE) | _BV(WDE);
-    WDTCSR = 0;
+    WDTCSR = wdtcsr;
     sei();
 
     hydro_hash_final(&st, hydro_random_context.state, sizeof hydro_random_context.state);
