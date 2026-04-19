@@ -42,7 +42,12 @@ hydro_random_init(void)
     while (ebits < 256) {
         uint32_t r = 0;
 #    if defined(STM32F4)
+        uint32_t timeout = 0x100000U;
+
         while (!(READ_BIT(RNG->SR, RNG_SR_DRDY))) {
+            if (timeout-- == 0U) {
+                return -1;
+            }
         }
 
         r = RNG->DR;
