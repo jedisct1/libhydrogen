@@ -23,7 +23,9 @@ hydro_random_init(void)
     while (ebits < 256) {
         uint32_t r = esp_random();
 
+#ifdef ARDUINO
         delay(10);
+#endif
         hydro_hash_update(&st, (const uint32_t *) &r, sizeof r);
         ebits += 32;
     }
