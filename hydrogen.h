@@ -5,6 +5,18 @@
 #    include <stdbool.h>
 #    include <stdint.h>
 #    include <stdlib.h>
+#else
+/* In-kernel build: the C library headers above do not exist, so the fixed
+   width types and the kernel's own memcpy/random come from linux/ instead.
+   Without this the __KERNEL__ branch suppresses <stdint.h> and supplies
+   nothing back, and the header fails on the first uint32_t it declares. */
+#    include <linux/types.h>
+#    include <linux/string.h>
+#    include <linux/random.h>
+typedef __u64 uint64_t;
+typedef __u32 uint32_t;
+typedef __u16 uint16_t;
+typedef __u8  uint8_t;
 #endif
 
 #if !defined(__cplusplus) && defined(__GNUC__)
