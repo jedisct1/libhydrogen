@@ -5,6 +5,10 @@
 #    include <stdbool.h>
 #    include <stdint.h>
 #    include <stdlib.h>
+#else
+#    include <linux/random.h>
+#    include <linux/string.h>
+#    include <linux/types.h>
 #endif
 
 #if !defined(__cplusplus) && defined(__GNUC__)
