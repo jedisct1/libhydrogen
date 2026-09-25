@@ -1,7 +1,6 @@
 [![CI](https://github.com/jedisct1/libhydrogen/actions/workflows/ci.yml/badge.svg)](https://github.com/jedisct1/libhydrogen/actions/workflows/ci.yml)
 [![CodeQL scan](https://github.com/jedisct1/libhydrogen/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/jedisct1/libhydrogen/actions/workflows/codeql-analysis.yml)
 [![Financial Contributors on Open Collective](https://opencollective.com/libhydrogen/all/badge.svg?label=financial+contributors)](https://opencollective.com/libhydrogen) [![Coverity Scan Build Status](https://scan.coverity.com/projects/13315/badge.svg)](https://scan.coverity.com/projects/13315)
-[![TrustInSoft CI](https://ci.trust-in-soft.com/projects/jedisct1/libhydrogen.svg?branch=master)](https://ci.trust-in-soft.com/projects/jedisct1/libhydrogen)
 
 ![libhydrogen](https://raw.github.com/jedisct1/libhydrogen/master/logo.png)
 ==============
@@ -34,5 +33,5 @@ The legacy libhydrogen code (leveraging XChaCha20, SipHashX, BLAKE2SX, Curve2551
 
 ### Code Contributors
 
-This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+This project exists thanks to all the people who contribute.
 <a href="https://github.com/jedisct1/libhydrogen/graphs/contributors"><img src="https://opencollective.com/libhydrogen/contributors.svg?width=890&button=false" /></a>
