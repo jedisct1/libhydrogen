@@ -17,8 +17,9 @@ hydro_random_init(void)
         return -1;
     }
     // mbedtls_entropy_func can't provide more than MBEDTLS_ENTROPY_BLOCK_SIZE in one go.
-    // This constant depends of mbedTLS configuration (whether the PRNG is backed by SHA256/SHA512
-    // at this time) Therefore, if necessary, we get entropy multiple times.
+    // This constant depends on the mbedTLS configuration (whether the PRNG is backed by SHA256/SHA512
+    // at this time).
+    // Therefore, if necessary, we get entropy multiple times.
 
     do {
         const uint8_t dataLeftToConsume = gimli_BLOCKBYTES - pos;
@@ -26,7 +27,7 @@ hydro_random_init(void)
                                               ? MBEDTLS_ENTROPY_BLOCK_SIZE
                                               : dataLeftToConsume;
 
-        // Forces mbedTLS to fetch fresh entropy, then get some to feed libhydrogen.
+        // Force mbedTLS to fetch fresh entropy, then get some to feed libhydrogen.
         if (mbedtls_entropy_gather(&entropy) != 0 ||
             mbedtls_entropy_func(&entropy, &hydro_random_context.state[pos], currentChunkSize) !=
                 0) {

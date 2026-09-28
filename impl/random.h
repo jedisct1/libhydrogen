@@ -97,8 +97,8 @@ hydro_random_uniform(const uint32_t upper_bound)
     do {
         r = hydro_random_u32();
     } while (r < min);
-    /* r is now clamped to a set whose size mod upper_bound == 0
-     * the worst case (2**31+1) requires 2 attempts on average */
+    /* r is now clamped to a set whose size modulo upper_bound is zero.
+     * The worst case (2**31+1) requires 2 attempts on average. */
 
     return r % upper_bound;
 }

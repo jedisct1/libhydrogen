@@ -14,7 +14,7 @@ hydro_random_init(void)
     // Enable RNG clock source
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_RNG, ENABLE);
 
-    // RNG Peripheral enable
+    // Enable the RNG peripheral
     RNG_Cmd(ENABLE);
 
     hydro_hash_init(&st, ctx, NULL);

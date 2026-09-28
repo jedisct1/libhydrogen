@@ -225,7 +225,7 @@ hydro_x25519_ladder_part1(hydro_x25519_fe xs[5])
     hydro_x25519_add(x2, x3, z3); // x2 = C
     hydro_x25519_sub(z3, x3, z3); // z3 = D
     hydro_x25519_mul1(z3, t1); // z3 = DA
-    hydro_x25519_mul1(x2, z2); // x3 = BC
+    hydro_x25519_mul1(x2, z2); // x2 = BC
     hydro_x25519_add(x3, z3, x2); // x3 = DA+CB
     hydro_x25519_sub(z3, z3, x2); // z3 = DA-CB
     hydro_x25519_sqr1(t1); // t1 = AA

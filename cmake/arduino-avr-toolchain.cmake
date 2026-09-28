@@ -1,6 +1,6 @@
 # Cross-compilation file for the Arduino/AVR toolchain.
 
-# To use, pass -DCMAKE_TOOLCHAIN_FILE=cmake/arduino-avr-toolchain.cmake in your CMake command line.
+# To use, pass -DCMAKE_TOOLCHAIN_FILE=cmake/arduino-avr-toolchain.cmake on the CMake command line.
 # You can specify the target device MCU identifier with -DHYDROGEN_ARDUINO_AVR_TARGET_DEVICE=XXX.
 
 cmake_minimum_required(VERSION 3.12)
@@ -34,7 +34,7 @@ endif()
 
 get_setting(sdk_dir PATH "Arduino SDK home directory.")
 
-# Try ARDUINO_SDK_PATH environment variable.
+# Try the ARDUINO_SDK_PATH environment variable.
 if(NOT sdk_dir)
   if(DEFINED ENV{ARDUINO_SDK_PATH})
     set(sdk_dir "$ENV{ARDUINO_SDK_PATH}")

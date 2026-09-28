@@ -1,6 +1,6 @@
 # Cross-compilation file for WebAssembly with WASI.
 
-# To use, pass -DCMAKE_TOOLCHAIN_FILE=cmake/wasm32-wasi-toolchain.cmake in your CMake command line.
+# To use, pass -DCMAKE_TOOLCHAIN_FILE=cmake/wasm32-wasi-toolchain.cmake on the CMake command line.
 # You'll also need to specify a sysroot directory with -DHYDROGEN_WASM32_WASI_SYSROOT_DIR=XXX.
 
 cmake_minimum_required(VERSION 3.12)

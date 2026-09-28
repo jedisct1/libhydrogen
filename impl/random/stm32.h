@@ -28,7 +28,7 @@ hydro_random_init(void)
     tmpreg = READ_BIT(RCC->AHB2ENR, RCC_AHB2ENR_RNGEN);
     UNUSED(tmpreg);
 
-    // RNG Peripheral enable
+    // Enable the RNG peripheral
     SET_BIT(RNG->CR, RNG_CR_RNGEN);
 #    elif defined(STM32L4)
     RngHandle.Instance = RNG;
