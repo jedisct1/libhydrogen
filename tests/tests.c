@@ -177,6 +177,33 @@ test_core(void)
 }
 
 static void
+test_pad(void)
+{
+    unsigned char buf[100];
+    size_t        blocksize;
+    size_t        len;
+    int           padded_len;
+
+    for (blocksize = 1U; blocksize <= 33U; blocksize++) {
+        for (len = 0U; len < 64U; len++) {
+            memset(buf, 0xaa, sizeof buf);
+            padded_len = hydro_pad(buf, len, blocksize, sizeof buf);
+            assert((size_t) padded_len == (len / blocksize + 1U) * blocksize);
+            assert(hydro_unpad(buf, (size_t) padded_len, blocksize) == (int) len);
+            buf[padded_len - 1] ^= 1U;
+            assert(hydro_unpad(buf, (size_t) padded_len, blocksize) == -1);
+        }
+    }
+    assert(hydro_pad(buf, 96, 16, sizeof buf) == -1);
+    assert(hydro_pad(buf, 10, 0, sizeof buf) == -1);
+
+    memset(buf, 0, sizeof buf);
+    assert(hydro_unpad(buf, 16, 16) == -1);
+    assert(hydro_unpad(buf, 15, 16) == -1);
+    assert(hydro_unpad(buf, 16, 0) == -1);
+}
+
+static void
 test_secretbox(void)
 {
     uint8_t key[hydro_secretbox_KEYBYTES];
@@ -484,6 +511,7 @@ main(void)
     test_kx_kk();
     test_kx_xx();
     test_kx_nk();
+    test_pad();
     test_pwhash();
     test_randombytes();
     test_secretbox();
