@@ -48,6 +48,8 @@ static const uint8_t hydro_x25519_BASE_POINT[hydro_x25519_BYTES] = { 9 };
 
 static const hydro_x25519_limb_t hydro_x25519_a24[1] = { 121665 };
 
+static volatile hydro_x25519_limb_t hydro_x25519_optblocker;
+
 static inline hydro_x25519_limb_t
 hydro_x25519_umaal(hydro_x25519_limb_t *carry, hydro_x25519_limb_t acc, hydro_x25519_limb_t mand,
                    hydro_x25519_limb_t mier)
@@ -93,7 +95,7 @@ hydro_x25519_propagate(hydro_x25519_fe x, hydro_x25519_limb_t over)
 static void
 hydro_x25519_add(hydro_x25519_fe out, const hydro_x25519_fe a, const hydro_x25519_fe b)
 {
-    hydro_x25519_limb_t carry = 0;
+    hydro_x25519_limb_t carry = hydro_x25519_optblocker;
     int                 i;
 
     for (i = 0; i < hydro_x25519_NLIMBS; i++) {

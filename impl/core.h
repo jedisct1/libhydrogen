@@ -191,31 +191,33 @@ hydro_pad(unsigned char *buf, size_t unpadded_buflen, size_t blocksize, size_t m
     return (int) (xpadded_len + 1);
 }
 
+static volatile size_t hydro_optblocker_size;
+
 int
 hydro_unpad(const unsigned char *buf, size_t padded_buflen, size_t blocksize)
 {
     const unsigned char *tail;
-    unsigned char        acc = 0U;
-    unsigned char        c;
-    unsigned char        valid   = 0U;
-    volatile size_t      pad_len = 0U;
+    size_t               acc;
+    size_t               valid   = 0U;
+    size_t               pad_len = 0U;
+    size_t               one;
     size_t               i;
-    size_t               is_barrier;
 
     if (padded_buflen < blocksize || blocksize <= 0U) {
         return -1;
     }
+    acc  = hydro_optblocker_size;
+    one  = 1U ^ acc;
     tail = &buf[padded_buflen - 1U];
 
     for (i = 0U; i < blocksize; i++) {
-        c          = *(tail - i);
-        is_barrier = (((acc - 1U) & (pad_len - 1U) & ((c ^ 0x80) - 1U)) >> 8) & 1U;
-        acc |= c;
-        pad_len |= i & (1U + ~is_barrier);
-        valid |= (unsigned char) is_barrier;
+        acc |= *(tail - i);
+        pad_len += ((acc - 1U) >> 8) & one;
+        valid |= (acc ^ 0x80) - 1U;
     }
-    if (valid == 0) {
+    valid = (valid >> 8) & one;
+    if (valid == 0U) {
         return -1;
     }
-    return (int) (padded_buflen - 1 - pad_len);
+    return (int) (padded_buflen - 1U - pad_len);
 }
