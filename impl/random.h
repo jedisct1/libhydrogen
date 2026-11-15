@@ -17,8 +17,8 @@ static TLS struct {
 #    include "random/nrf52832.h"
 #elif defined(_WIN32)
 #    include "random/windows.h"
-#elif defined(__wasi__)
-#    include "random/wasi.h"
+#elif defined(__wasm__) && !defined(__EMSCRIPTEN__)
+#    include "random/wasm.h"
 #elif defined(__linux__) && defined(__KERNEL__)
 #    include "random/linux_kernel.h"
 #elif defined(__unix__)

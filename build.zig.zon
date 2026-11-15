@@ -6,6 +6,7 @@
     .paths = .{
         "build.zig",
         "build.zig.zon",
+        "builds",
         "hydrogen.c",
         "hydrogen.h",
         "impl",

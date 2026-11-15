@@ -101,6 +101,18 @@ target_include_directories("${PROJECT_NAME}"
 
 target_compile_options("${PROJECT_NAME}" PRIVATE ${compile_options})
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Generic" AND CMAKE_SYSTEM_PROCESSOR STREQUAL "wasm32")
+  set(wasm_libc_dir "builds/wasm32-freestanding")
+  option(HYDROGEN_WASM32_FREESTANDING_LIBC
+         "Include the built-in libc compatibility layer for wasm32-freestanding." ON)
+
+  target_include_directories("${PROJECT_NAME}" SYSTEM
+                             PRIVATE "${PROJECT_SOURCE_DIR}/${wasm_libc_dir}/include")
+  if(HYDROGEN_WASM32_FREESTANDING_LIBC)
+    target_sources("${PROJECT_NAME}" PRIVATE "${wasm_libc_dir}/libc.c")
+  endif()
+endif()
+
 # Installation
 
 set(targets_export_name "${PROJECT_NAME}-targets")
