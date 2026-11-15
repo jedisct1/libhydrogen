@@ -127,6 +127,7 @@ hydro_equal(const void *b1_, const void *b2_, size_t len)
     const uint8_t *b2                   = (const uint8_t *) b2_;
     size_t         i;
     uint8_t        d = (uint8_t) 0U;
+    uint32_t       x;
 
     if (b1 == b2) {
         d = ~d;
@@ -134,25 +135,30 @@ hydro_equal(const void *b1_, const void *b2_, size_t len)
     for (i = 0U; i < len; i++) {
         d |= b1[i] ^ b2[i];
     }
-    return (bool) (1 & ((d - 1) >> 8));
+    x = (uint32_t) d - 1U;
+
+    return (bool) (((x >> 29) ^ hydro_optblocker_u32) >> 2);
 }
 
 int
 hydro_compare(const uint8_t *b1_, const uint8_t *b2_, size_t len)
 {
     const volatile uint8_t *volatile b1 = (const volatile uint8_t *volatile) b1_;
-    const uint8_t *b2                   = (const uint8_t *) b2_;
-    uint8_t        gt                   = 0U;
-    uint8_t        eq                   = 1U;
-    size_t         i;
+    const uint8_t   *b2                 = (const uint8_t *) b2_;
+    volatile uint8_t gt                 = 0U;
+    volatile uint8_t eq                 = 1U;
+    uint16_t         x1, x2;
+    size_t           i;
 
     i = len;
     while (i != 0U) {
         i--;
-        gt |= ((b2[i] - b1[i]) >> 8) & eq;
-        eq &= ((b2[i] ^ b1[i]) - 1) >> 8;
+        x1 = b1[i];
+        x2 = b2[i];
+        gt |= (((unsigned int) x2 - (unsigned int) x1) >> 8) & eq;
+        eq &= (((unsigned int) (x2 ^ x1)) - 1U) >> 8;
     }
-    return (int) (gt + gt + eq) - 1;
+    return (int) (2U * gt + eq) - 1;
 }
 
 int

@@ -36,6 +36,8 @@ hydro_mem_ct_zero_u32(uint32_t *dst_, size_t n)
     }
 }
 
+static volatile uint32_t hydro_optblocker_u32;
+
 static inline uint32_t hydro_mem_ct_cmp_u32(const uint32_t *b1_, const uint32_t *b2,
                                             size_t n) _hydro_attr_warn_unused_result_;
 
@@ -49,7 +51,7 @@ hydro_mem_ct_cmp_u32(const uint32_t *b1_, const uint32_t *b2, size_t n)
     for (i = 0; i < n; i++) {
         cv |= b1[i] ^ b2[i];
     }
-    return cv;
+    return cv ^ hydro_optblocker_u32;
 }
 
 /* ---------------- */

@@ -107,7 +107,7 @@ hydro_x25519_add(hydro_x25519_fe out, const hydro_x25519_fe a, const hydro_x2551
 static void
 hydro_x25519_sub(hydro_x25519_fe out, const hydro_x25519_fe a, const hydro_x25519_fe b)
 {
-    hydro_x25519_sdlimb_t carry = -76;
+    hydro_x25519_sdlimb_t carry = (hydro_x25519_sdlimb_t) hydro_x25519_optblocker - 76;
     int                   i;
 
     for (i = 0; i < hydro_x25519_NLIMBS; i++) {
@@ -187,10 +187,11 @@ static void
 hydro_x25519_condswap(hydro_x25519_limb_t a[2 * hydro_x25519_NLIMBS],
                       hydro_x25519_limb_t b[2 * hydro_x25519_NLIMBS], hydro_x25519_limb_t doswap)
 {
-    int i;
+    const hydro_x25519_limb_t mask = doswap ^ hydro_x25519_optblocker;
+    int                       i;
 
     for (i = 0; i < 2 * hydro_x25519_NLIMBS; i++) {
-        hydro_x25519_limb_t xorv = (a[i] ^ b[i]) & doswap;
+        hydro_x25519_limb_t xorv = (a[i] ^ b[i]) & mask;
         a[i] ^= xorv;
         b[i] ^= xorv;
     }
@@ -199,16 +200,17 @@ hydro_x25519_condswap(hydro_x25519_limb_t a[2 * hydro_x25519_NLIMBS],
 static int
 hydro_x25519_canon(hydro_x25519_fe x)
 {
-    hydro_x25519_sdlimb_t carry;
-    hydro_x25519_limb_t   carry0 = 19;
-    hydro_x25519_limb_t   res;
-    int                   i;
+    const hydro_x25519_limb_t zero = hydro_x25519_optblocker;
+    hydro_x25519_sdlimb_t     carry;
+    hydro_x25519_limb_t       carry0 = 19 ^ zero;
+    hydro_x25519_limb_t       res;
+    int                       i;
 
     for (i = 0; i < hydro_x25519_NLIMBS; i++) {
         x[i] = hydro_x25519_adc0(&carry0, x[i]);
     }
     hydro_x25519_propagate(x, carry0);
-    carry = -19;
+    carry = (hydro_x25519_sdlimb_t) zero - 19;
     res   = 0;
     for (i = 0; i < hydro_x25519_NLIMBS; i++) {
         res |= x[i] = (hydro_x25519_limb_t) (carry += x[i]);
@@ -349,8 +351,9 @@ static void
 hydro_x25519_sc_montmul(hydro_x25519_scalar_t out, const hydro_x25519_scalar_t a,
                         const hydro_x25519_scalar_t b)
 {
-    hydro_x25519_limb_t hic = 0;
-    int                 i, j;
+    const hydro_x25519_limb_t zero = hydro_x25519_optblocker;
+    hydro_x25519_limb_t       hic  = zero;
+    int                       i, j;
 
     for (i = 0; i < hydro_x25519_NLIMBS; i++) {
         hydro_x25519_limb_t carry = 0, carry2 = 0, mand = a[i],
@@ -374,12 +377,12 @@ hydro_x25519_sc_montmul(hydro_x25519_scalar_t out, const hydro_x25519_scalar_t a
     }
 
     /* Reduce */
-    hydro_x25519_sdlimb_t scarry = 0;
+    hydro_x25519_sdlimb_t scarry = (hydro_x25519_sdlimb_t) zero;
     for (i = 0; i < hydro_x25519_NLIMBS; i++) {
         out[i] = (hydro_x25519_limb_t) (scarry = scarry + out[i] - hydro_x25519_sc_p[i]);
         scarry >>= hydro_x25519_WBITS;
     }
-    hydro_x25519_limb_t need_add = (hydro_x25519_limb_t) - (scarry + hic);
+    hydro_x25519_limb_t need_add = ((hydro_x25519_limb_t) - (scarry + hic)) ^ zero;
 
     hydro_x25519_limb_t carry = 0;
     for (i = 0; i < hydro_x25519_NLIMBS; i++) {
