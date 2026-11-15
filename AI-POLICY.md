@@ -10,7 +10,7 @@ The maintainers also care about the code itself, not just whether it works.
 
 We want it to stay consistent, easy to read, and comfortable to work on, years from now, for actual human beings.
 
-Code that nobody can follow is code that eventually turns into a liability, no matter how well it tests.
+Code that nobody can follow is code that eventually turns into a liability, no matter how well it is tested.
 
 So here is our policy on AI.
 
@@ -34,7 +34,7 @@ This project runs on human interaction, and we would like to keep it that way.
 
 Please talk to us as a person, like a person.
 
-That said, if an AI agent found something interesting, a bug, a missing feature, a performance issue, we are still happy to hear about it.
+That said, if an AI agent finds something interesting, like a bug, a missing feature, or a performance issue, we are still happy to hear about it.
 
 Just do the homework first.
 
