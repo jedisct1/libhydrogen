@@ -173,7 +173,8 @@ test_core(void)
     assert(hydro_hex2bin(x, sizeof x, hex, sizeof "#452a", NULL, &hexf) == 0);
     assert(hexf == hex);
     assert(hydro_hex2bin(x, sizeof x, hex, sizeof "#452a", "#", &hexf) == 2);
-    assert(hexf == hex + 6);
+    assert(hexf == hex + 5);
+    assert(hydro_hex2bin(x, sizeof x, "4142\0" "4344", 9, "", NULL) == -1);
 }
 
 static void

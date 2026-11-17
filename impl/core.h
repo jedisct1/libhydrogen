@@ -80,7 +80,7 @@ hydro_hex2bin(uint8_t *bin, size_t bin_maxlen, const char *hex, size_t hex_len, 
         c_alpha  = (c & ~32U) - 55U;
         c_alpha0 = ((c_alpha - 10U) ^ (c_alpha - 16U)) >> 8;
         if ((c_num0 | c_alpha0) == 0U) {
-            if (ignore != NULL && state == 0U && strchr(ignore, c) != NULL) {
+            if (ignore != NULL && state == 0U && c != 0U && strchr(ignore, c) != NULL) {
                 hex_pos++;
                 continue;
             }
