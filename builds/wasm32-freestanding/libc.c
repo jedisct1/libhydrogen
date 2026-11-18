@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#undef strchr
+#undef strlen
+
 int errno;
 
 _Noreturn void abort(void) {
